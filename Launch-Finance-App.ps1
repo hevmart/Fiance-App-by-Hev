@@ -127,20 +127,6 @@ function Get-PortOwnerProcessId {
 try {
     Write-LaunchLog "Launch requested"
 
-    $initialProcessIds = Get-AppProcessIds
-    if ($initialProcessIds.Count -gt 1) {
-        $portOwnerPid = Get-PortOwnerProcessId -Port $port
-        if ($portOwnerPid -gt 0 -and $initialProcessIds -contains $portOwnerPid) {
-            Write-LaunchLog "Duplicate app processes detected ($($initialProcessIds.Count)); keeping port owner PID $portOwnerPid"
-            Stop-AppProcessesExcept -KeepProcessId $portOwnerPid
-        }
-        else {
-            Write-LaunchLog "Duplicate app processes detected ($($initialProcessIds.Count)); terminating all to reset"
-            Stop-AppProcessesExcept
-        }
-        Start-Sleep -Milliseconds 500
-    }
-
     if (Test-HttpReady -TargetUrl $healthUrl -TimeoutSec 2) {
         Write-LaunchLog "Existing app HTTP endpoint is responsive"
         Start-Process -FilePath "explorer.exe" -ArgumentList $url | Out-Null
@@ -148,8 +134,15 @@ try {
         return
     }
 
+    $initialProcessIds = Get-AppProcessIds
+    if ($initialProcessIds.Count -gt 0) {
+        Write-LaunchLog "App processes detected ($($initialProcessIds.Count)) without a healthy endpoint; terminating all to reset"
+        Stop-AppProcessesExcept
+        Start-Sleep -Milliseconds 500
+    }
+
     if (Test-LocalPortListening -HostName "127.0.0.1" -Port $port -TimeoutMs 300) {
-        Write-LaunchLog "Stale listener detected on port $port; terminating owning process(es)"
+        Write-LaunchLog "Process(es) still listening on port $port; terminating owning process(es)"
         $stalePids = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
             Select-Object -ExpandProperty OwningProcess -Unique
         foreach ($stalePid in $stalePids) {
@@ -158,11 +151,8 @@ try {
         Start-Sleep -Milliseconds 600
     }
 
-    if (Test-HttpReady -TargetUrl $healthUrl -TimeoutSec 2) {
-        Write-LaunchLog "Existing app listener detected on port $port"
-        Start-Process -FilePath "explorer.exe" -ArgumentList $url | Out-Null
-        Write-LaunchLog "Browser open command issued (listener became healthy)"
-        return
+    if (Test-LocalPortListening -HostName "127.0.0.1" -Port $port -TimeoutMs 300) {
+        throw "Port $port is still in use after attempting to terminate existing processes."
     }
 
     if (-not (Test-Path $pythonPath)) {

@@ -45,6 +45,10 @@ CAPITAL_ASSETS_PATH = BASE_DIR / "capital-assets.json"
 PAYROLL_PATH = BASE_DIR / "payroll-register.json"
 BANK_STATEMENTS_PATH = BASE_DIR / "bank-statements.json"
 EXPENSE_OVERRIDES_PATH = BASE_DIR / "expense-overrides.json"
+
+if not SUBSCRIPTIONS_PATH.exists():
+    SUBSCRIPTIONS_PATH.write_text("[]", encoding="utf-8")
+
 _expense_override_lock = threading.Lock()
 _expense_write_lock = threading.Lock()
 _expense_breakdown_headers_ready = False
@@ -320,7 +324,7 @@ def _resolve_workbook_path() -> Path:
         [
             path
             for path in BASE_DIR.glob("H-Queex_Financial_Control*.xls*")
-            if path.is_file()
+            if path.is_file() and ".tmp-" not in path.name
         ],
         key=lambda path: path.name,
     )
@@ -336,7 +340,11 @@ def _resolve_workbook_path() -> Path:
     for candidate in candidates:
         if candidate.exists():
             return candidate
-    return WORKBOOK_PATH
+
+    searched = ", ".join(str(candidate) for candidate in candidates)
+    raise FileNotFoundError(
+        f"Could not locate the finance workbook. Looked in: {searched}"
+    )
 
 
 SHEET_HEADERS = {
@@ -1558,7 +1566,13 @@ def _save_workbook_atomic(wb, resolved_path: Path) -> None:
 
 def _append_row_to_sheet(sheet_name: str, values: dict[str, Any]) -> int:
     resolved_path = _resolve_workbook_path()
-    wb = load_workbook(resolved_path, data_only=False, keep_links=False)
+    try:
+        wb = load_workbook(resolved_path, data_only=False, keep_links=False)
+    except Exception as exc:
+        raise WorkbookWriteError(
+            f"Could not open the finance workbook at {resolved_path}: {exc}. "
+            "The file may be corrupted, incomplete, or still being written to."
+        ) from exc
     try:
         ws = wb[sheet_name]
         headers = _get_header_row(ws, sheet_name)
@@ -3132,11 +3146,24 @@ def _build_page_context(
 
 @lru_cache(maxsize=1)
 def load_finance_data() -> dict[str, Any]:
-    resolved_path = _resolve_workbook_path()
+    try:
+        resolved_path = _resolve_workbook_path()
+    except FileNotFoundError as exc:
+        return {"error": str(exc), "sheets": {}, "workbook_path": None}
+
     if not resolved_path.exists():
         return {"error": "Workbook not found", "sheets": {}, "workbook_path": None}
 
-    wb = load_workbook(resolved_path, data_only=True, read_only=True)
+    try:
+        wb = load_workbook(resolved_path, data_only=True, read_only=True)
+    except Exception as exc:
+        return {
+            "error": f"Could not open the finance workbook at {resolved_path}: {exc}. "
+            "The file may be corrupted, incomplete, or still being written to. "
+            "Close any programs that may have it open and try again.",
+            "sheets": {},
+            "workbook_path": str(resolved_path),
+        }
     try:
         sheets: dict[str, Any] = {}
         for sheet_name in ["Income", "Expenses", "Invoices", "AR", "AP", "VAT", "Clients", "Suppliers"]:
@@ -3630,7 +3657,7 @@ def apply_suggested_reconciliation():
             round(_coerce_number(item.get("amount_eur")), 2),
             str(item.get("payment_method") or "").strip().lower(),
         )
-        if not item_key[0] or item_key[1] <= 0 or not item_key[2]:
+        if not item_key[0] or item_key[1] <= 0:
             continue
         duplicate_key_counts[item_key] = duplicate_key_counts.get(item_key, 0) + 1
 
@@ -4216,14 +4243,8 @@ def update_expense():
             validation_tab="expenses",
             edit_row=row_number,
         )
-    try:
-        _update_row_in_sheet("Expenses", row_number, payload)
-        _upsert_capital_asset_from_expense(payload, row_number, active=payload.get("Capital Expenditure Flag") == "Yes")
-        load_finance_data.cache_clear()
-        _clear_expense_override(row_number)
-    except WorkbookWriteError:
-        _set_expense_override(row_number, payload)
-        _apply_expense_override_to_cached_data(row_number, payload)
+    _set_expense_override(row_number, payload)
+    _apply_expense_override_to_cached_data(row_number, payload)
 
     _record_audit("update", "expense", {"row_number": row_number, "record": payload})
     _record_ledger_entry("update", "expense", payload, source="workbook", row_number=row_number)
