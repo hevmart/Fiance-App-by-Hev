@@ -39,6 +39,7 @@ def workbook_copy(tmp_path):
 
     wb.save(dst)
     wb.close()
+    _seed_transaction_json(tmp_path)
     return dst
 
 
@@ -53,7 +54,12 @@ def isolated_subscription_file(tmp_path):
     original_capital_assets_path = app.CAPITAL_ASSETS_PATH
     original_payroll_path = app.PAYROLL_PATH
     original_bank_statements_path = app.BANK_STATEMENTS_PATH
-    original_expense_overrides_path = app.EXPENSE_OVERRIDES_PATH
+    original_income_path = app.INCOME_PATH
+    original_expenses_path = app.EXPENSES_PATH
+    original_invoices_path = app.INVOICES_PATH
+    original_clients_path = app.CLIENTS_PATH
+    original_suppliers_path = app.SUPPLIERS_PATH
+    original_sheet_json_paths = dict(app.SHEET_JSON_PATHS)
     app.SUBSCRIPTIONS_PATH = tmp_path / "subscriptions.json"
     app.ARCHIVE_PATH = tmp_path / "archives.json"
     app.AUDIT_LOG_PATH = tmp_path / "audit-log.json"
@@ -63,7 +69,19 @@ def isolated_subscription_file(tmp_path):
     app.CAPITAL_ASSETS_PATH = tmp_path / "capital-assets.json"
     app.PAYROLL_PATH = tmp_path / "payroll-register.json"
     app.BANK_STATEMENTS_PATH = tmp_path / "bank-statements.json"
-    app.EXPENSE_OVERRIDES_PATH = tmp_path / "expense-overrides.json"
+    app.INCOME_PATH = tmp_path / "income.json"
+    app.EXPENSES_PATH = tmp_path / "expenses.json"
+    app.INVOICES_PATH = tmp_path / "invoices.json"
+    app.CLIENTS_PATH = tmp_path / "clients.json"
+    app.SUPPLIERS_PATH = tmp_path / "suppliers.json"
+    app.SHEET_JSON_PATHS = {
+        "Income": app.INCOME_PATH,
+        "Expenses": app.EXPENSES_PATH,
+        "Invoices": app.INVOICES_PATH,
+        "Clients": app.CLIENTS_PATH,
+        "Suppliers": app.SUPPLIERS_PATH,
+    }
+    app.load_finance_data.cache_clear()
     yield
     app.SUBSCRIPTIONS_PATH = original_path
     app.ARCHIVE_PATH = original_archive_path
@@ -74,7 +92,86 @@ def isolated_subscription_file(tmp_path):
     app.CAPITAL_ASSETS_PATH = original_capital_assets_path
     app.PAYROLL_PATH = original_payroll_path
     app.BANK_STATEMENTS_PATH = original_bank_statements_path
-    app.EXPENSE_OVERRIDES_PATH = original_expense_overrides_path
+    app.INCOME_PATH = original_income_path
+    app.EXPENSES_PATH = original_expenses_path
+    app.INVOICES_PATH = original_invoices_path
+    app.CLIENTS_PATH = original_clients_path
+    app.SUPPLIERS_PATH = original_suppliers_path
+    app.SHEET_JSON_PATHS = original_sheet_json_paths
+    app.load_finance_data.cache_clear()
+
+
+def _seed_transaction_json(tmp_path):
+    (tmp_path / "income.json").write_text(
+        json.dumps([
+            {
+                "Date": "2026-07-29",
+                "Description": "Test income",
+                "Client / Source": "Client A",
+                "Category": "Travel",
+                "Invoice #": "INV-001",
+                "Amount (€)": 150.0,
+                "Status": "Paid",
+            }
+        ]),
+        encoding="utf-8",
+    )
+    (tmp_path / "expenses.json").write_text(
+        json.dumps([
+            {
+                "Date (Registered)": "2026-07-29",
+                "Title": "Travel",
+                "Description": "Hotel",
+                "Supplier / Payee": "Supplier A",
+                "Category": "Travel",
+                "Net Amount (€)": 100.0,
+                "Total (€)": 120.0,
+                "Status": "Pending",
+            }
+        ]),
+        encoding="utf-8",
+    )
+    (tmp_path / "invoices.json").write_text(
+        json.dumps([
+            {
+                "Invoice #": "INV-001",
+                "Issue Date": "2026-07-01",
+                "Due Date": "2026-07-31",
+                "Client Name": "Client A",
+                "Service / Product": "Brand Strategy",
+                "Net (€)": 500.0,
+                "Total (€)": 605.0,
+                "Balance Due (€)": 605.0,
+                "Status": "Sent",
+            }
+        ]),
+        encoding="utf-8",
+    )
+    (tmp_path / "clients.json").write_text(
+        json.dumps([
+            {
+                "Client Name": "Client A",
+                "Contact Person": "Jane",
+                "Email": "jane@example.com",
+                "Phone": "123",
+                "Country": "Belgium",
+            }
+        ]),
+        encoding="utf-8",
+    )
+    (tmp_path / "suppliers.json").write_text(
+        json.dumps([
+            {
+                "Supplier Name": "Supplier A",
+                "Contact Person": "John",
+                "Email": "john@example.com",
+                "Phone": "456",
+                "Country": "Netherlands",
+                "Default VAT Treatment": "Standard",
+            }
+        ]),
+        encoding="utf-8",
+    )
 
 
 def test_append_income_row_updates_workbook(workbook_copy):
@@ -92,12 +189,10 @@ def test_append_income_row_updates_workbook(workbook_copy):
     response = app.app.test_client().post('/income/add', data=payload, follow_redirects=True)
     assert response.status_code == 200
 
-    wb = load_workbook(workbook_copy, data_only=True)
-    ws = wb['Income']
-    rows = [row for row in ws.iter_rows(values_only=True) if any(v not in (None, '') for v in row)]
-    assert any('Test income' in str(cell) for cell in rows[-1])
-    assert any('150.00' in str(cell) for cell in rows[-1])
-    wb.close()
+    income_records = json.loads(app.INCOME_PATH.read_text(encoding="utf-8"))
+    last_record = income_records[-1]
+    assert last_record["Description"] == "Test income"
+    assert str(last_record["Amount (€)"]) == "150.00"
 
 
 def test_update_income_route_updates_existing_workbook_row(workbook_copy):
@@ -120,11 +215,10 @@ def test_update_income_route_updates_existing_workbook_row(workbook_copy):
     assert response.status_code == 200
     assert b'Income entry updated' in response.data
 
-    wb = load_workbook(workbook_copy, data_only=True)
-    row = [cell for cell in wb['Income'].iter_rows(values_only=True)][row_number - 1]
-    wb.close()
-    assert row[1] == "Updated income"
-    assert str(row[5]) == "250.00"
+    income_records = json.loads(app.INCOME_PATH.read_text(encoding="utf-8"))
+    record = income_records[row_number - 1]
+    assert record["Description"] == "Updated income"
+    assert str(record["Amount (€)"]) == "250.00"
 
 
 def test_income_validation_prevents_invalid_amount(workbook_copy):
@@ -505,7 +599,10 @@ def test_resolve_workbook_path_finds_any_matching_financial_workbook(tmp_path, m
     assert app._resolve_workbook_path() == workbook
 
 
-def test_header_aliases_and_missing_headers_are_supported(tmp_path):
+def test_header_aliases_are_resolved_when_reading_a_workbook_sheet(tmp_path):
+    # Header-alias resolution is now only exercised by the one-time xlsm->JSON
+    # migration and the manual xlsm export, since normal reads/writes go through
+    # JSON files with canonical keys. Exercise that surviving code path directly.
     path = tmp_path / "alt.xlsm"
     wb = Workbook()
     wb.remove(wb.active)
@@ -515,23 +612,35 @@ def test_header_aliases_and_missing_headers_are_supported(tmp_path):
     income.append(["2026-07-29", "Renamed header", "Client A", 120.0, "Paid"])
 
     wb.save(path)
-    wb.close()
 
-    app.WORKBOOK_PATH = path
+    try:
+        rows = app._read_workbook_sheet_rows(wb, "Income")
+    finally:
+        wb.close()
+
+    assert len(rows) == 1
+    assert rows[0]["Description"] == "Renamed header"
+    assert rows[0]["Amount (€)"] == 120.0
+
+
+def test_income_add_route_does_not_touch_the_xlsm_workbook(tmp_path):
+    # Normal writes are JSON-only now; the xlsm doesn't even need to exist.
+    app.WORKBOOK_PATH = tmp_path / "missing.xlsm"
     app.load_finance_data.cache_clear()
-
-    data = app.load_finance_data()
-    assert data["summary"]["income_total"] == 120.0
 
     payload = {
         "date": "2026-07-30",
-        "description": "Added via alias",
+        "description": "Added without workbook",
         "client_source": "Client A",
         "amount": "50.00",
         "status": "Pending",
     }
     response = app.app.test_client().post('/income/add', data=payload, follow_redirects=True)
     assert response.status_code == 200
+    assert not (tmp_path / "missing.xlsm").exists()
+
+    income_records = json.loads(app.INCOME_PATH.read_text(encoding="utf-8"))
+    assert income_records[-1]["Description"] == "Added without workbook"
 
 
 def test_due_subscription_posts_expense_and_advances_next_charge(workbook_copy):
@@ -562,14 +671,11 @@ def test_due_subscription_posts_expense_and_advances_next_charge(workbook_copy):
 
     assert result["posted_count"] == 1
 
-    wb = load_workbook(workbook_copy, data_only=True)
-    ws = wb["Expenses"]
-    rows = [row for row in ws.iter_rows(values_only=True) if any(v not in (None, "") for v in row)]
-    last_row = rows[-1]
-    assert "Adobe Creative Cloud" in str(last_row)
-    assert "Subscription charge" in str(last_row)
-    assert "60" in str(last_row)
-    wb.close()
+    expense_records = json.loads(app.EXPENSES_PATH.read_text(encoding="utf-8"))
+    last_record = expense_records[-1]
+    assert last_record["Title"] == "Adobe Creative Cloud"
+    assert "Subscription charge" in str(last_record.get("Description", ""))
+    assert "60" in str(last_record["Total (€)"])
 
     subscriptions = json.loads(app.SUBSCRIPTIONS_PATH.read_text(encoding="utf-8"))
     assert subscriptions[0]["last_posted_date"] == "2026-08-05"
@@ -681,13 +787,8 @@ def test_delete_expense_route_removes_workbook_row(workbook_copy):
     assert response.status_code == 200
     assert b"Expense archived" in response.data
 
-    wb = load_workbook(workbook_copy, data_only=True)
-    ws = wb["Expenses"]
-    rows = [row for row in ws.iter_rows(values_only=True) if any(v not in (None, "") for v in row)]
-    wb.close()
-
-    assert len(rows) == 1
-    assert rows[0][0] == "Date (Registered)"
+    expense_records = json.loads(app.EXPENSES_PATH.read_text(encoding="utf-8"))
+    assert expense_records == []
 
     archives = json.loads(app.ARCHIVE_PATH.read_text(encoding="utf-8"))
     assert archives[0]["entity_type"] == "expense"
@@ -1128,6 +1229,16 @@ def test_reconciliation_exports_include_queue_and_exceptions(workbook_copy):
                 "payment_date": "2026-07-01",
         },
     )
+
+    # Simulate a paid invoice that legitimately has no payment date recorded
+    # (e.g. edited outside the app's normal add/update validation flow), which
+    # is what the missing_payment_date exception exists to catch.
+    app.load_finance_data.cache_clear()
+    invoice_rows = app.load_finance_data()["sheets"]["Invoices"]
+    target_invoice = next(row for row in invoice_rows if row.get("Service / Product") == "Reconciliation test")
+    target_invoice["Payment Date"] = ""
+    app._update_row_in_sheet("Invoices", target_invoice["__row_number"], target_invoice)
+    app.load_finance_data.cache_clear()
 
     queue_response = app.app.test_client().get('/reconciliation/export.csv')
     assert queue_response.status_code == 200
@@ -1678,7 +1789,7 @@ def test_expense_archive_returns_message_when_workbook_is_locked(workbook_copy, 
     app.WORKBOOK_PATH = workbook_copy
     app.load_finance_data.cache_clear()
 
-    response = app.app.test_client().post('/expenses/delete', data={'row_number': '2'}, follow_redirects=True)
+    response = app.app.test_client().post('/expenses/delete', data={'row_number': '1'}, follow_redirects=True)
 
     assert response.status_code == 200
     assert b'Workbook is locked' in response.data
@@ -1708,10 +1819,8 @@ def test_restore_archived_expense_recreates_workbook_row_and_logs_audit(workbook
     assert response.status_code == 200
     assert b'Expense restored' in response.data
 
-    wb = load_workbook(workbook_copy, data_only=True)
-    rows = [row for row in wb['Expenses'].iter_rows(values_only=True) if any(v not in (None, '') for v in row)]
-    wb.close()
-    assert any("Recovered Expense" in str(row) for row in rows)
+    expense_records = json.loads(app.EXPENSES_PATH.read_text(encoding="utf-8"))
+    assert any(record.get("Title") == "Recovered Expense" for record in expense_records)
     assert json.loads(app.ARCHIVE_PATH.read_text(encoding="utf-8")) == []
     audit_entries = json.loads(app.AUDIT_LOG_PATH.read_text(encoding="utf-8"))
     assert any(entry["action"] == "restore" and entry["entity_type"] == "expense" for entry in audit_entries)

@@ -1,0 +1,32 @@
+[
+  {
+    "Supplier Name": "Test",
+    "Contact Person": "Me",
+    "Email": null,
+    "Phone": null,
+    "Address Line 1": null,
+    "Address Line 2": null,
+    "Town / City": null,
+    "County": null,
+    "Postcode / Eircode": null,
+    "Country": "Ireland",
+    "VAT ID": null,
+    "Default VAT Treatment": "Standard (Irish VAT)",
+    "Notes": null
+  },
+  {
+    "Supplier Name": "New Supplier Testing",
+    "Contact Person": null,
+    "Email": null,
+    "Phone": null,
+    "Address Line 1": null,
+    "Address Line 2": null,
+    "Town / City": null,
+    "County": null,
+    "Postcode / Eircode": null,
+    "Country": null,
+    "VAT ID": null,
+    "Default VAT Treatment": null,
+    "Notes": null
+  }
+]

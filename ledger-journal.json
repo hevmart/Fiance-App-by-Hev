@@ -859,5 +859,79 @@
     "credit_total": 1526.0,
     "entry_balanced": true,
     "phase_tag": "Phase 1"
+  },
+  {
+    "id": "e37179a1-e62e-4268-90b8-c83cde8b0315",
+    "timestamp": "2026-08-06T22:45:09",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 12,
+    "transaction_date": "2026-07-27",
+    "description": "Testinnn3",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 1526.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 1526.0,
+    "amount_eur": 1526.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 1526.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 1526.0
+      }
+    ],
+    "debit_total": 1526.0,
+    "credit_total": 1526.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "7ecad526-fb58-4f95-a074-d77359d5ee4c",
+    "timestamp": "2026-08-06T23:30:19",
+    "action": "create",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 10,
+    "transaction_date": "2026-08-06",
+    "description": "verify fix",
+    "category": "",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "exempt",
+    "supply_type": "services",
+    "net_amount_eur": 50.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 50.0,
+    "amount_eur": 50.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 50.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 50.0
+      }
+    ],
+    "debit_total": 50.0,
+    "credit_total": 50.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
   }
 ]

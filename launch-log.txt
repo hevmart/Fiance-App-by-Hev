@@ -114,3 +114,13 @@ Press CTRL+C to quit
 [2026-08-06 21:28:18] Python start command issued (PID: 12412)
 [2026-08-06 21:28:20] App HTTP endpoint is responsive
 [2026-08-06 21:28:20] Browser open command issued (explorer)
+[2026-08-06 22:43:45] Launch requested
+[2026-08-06 22:43:49] Python start command issued (PID: 10648)
+[2026-08-06 22:43:51] App HTTP endpoint is responsive
+[2026-08-06 22:43:51] Browser open command issued (explorer)
+[2026-08-06 22:59:33] Launch requested
+[2026-08-06 22:59:37] App processes detected (2) without a healthy endpoint; terminating all to reset
+[2026-08-06 22:59:38] Process(es) still listening on port 5000; terminating owning process(es)
+[2026-08-06 22:59:42] Python start command issued (PID: 41288)
+[2026-08-06 22:59:45] App HTTP endpoint is responsive
+[2026-08-06 22:59:45] Browser open command issued (explorer)

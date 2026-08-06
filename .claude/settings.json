@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ' *)",
+      "PowerShell(Get-Process | Where-Object { $_.ProcessName -match \"EXCEL|OneDrive|python\" } | Select-Object Id, ProcessName, Path | Format-Table -AutoSize)"
+    ]
+  }
+}

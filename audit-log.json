@@ -1269,5 +1269,81 @@
         "Phase Tag": "Phase 1"
       }
     }
+  },
+  {
+    "id": "b6ca0bcd-3624-41cc-a9a1-be4e402cd3ed",
+    "timestamp": "2026-08-06T22:45:09",
+    "action": "update",
+    "entity_type": "expense",
+    "details": {
+      "row_number": 12,
+      "record": {
+        "Date (Registered)": "2026-07-27",
+        "Title": "None",
+        "Description": "Testinnn3",
+        "Supplier / Payee": "H-Elix Studio",
+        "Supplier VAT Number": "None",
+        "Receipt / Invoice Ref": "None",
+        "Category": "Operations",
+        "Base Net Amount (\u20ac)": "1500.00",
+        "Delivery (\u20ac)": "0.00",
+        "Fees (\u20ac)": "30.00",
+        "Other Charges (\u20ac)": "0.00",
+        "Discount (\u20ac)": "4.00",
+        "Net Amount (\u20ac)": "1526.00",
+        "Total (\u20ac)": "1526.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Input VAT Reclaimable": "Yes",
+        "Deductibility Status": "Fully Deductible",
+        "Capital Expenditure Flag": "Yes",
+        "Receipt Attached": "Yes",
+        "Bank Reconciliation": "Unreconciled",
+        "Status": "Paid",
+        "Payment Method": "Credit Card",
+        "Notes": "None",
+        "Phase Tag": "Phase 1"
+      }
+    }
+  },
+  {
+    "id": "705a089e-0315-4bfd-9460-13e8bd8afbbb",
+    "timestamp": "2026-08-06T23:30:18",
+    "action": "create",
+    "entity_type": "expense",
+    "details": {
+      "row_number": 10,
+      "record": {
+        "Date (Registered)": "2026-08-06",
+        "Title": "Speed Test",
+        "Description": "verify fix",
+        "Supplier / Payee": "",
+        "Supplier VAT Number": "",
+        "Receipt / Invoice Ref": "",
+        "Category": "",
+        "Base Net Amount (\u20ac)": "50.00",
+        "Delivery (\u20ac)": "0.00",
+        "Fees (\u20ac)": "0.00",
+        "Other Charges (\u20ac)": "0.00",
+        "Discount (\u20ac)": "0.00",
+        "Net Amount (\u20ac)": "50.00",
+        "Total (\u20ac)": "50.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "exempt",
+        "Supply Type": "services",
+        "Input VAT Reclaimable": "No",
+        "Deductibility Status": "Fully Deductible",
+        "Capital Expenditure Flag": "No",
+        "Receipt Attached": "No",
+        "Bank Reconciliation": "Unreconciled",
+        "Status": "Pending",
+        "Payment Method": "",
+        "Notes": "",
+        "Phase Tag": "Phase 1"
+      }
+    }
   }
 ]

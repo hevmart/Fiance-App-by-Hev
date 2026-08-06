@@ -44,15 +44,23 @@ LEDGER_JOURNAL_PATH = BASE_DIR / "ledger-journal.json"
 CAPITAL_ASSETS_PATH = BASE_DIR / "capital-assets.json"
 PAYROLL_PATH = BASE_DIR / "payroll-register.json"
 BANK_STATEMENTS_PATH = BASE_DIR / "bank-statements.json"
-EXPENSE_OVERRIDES_PATH = BASE_DIR / "expense-overrides.json"
+INCOME_PATH = BASE_DIR / "income.json"
+EXPENSES_PATH = BASE_DIR / "expenses.json"
+INVOICES_PATH = BASE_DIR / "invoices.json"
+CLIENTS_PATH = BASE_DIR / "clients.json"
+SUPPLIERS_PATH = BASE_DIR / "suppliers.json"
+SHEET_JSON_PATHS = {
+    "Income": INCOME_PATH,
+    "Expenses": EXPENSES_PATH,
+    "Invoices": INVOICES_PATH,
+    "Clients": CLIENTS_PATH,
+    "Suppliers": SUPPLIERS_PATH,
+}
 
 if not SUBSCRIPTIONS_PATH.exists():
     SUBSCRIPTIONS_PATH.write_text("[]", encoding="utf-8")
 
-_expense_override_lock = threading.Lock()
-_expense_write_lock = threading.Lock()
-_expense_breakdown_headers_ready = False
-_expense_breakdown_migration_started = False
+_sheet_write_lock = threading.Lock()
 SUBSCRIPTION_FREQUENCIES = {"monthly": 1, "quarterly": 3, "yearly": 12}
 SUBSCRIPTION_STATUSES = ("active", "paused", "cancelled")
 BUSINESS_STRUCTURES = ("sole_trader", "limited_company")
@@ -82,13 +90,6 @@ EXPENSE_DEDUCTIBILITY_OPTIONS = ["Fully Deductible", "Partially Deductible", "No
 RECONCILIATION_OPTIONS = ["Reconciled", "Unreconciled"]
 YES_NO_OPTIONS = ["Yes", "No"]
 PAYROLL_STATUS_OPTIONS = ["Draft", "Approved", "Paid", "Filed"]
-EXPENSE_BREAKDOWN_HEADERS = [
-    "Base Net Amount (€)",
-    "Delivery (€)",
-    "Fees (€)",
-    "Other Charges (€)",
-    "Discount (€)",
-]
 RECONCILIATION_MATCH_DAYS = 3
 VAT_TURNOVER_THRESHOLDS = {
     "services": {"label": "Services", "annual_limit": 42000.0},
@@ -1486,61 +1487,6 @@ def _find_header_row_number(ws, sheet_name: str) -> int | None:
     return None
 
 
-def _ensure_expense_breakdown_headers() -> None:
-    global _expense_breakdown_headers_ready
-    if _expense_breakdown_headers_ready:
-        return
-
-    resolved_path = _resolve_workbook_path()
-    wb = load_workbook(resolved_path, data_only=False, keep_links=False)
-    try:
-        if "Expenses" not in wb.sheetnames:
-            _expense_breakdown_headers_ready = True
-            return
-
-        ws = wb["Expenses"]
-        header_row_number = _find_header_row_number(ws, "Expenses")
-        if header_row_number is None:
-            return
-
-        headers = _get_header_row(ws, "Expenses")
-        normalized_headers = [_normalize_header_name(header, "Expenses") for header in headers]
-        missing_headers = [header for header in EXPENSE_BREAKDOWN_HEADERS if header not in normalized_headers]
-        if not missing_headers:
-            _expense_breakdown_headers_ready = True
-            return
-
-        next_col = len(normalized_headers) + 1
-        for header in missing_headers:
-            ws.cell(row=header_row_number, column=next_col, value=header)
-            next_col += 1
-
-        _save_workbook_atomic(wb, resolved_path)
-        _expense_breakdown_headers_ready = True
-    finally:
-        wb.close()
-
-
-def _schedule_expense_breakdown_header_migration() -> None:
-    global _expense_breakdown_migration_started
-    if _expense_breakdown_headers_ready or _expense_breakdown_migration_started:
-        return
-
-    _expense_breakdown_migration_started = True
-
-    def _worker() -> None:
-        global _expense_breakdown_migration_started
-        try:
-            _ensure_expense_breakdown_headers()
-        except Exception:
-            # Migration is best-effort. Keep request paths non-blocking.
-            return
-        finally:
-            _expense_breakdown_migration_started = False
-
-    threading.Thread(target=_worker, daemon=True).start()
-
-
 def _save_workbook_atomic(wb, resolved_path: Path) -> None:
     temp_path = resolved_path.with_name(f"{resolved_path.stem}.tmp-{uuid4().hex}{resolved_path.suffix}")
     try:
@@ -1564,58 +1510,50 @@ def _save_workbook_atomic(wb, resolved_path: Path) -> None:
                 pass
 
 
+def _load_sheet_records_raw(sheet_name: str) -> list[dict[str, Any]]:
+    path = SHEET_JSON_PATHS[sheet_name]
+    return _load_json_records(path)
+
+
+def _save_sheet_records_raw(sheet_name: str, records: list[dict[str, Any]]) -> None:
+    path = SHEET_JSON_PATHS[sheet_name]
+    _save_json_records(path, records)
+
+
+def _load_sheet_rows_with_row_numbers(sheet_name: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for index, record in enumerate(_load_sheet_records_raw(sheet_name), start=1):
+        row = dict(record) if isinstance(record, dict) else {}
+        row["__row_number"] = index
+        rows.append(row)
+    return rows
+
+
 def _append_row_to_sheet(sheet_name: str, values: dict[str, Any]) -> int:
-    resolved_path = _resolve_workbook_path()
-    try:
-        wb = load_workbook(resolved_path, data_only=False, keep_links=False)
-    except Exception as exc:
-        raise WorkbookWriteError(
-            f"Could not open the finance workbook at {resolved_path}: {exc}. "
-            "The file may be corrupted, incomplete, or still being written to."
-        ) from exc
-    try:
-        ws = wb[sheet_name]
-        headers = _get_header_row(ws, sheet_name)
-        normalized_headers = [_normalize_header_name(header, sheet_name) for header in headers]
-        row_values = []
-        for header in normalized_headers:
-            row_values.append(values.get(header, values.get(str(header), "")))
-        ws.append(row_values)
-        appended_row_number = ws.max_row
-        _save_workbook_atomic(wb, resolved_path)
-        return appended_row_number
-    finally:
-        wb.close()
+    with _sheet_write_lock:
+        records = _load_sheet_records_raw(sheet_name)
+        record = {k: v for k, v in values.items() if k != "__row_number"}
+        records.append(record)
+        _save_sheet_records_raw(sheet_name, records)
+        return len(records)
 
 
 def _delete_row_from_sheet(sheet_name: str, row_number: int) -> None:
-    resolved_path = _resolve_workbook_path()
-    wb = load_workbook(resolved_path, data_only=False, keep_links=False)
-    try:
-        ws = wb[sheet_name]
-        if row_number <= 1 or row_number > ws.max_row:
+    with _sheet_write_lock:
+        records = _load_sheet_records_raw(sheet_name)
+        if row_number < 1 or row_number > len(records):
             raise ValueError(f"Invalid row number for {sheet_name}: {row_number}")
-        ws.delete_rows(row_number, 1)
-        _save_workbook_atomic(wb, resolved_path)
-    finally:
-        wb.close()
+        del records[row_number - 1]
+        _save_sheet_records_raw(sheet_name, records)
 
 
 def _update_row_in_sheet(sheet_name: str, row_number: int, values: dict[str, Any]) -> None:
-    resolved_path = _resolve_workbook_path()
-    wb = load_workbook(resolved_path, data_only=False, keep_links=False)
-    try:
-        ws = wb[sheet_name]
-        if row_number <= 1 or row_number > ws.max_row:
+    with _sheet_write_lock:
+        records = _load_sheet_records_raw(sheet_name)
+        if row_number < 1 or row_number > len(records):
             raise ValueError(f"Invalid row number for {sheet_name}: {row_number}")
-
-        headers = _get_header_row(ws, sheet_name)
-        normalized_headers = [_normalize_header_name(header, sheet_name) for header in headers]
-        for index, header in enumerate(normalized_headers, start=1):
-            ws.cell(row=row_number, column=index, value=values.get(header, values.get(str(header), "")))
-        _save_workbook_atomic(wb, resolved_path)
-    finally:
-        wb.close()
+        records[row_number - 1] = {k: v for k, v in values.items() if k != "__row_number"}
+        _save_sheet_records_raw(sheet_name, records)
 
 
 def _load_json_records(path: Path) -> list[dict[str, Any]]:
@@ -1630,82 +1568,6 @@ def _load_json_records(path: Path) -> list[dict[str, Any]]:
 
 def _save_json_records(path: Path, records: list[dict[str, Any]]) -> None:
     path.write_text(json.dumps(records, indent=2), encoding="utf-8")
-
-
-def _load_expense_overrides() -> dict[str, dict[str, Any]]:
-    if not EXPENSE_OVERRIDES_PATH.exists():
-        return {}
-    try:
-        data = json.loads(EXPENSE_OVERRIDES_PATH.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {}
-    if not isinstance(data, dict):
-        return {}
-    normalized: dict[str, dict[str, Any]] = {}
-    for key, value in data.items():
-        if isinstance(value, dict):
-            normalized[str(key)] = value
-    return normalized
-
-
-def _save_expense_overrides(overrides: dict[str, dict[str, Any]]) -> None:
-    EXPENSE_OVERRIDES_PATH.write_text(json.dumps(overrides, indent=2), encoding="utf-8")
-
-
-def _set_expense_override(row_number: int, payload: dict[str, Any]) -> None:
-    with _expense_override_lock:
-        overrides = _load_expense_overrides()
-        overrides[str(row_number)] = payload
-        _save_expense_overrides(overrides)
-
-
-def _clear_expense_override(row_number: int) -> None:
-    with _expense_override_lock:
-        overrides = _load_expense_overrides()
-        key = str(row_number)
-        if key in overrides:
-            overrides.pop(key, None)
-            _save_expense_overrides(overrides)
-
-
-def _apply_expense_overrides(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    overrides = _load_expense_overrides()
-    if not overrides:
-        return rows
-
-    for row in rows:
-        row_number = row.get("__row_number")
-        if row_number is None:
-            continue
-        override = overrides.get(str(row_number))
-        if override:
-            row.update(override)
-    return rows
-
-
-def _apply_expense_override_to_cached_data(row_number: int, payload: dict[str, Any]) -> None:
-    if load_finance_data.cache_info().currsize <= 0:
-        return
-    try:
-        cached = load_finance_data()
-    except Exception:
-        return
-    for row in cached.get("sheets", {}).get("Expenses", []):
-        if row.get("__row_number") == row_number:
-            row.update(payload)
-            break
-
-
-def _sync_expense_update_to_workbook(row_number: int, payload: dict[str, Any]) -> None:
-    with _expense_write_lock:
-        try:
-            _update_row_in_sheet("Expenses", row_number, payload)
-            _upsert_capital_asset_from_expense(payload, row_number, active=payload.get("Capital Expenditure Flag") == "Yes")
-            _clear_expense_override(row_number)
-            load_finance_data.cache_clear()
-        except Exception:
-            # Keep override in place so app view remains consistent even if workbook sync is slow.
-            return
 
 
 def _append_json_record(path: Path, record: dict[str, Any]) -> None:
@@ -2745,10 +2607,6 @@ def _build_subscription_expense_payload(subscription: dict[str, Any], charge_dat
 
 
 def _sync_subscriptions_to_expenses(today: date | None = None) -> dict[str, int]:
-    resolved_path = _resolve_workbook_path()
-    if not resolved_path.exists():
-        return {"posted_count": 0, "active_count": 0}
-
     current_day = today or date.today()
     subscriptions = _load_subscriptions()
     posted_count = 0
@@ -2854,7 +2712,7 @@ def _parse_row_number(value: Any) -> int | None:
         row_number = int(str(value).strip())
     except (TypeError, ValueError):
         return None
-    return row_number if row_number > 1 else None
+    return row_number if row_number >= 1 else None
 
 
 def _find_row_by_number(rows: list[dict[str, Any]], row_number: Any) -> dict[str, Any] | None:
@@ -3024,7 +2882,10 @@ def _build_page_context(
     sync_message: str | None = None,
     error: str | None = None,
 ) -> dict[str, Any]:
-    workbook_path = _resolve_workbook_path()
+    try:
+        workbook_path = _resolve_workbook_path()
+    except FileNotFoundError:
+        workbook_path = WORKBOOK_PATH
     summary = data.get("summary", {})
     version = request.args.get("v", "20260729")
     business_profile = _load_business_profile()
@@ -3146,73 +3007,89 @@ def _build_page_context(
 
 @lru_cache(maxsize=1)
 def load_finance_data() -> dict[str, Any]:
+    sheets: dict[str, Any] = {}
+    for sheet_name in ["Income", "Expenses", "Invoices", "Clients", "Suppliers"]:
+        sheets[sheet_name] = _load_sheet_rows_with_row_numbers(sheet_name)
+
+    income_total = sum(_coerce_number(row.get("Amount (€)", row.get("Total incl. VAT (€)", 0))) for row in sheets["Income"])
+    expense_total = sum(_coerce_number(row.get("Total (€)", row.get("Net Amount (€)", 0))) for row in sheets["Expenses"])
+    invoice_balance = sum(_coerce_number(row.get("Balance Due (€)", row.get("Balance (€)", 0))) for row in sheets["Invoices"])
+    ap_balance = sum(
+        _coerce_number(row.get("Total (€)", 0))
+        for row in sheets["Expenses"]
+        if not _is_paid_status("expense", row.get("Status"))
+    )
+    vat_balance = _compute_vat_control_summary(_load_ledger_entries()).get("t3_net_vat", 0.0)
+
+    try:
+        resolved_workbook_name = _resolve_workbook_path().name
+    except FileNotFoundError:
+        resolved_workbook_name = None
+
+    return {
+        "sheets": sheets,
+        "workbook_path": resolved_workbook_name,
+        "summary": {
+            "income_total": income_total,
+            "expense_total": expense_total,
+            "net_cashflow": income_total - expense_total,
+            "invoice_balance": invoice_balance,
+            "ap_balance": ap_balance,
+            "vat_balance": vat_balance,
+        },
+    }
+
+
+def _read_workbook_sheet_rows(wb, sheet_name: str) -> list[dict[str, Any]]:
+    if sheet_name not in wb:
+        return []
+    ws = wb[sheet_name]
+    rows: list[dict[str, Any]] = []
+    headers: list[Any] = []
+    header_found = False
+    for row in ws.iter_rows(values_only=True):
+        cleaned = [_coerce_value(v) for v in row]
+        if not header_found and _is_header_row(cleaned, sheet_name):
+            headers = [_normalize_header_name(v, sheet_name) for v in cleaned]
+            header_found = True
+            continue
+        if not header_found:
+            continue
+        if not any(v not in (None, "") for v in cleaned):
+            continue
+        rows.append(dict(zip(headers, cleaned)))
+    return rows
+
+
+def _migrate_transaction_sheets_from_workbook() -> None:
+    """One-time seed of income/expenses/invoices/clients/suppliers JSON files from the
+    legacy xlsm workbook, if present. Runs once at process start; after the JSON files
+    exist, the workbook is never read for normal operation again."""
+    missing_sheet_names = [name for name, path in SHEET_JSON_PATHS.items() if not path.exists()]
+    if not missing_sheet_names:
+        return
+
     try:
         resolved_path = _resolve_workbook_path()
-    except FileNotFoundError as exc:
-        return {"error": str(exc), "sheets": {}, "workbook_path": None}
+    except FileNotFoundError:
+        resolved_path = None
 
-    if not resolved_path.exists():
-        return {"error": "Workbook not found", "sheets": {}, "workbook_path": None}
+    seeded: dict[str, list[dict[str, Any]]] = {name: [] for name in missing_sheet_names}
+    if resolved_path is not None and resolved_path.exists():
+        try:
+            wb = load_workbook(resolved_path, data_only=True, read_only=True)
+            try:
+                for sheet_name in missing_sheet_names:
+                    seeded[sheet_name] = _read_workbook_sheet_rows(wb, sheet_name)
+            finally:
+                wb.close()
+        except Exception:
+            # Migration is best-effort; fall back to empty JSON files for any sheet
+            # we couldn't read rather than blocking startup.
+            pass
 
-    try:
-        wb = load_workbook(resolved_path, data_only=True, read_only=True)
-    except Exception as exc:
-        return {
-            "error": f"Could not open the finance workbook at {resolved_path}: {exc}. "
-            "The file may be corrupted, incomplete, or still being written to. "
-            "Close any programs that may have it open and try again.",
-            "sheets": {},
-            "workbook_path": str(resolved_path),
-        }
-    try:
-        sheets: dict[str, Any] = {}
-        for sheet_name in ["Income", "Expenses", "Invoices", "AR", "AP", "VAT", "Clients", "Suppliers"]:
-            if sheet_name not in wb:
-                sheets[sheet_name] = []
-                continue
-
-            ws = wb[sheet_name]
-            rows = []
-            headers: list[Any] = []
-            header_found = False
-            for row_number, row in enumerate(ws.iter_rows(values_only=True), start=1):
-                cleaned = [_coerce_value(v) for v in row]
-                if not header_found and _is_header_row(cleaned, sheet_name):
-                    headers = [_normalize_header_name(v, sheet_name) for v in cleaned]
-                    header_found = True
-                    continue
-                if not header_found:
-                    continue
-                if not any(v not in (None, "") for v in cleaned):
-                    continue
-                row_data = dict(zip(headers, cleaned))
-                row_data["__row_number"] = row_number
-                rows.append(row_data)
-            sheets[sheet_name] = rows
-
-        sheets["Expenses"] = _apply_expense_overrides(sheets.get("Expenses", []))
-
-        income_total = sum(_coerce_number(row.get("Amount (€)", row.get("Total incl. VAT (€)", 0))) for row in sheets["Income"])
-        expense_total = sum(_coerce_number(row.get("Total (€)", row.get("Net Amount (€)", 0))) for row in sheets["Expenses"])
-        invoice_balance = sum(_coerce_number(row.get("Balance Due (€)", row.get("Balance (€)", 0))) for row in sheets["Invoices"])
-        ar_balance = sum(_coerce_number(row.get("Balance (€)", 0)) for row in sheets["AR"])
-        ap_balance = sum(_coerce_number(row.get("Balance Due (€)", 0)) for row in sheets["AP"])
-        vat_balance = sum(_coerce_number(row.get("Balance (€)", row.get("Net VAT Due (€)", 0))) for row in sheets["VAT"])
-
-        return {
-            "sheets": sheets,
-            "workbook_path": str(resolved_path.name),
-            "summary": {
-                "income_total": income_total,
-                "expense_total": expense_total,
-                "net_cashflow": income_total - expense_total,
-                "invoice_balance": invoice_balance or ar_balance,
-                "ap_balance": ap_balance,
-                "vat_balance": vat_balance,
-            },
-        }
-    finally:
-        wb.close()
+    for sheet_name in missing_sheet_names:
+        _save_json_records(SHEET_JSON_PATHS[sheet_name], seeded[sheet_name])
 
 
 @app.route("/")
@@ -4066,8 +3943,6 @@ def delete_income():
 
 @app.route("/expenses/add", methods=["POST"])
 def add_expense():
-    _schedule_expense_breakdown_header_migration()
-
     payload = {
         "Date (Registered)": request.form.get("date", ""),
         "Title": request.form.get("title", ""),
@@ -4157,8 +4032,6 @@ def add_expense():
 
 @app.route("/expenses/update", methods=["POST"])
 def update_expense():
-    _schedule_expense_breakdown_header_migration()
-
     row_number = _parse_row_number(request.form.get("row_number"))
     if row_number is None:
         return redirect(url_for("expenses_view", message="Expense could not be updated"))
@@ -4243,8 +4116,9 @@ def update_expense():
             validation_tab="expenses",
             edit_row=row_number,
         )
-    _set_expense_override(row_number, payload)
-    _apply_expense_override_to_cached_data(row_number, payload)
+    _update_row_in_sheet("Expenses", row_number, payload)
+    _upsert_capital_asset_from_expense(payload, row_number, active=payload.get("Capital Expenditure Flag") == "Yes")
+    load_finance_data.cache_clear()
 
     _record_audit("update", "expense", {"row_number": row_number, "record": payload})
     _record_ledger_entry("update", "expense", payload, source="workbook", row_number=row_number)
@@ -4738,6 +4612,51 @@ def delete_supplier():
     _delete_row_from_sheet("Suppliers", row_number)
     load_finance_data.cache_clear()
     return redirect(url_for("suppliers_view", message="Supplier archived"))
+
+
+@app.route("/export/xlsm", methods=["POST"])
+def export_xlsm():
+    next_page = str(request.args.get("next") or "/")
+    try:
+        resolved_path = _resolve_workbook_path()
+    except FileNotFoundError as exc:
+        return redirect(_append_message_to_path(next_page, f"Export failed: {exc}"))
+
+    try:
+        wb = load_workbook(resolved_path, data_only=False, keep_links=False)
+    except Exception as exc:
+        return redirect(_append_message_to_path(next_page, f"Export failed: could not open the workbook ({exc})"))
+
+    try:
+        for sheet_name in SHEET_JSON_PATHS:
+            if sheet_name not in wb:
+                continue
+            ws = wb[sheet_name]
+            header_row_number = _find_header_row_number(ws, sheet_name)
+            if header_row_number is None:
+                continue
+            headers = _get_header_row(ws, sheet_name)
+            normalized_headers = [_normalize_header_name(header, sheet_name) for header in headers]
+
+            if ws.max_row > header_row_number:
+                ws.delete_rows(header_row_number + 1, ws.max_row - header_row_number)
+
+            for record in _load_sheet_records_raw(sheet_name):
+                row_values = [record.get(header, record.get(str(header), "")) for header in normalized_headers]
+                ws.append(row_values)
+
+        _save_workbook_atomic(wb, resolved_path)
+    except WorkbookWriteError as exc:
+        return redirect(_append_message_to_path(next_page, f"Export failed: {exc}"))
+    except Exception as exc:
+        return redirect(_append_message_to_path(next_page, f"Export failed: {exc}"))
+    finally:
+        wb.close()
+
+    return redirect(_append_message_to_path(next_page, "Exported current data to Excel workbook"))
+
+
+_migrate_transaction_sheets_from_workbook()
 
 
 if __name__ == "__main__":

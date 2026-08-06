@@ -163,9 +163,14 @@
           <div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#fff4e5;color:#9a5b00;font-size:12px;font-weight:700;">⚠ Missing workbook</div>
           {% endif %}
         </div>
-        <form method="post" action="/refresh?next={{ request.path }}">
-          <button type="submit" style="border:0;border-radius:999px;background:linear-gradient(135deg,var(--brand-navy) 0%,#24406b 100%);color:white;padding:10px 14px;font-weight:700;cursor:pointer;">Refresh workbook</button>
-        </form>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <form method="post" action="/refresh?next={{ request.path }}">
+            <button type="submit" style="border:0;border-radius:999px;background:linear-gradient(135deg,var(--brand-navy) 0%,#24406b 100%);color:white;padding:10px 14px;font-weight:700;cursor:pointer;">Refresh workbook</button>
+          </form>
+          <form method="post" action="/export/xlsm?next={{ request.path }}">
+            <button type="submit" style="border:0;border-radius:999px;background:#1f6e3b;color:white;padding:10px 14px;font-weight:700;cursor:pointer;">Export to Excel</button>
+          </form>
+        </div>
       </div>
 
       <div class="card" style="margin-bottom:16px;">
