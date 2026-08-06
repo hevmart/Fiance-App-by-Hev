@@ -24,3 +24,16 @@ Press CTRL+C to quit
 127.0.0.1 - - [07/Aug/2026 00:20:08] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
 127.0.0.1 - - [07/Aug/2026 00:20:10] "GET / HTTP/1.1" 200 -
 127.0.0.1 - - [07/Aug/2026 00:20:10] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:20:41] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:20:41] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:20:52] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:20:52] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:20:52] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [07/Aug/2026 00:21:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:21:19] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:22:18] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:22:18] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:22:27] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:22:27] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:23:16] "GET /expenses?edit_row=9 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 00:23:16] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
