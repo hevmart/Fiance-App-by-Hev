@@ -1,17 +1,27 @@
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on http://127.0.0.1:5000
 Press CTRL+C to quit
-127.0.0.1 - - [06/Aug/2026 22:59:45] "GET /healthz HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:00:22] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:00:22] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:01:42] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:01:42] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:01:55] "GET /expenses HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:01:55] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:02:32] "POST /expenses/add HTTP/1.1" 302 -
-127.0.0.1 - - [06/Aug/2026 23:02:32] "GET /expenses?message=Validation:+Expense+total+amount+must+be+greater+than+zero&validation_errors={"total_amount":+"Expense+total+amount+must+be+greater+than+zero"}&form_data={"date":+"2026-08-06",+"title":+"",+"description":+"Test+Hev+Today",+"supplier":+"",+"supplier_vat_number":+"",+"receipt_reference":+"",+"category":+"",+"base_net_amount":+"0.00",+"delivery_amount":+"0.00",+"fees_amount":+"0.00",+"other_charges_amount":+"0.00",+"discount_amount":+"0.00",+"net_amount":+"0.00",+"total_amount":+"0.00",+"vat_rate":+"0%25",+"vat_amount":+"0.00",+"vat_treatment":+"standard",+"supply_type":+"services",+"input_vat_reclaimable":+"Yes",+"deductibility_status":+"Fully+Deductible",+"capital_expenditure_flag":+"Yes",+"receipt_attached":+"No",+"bank_reconciliation":+"Unreconciled",+"status":+"Pending",+"payment_method":+"",+"notes":+""}&validation_tab=expenses HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:02:32] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:03:28] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-127.0.0.1 - - [06/Aug/2026 23:03:34] "GET /expenses?message=Validation:+Expense+total+amount+must+be+greater+than+zero&validation_errors={"total_amount":+"Expense+total+amount+must+be+greater+than+zero"}&form_data={"date":+"2026-08-06",+"title":+"",+"description":+"Test+Hev+Today",+"supplier":+"",+"supplier_vat_number":+"",+"receipt_reference":+"",+"category":+"",+"base_net_amount":+"0.00",+"delivery_amount":+"0.00",+"fees_amount":+"0.00",+"other_charges_amount":+"0.00",+"discount_amount":+"0.00",+"net_amount":+"0.00",+"total_amount":+"0.00",+"vat_rate":+"0%25",+"vat_amount":+"0.00",+"vat_treatment":+"standard",+"supply_type":+"services",+"input_vat_reclaimable":+"Yes",+"deductibility_status":+"Fully+Deductible",+"capital_expenditure_flag":+"Yes",+"receipt_attached":+"No",+"bank_reconciliation":+"Unreconciled",+"status":+"Pending",+"payment_method":+"",+"notes":+""}&validation_tab=expenses HTTP/1.1" 200 -
-127.0.0.1 - - [06/Aug/2026 23:03:34] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
-127.0.0.1 - - [06/Aug/2026 23:03:34] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:35:27] "GET /healthz HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:35:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:35:30] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:35:40] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:35:41] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:35:52] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:35:52] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:39:32] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:39:33] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:39:41] "GET /subscriptions HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:39:41] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:40:10] "GET /invoices HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:40:10] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:51:43] "GET /invoices HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:51:43] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:51:48] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:51:48] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:51:59] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:51:59] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:52:13] "GET /healthz HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:52:14] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:52:14] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:52:18] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 23:52:18] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -

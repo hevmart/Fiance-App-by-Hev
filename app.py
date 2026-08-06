@@ -84,6 +84,7 @@ SUPPLY_TYPE_OPTIONS = [
     {"value": "goods", "label": "Goods"},
 ]
 INVOICE_STATUS_OPTIONS = ["Draft", "Issued", "Paid", "Partially Paid", "Overdue", "Bad Debt", "Cancelled"]
+INCOME_STATUS_OPTIONS = ["Pending", "Invoiced", "Paid", "Cancelled"]
 EXPENSE_STATUS_OPTIONS = ["Pending", "Approved", "Paid", "Auto-posted", "Cancelled"]
 EXPENSE_INPUT_VAT_OPTIONS = ["Yes", "No", "Partial"]
 EXPENSE_DEDUCTIBILITY_OPTIONS = ["Fully Deductible", "Partially Deductible", "Non-Deductible"]
@@ -2481,9 +2482,9 @@ def _restore_payroll_archive(archive_entry: dict[str, Any]) -> None:
     _record_ledger_entry("restore", "payroll", record, source="archive", row_number=None)
 
 
-def _collect_select_options(data: dict[str, Any], sheet_name: str, field_name: str) -> list[str]:
+def _collect_select_options(data: dict[str, Any], sheet_name: str, field_name: str, base_options: list[str] | None = None) -> list[str]:
+    options: list[str] = list(base_options) if base_options else []
     rows = data.get("sheets", {}).get(sheet_name, [])
-    options: list[str] = []
     for row in rows:
         value = row.get(field_name)
         if not value:
@@ -2492,6 +2493,10 @@ def _collect_select_options(data: dict[str, Any], sheet_name: str, field_name: s
         if value_str and value_str not in options:
             options.append(value_str)
     return options
+
+
+def _chart_of_accounts_category_options(account_type: str) -> list[str]:
+    return [account["name"] for account in DEFAULT_CHART_OF_ACCOUNTS if account.get("type") == account_type]
 
 
 def _parse_iso_date(value: Any) -> date | None:
@@ -2951,9 +2956,9 @@ def _build_page_context(
         "sync_message": sync_message,
         "error": error,
         "income_clients": _collect_select_options(data, "Income", "Client / Source"),
-        "income_categories": _collect_select_options(data, "Income", "Category"),
+        "income_categories": _collect_select_options(data, "Income", "Category", base_options=_chart_of_accounts_category_options("Income")),
         "expense_suppliers": _collect_select_options(data, "Expenses", "Supplier / Payee"),
-        "expense_categories": _collect_select_options(data, "Expenses", "Category"),
+        "expense_categories": _collect_select_options(data, "Expenses", "Category", base_options=_chart_of_accounts_category_options("Expense")),
         "client_names": _collect_select_options(data, "Clients", "Client Name"),
         "supplier_names": _collect_select_options(data, "Suppliers", "Supplier Name"),
         "subscription_frequencies": list(SUBSCRIPTION_FREQUENCIES.keys()),
@@ -2975,6 +2980,7 @@ def _build_page_context(
         "vat_rate_options": VAT_RATE_OPTIONS,
         "vat_treatment_options": VAT_TREATMENT_OPTIONS,
         "supply_type_options": SUPPLY_TYPE_OPTIONS,
+        "income_status_options": INCOME_STATUS_OPTIONS,
         "invoice_status_options": INVOICE_STATUS_OPTIONS,
         "expense_status_options": EXPENSE_STATUS_OPTIONS,
         "expense_input_vat_options": EXPENSE_INPUT_VAT_OPTIONS,
