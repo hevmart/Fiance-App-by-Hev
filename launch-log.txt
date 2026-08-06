@@ -104,3 +104,13 @@ Press CTRL+C to quit
 [2026-08-06 19:37:09] Python start command issued (PID: 33568)
 [2026-08-06 19:37:11] App HTTP endpoint is responsive
 [2026-08-06 19:37:12] Browser open command issued (explorer)
+[2026-08-06 21:17:50] Launch requested
+[2026-08-06 21:17:53] Duplicate app processes detected (2); keeping port owner PID 14468
+[2026-08-06 21:17:59] Python start command issued (PID: 48432)
+[2026-08-06 21:18:00] App HTTP endpoint is responsive
+[2026-08-06 21:18:00] Browser open command issued (explorer)
+[2026-08-06 21:28:03] Launch requested
+[2026-08-06 21:28:12] Duplicate app processes detected (2); keeping port owner PID 7428
+[2026-08-06 21:28:18] Python start command issued (PID: 12412)
+[2026-08-06 21:28:20] App HTTP endpoint is responsive
+[2026-08-06 21:28:20] Browser open command issued (explorer)

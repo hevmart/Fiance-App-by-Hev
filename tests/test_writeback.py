@@ -52,6 +52,8 @@ def isolated_subscription_file(tmp_path):
     original_ledger_path = app.LEDGER_JOURNAL_PATH
     original_capital_assets_path = app.CAPITAL_ASSETS_PATH
     original_payroll_path = app.PAYROLL_PATH
+    original_bank_statements_path = app.BANK_STATEMENTS_PATH
+    original_expense_overrides_path = app.EXPENSE_OVERRIDES_PATH
     app.SUBSCRIPTIONS_PATH = tmp_path / "subscriptions.json"
     app.ARCHIVE_PATH = tmp_path / "archives.json"
     app.AUDIT_LOG_PATH = tmp_path / "audit-log.json"
@@ -60,6 +62,8 @@ def isolated_subscription_file(tmp_path):
     app.LEDGER_JOURNAL_PATH = tmp_path / "ledger-journal.json"
     app.CAPITAL_ASSETS_PATH = tmp_path / "capital-assets.json"
     app.PAYROLL_PATH = tmp_path / "payroll-register.json"
+    app.BANK_STATEMENTS_PATH = tmp_path / "bank-statements.json"
+    app.EXPENSE_OVERRIDES_PATH = tmp_path / "expense-overrides.json"
     yield
     app.SUBSCRIPTIONS_PATH = original_path
     app.ARCHIVE_PATH = original_archive_path
@@ -69,6 +73,8 @@ def isolated_subscription_file(tmp_path):
     app.LEDGER_JOURNAL_PATH = original_ledger_path
     app.CAPITAL_ASSETS_PATH = original_capital_assets_path
     app.PAYROLL_PATH = original_payroll_path
+    app.BANK_STATEMENTS_PATH = original_bank_statements_path
+    app.EXPENSE_OVERRIDES_PATH = original_expense_overrides_path
 
 
 def test_append_income_row_updates_workbook(workbook_copy):
@@ -711,11 +717,12 @@ def test_update_expense_route_updates_existing_workbook_row(workbook_copy):
     assert response.status_code == 200
     assert b'Expense updated' in response.data
 
-    wb = load_workbook(workbook_copy, data_only=True)
-    row = [cell for cell in wb['Expenses'].iter_rows(values_only=True)][row_number - 1]
-    wb.close()
-    assert row[2] == "Updated expense"
-    assert str(row[6]) == "108.90"
+    app.load_finance_data.cache_clear()
+    expenses = app.load_finance_data()["sheets"]["Expenses"]
+    updated = next((r for r in expenses if r.get("__row_number") == row_number), None)
+    assert updated is not None
+    assert updated.get("Description") == "Updated expense"
+    assert str(updated.get("Total (€)")) == "108.90"
 
 
 def test_expense_capex_auto_routes_to_capital_schedule(workbook_copy):

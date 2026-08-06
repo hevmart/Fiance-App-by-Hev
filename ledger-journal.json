@@ -785,5 +785,79 @@
     "credit_total": 7.37,
     "entry_balanced": true,
     "phase_tag": "Phase 1"
+  },
+  {
+    "id": "800f4478-541d-414b-8b85-76fcedcf3454",
+    "timestamp": "2026-08-06T21:37:21",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 12,
+    "transaction_date": "2026-07-27",
+    "description": "Testinnn2",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 1526.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 1526.0,
+    "amount_eur": 1526.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 1526.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 1526.0
+      }
+    ],
+    "debit_total": 1526.0,
+    "credit_total": 1526.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "246fd744-f8cb-40a9-a1d0-ae7b988a652d",
+    "timestamp": "2026-08-06T22:19:45",
+    "action": "archive",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 12,
+    "transaction_date": "2026-07-27",
+    "description": "Testinnn2",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 1526.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 1526.0,
+    "amount_eur": 1526.0,
+    "journal_lines": [
+      {
+        "account_code": "1000",
+        "debit": 1526.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "5000",
+        "debit": 0.0,
+        "credit": 1526.0
+      }
+    ],
+    "debit_total": 1526.0,
+    "credit_total": 1526.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
   }
 ]
