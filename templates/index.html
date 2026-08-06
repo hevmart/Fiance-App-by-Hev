@@ -8,6 +8,109 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <style>
+      /* ==========================================================================
+         H-QUEEX BRAND & UI CONVENTIONS — single source of truth for this file.
+         Any new markup/CSS added to index.html should reuse the tokens and
+         patterns below rather than introducing new colours or one-off styles.
+         ==========================================================================
+
+         COLOUR PALETTE (defined as CSS custom properties in :root below —
+         always reference the var(), never hardcode a hex value elsewhere):
+
+           --brand-navy      #16294A  Primary navy — headers, nav text, primary
+                                       buttons, table headers, "processed" status
+                                       accent.
+           --brand-mid-navy  #1B3A5C  Mid navy — card/section header bars,
+                                       primary button hover state, KPI card
+                                       background.
+           --brand-steel     #618096  Steel blue — muted/optional field labels,
+                                       "in-progress" status accent, VAT banner
+                                       "warning" state.
+           --brand-gold      #B08D57  Gold — required-field asterisk, focus
+                                       rings, card/KPI top or left accent
+                                       borders, nav active underline, totals/
+                                       highlights, "paid/positive" status
+                                       accent, VAT banner "ok" state, positive
+                                       badges (e.g. "Connected").
+           --brand-charcoal  #37373A  Primary body text.
+           --brand-dark-grey #535356  Secondary/muted body text (.mini).
+           --brand-border    #E2E2E3  All borders and dividers (inputs, cards,
+                                       tables, secondary buttons).
+           --brand-bg-light  #F7F7F7  Input backgrounds, alternating table
+                                       rows, neutral pill/badge backgrounds.
+           --brand-bg-deep   #F2F2F2  Slightly deeper neutral background
+                                       (e.g. progress-bar tracks).
+           --brand-white     #FFFFFF  Card backgrounds, button/table text on
+                                       dark surfaces.
+           --brand-error     #C62828  RESERVED — use sparingly, only for:
+                                       form validation errors, required-field
+                                       borders when empty, and the VAT banner
+                                       "exceeded" state / negative badges.
+
+         Do not introduce any colour outside this list (no Bootstrap defaults,
+         no ad-hoc greens/ambers/blues). Where a semantic colour is needed and
+         none of the above fits exactly, reuse the closest palette colour
+         rather than adding a new one — see the conventions below for the
+         precedents already established.
+
+         TYPOGRAPHY: 'Segoe UI', sans-serif everywhere — headings, body,
+         labels, buttons. No other named font (no Arial/Helvetica).
+
+         BUTTON HIERARCHY:
+           .btn-primary / .form-actions button / .table-actions button
+             → background var(--brand-navy), white text, gold bottom border,
+               hover background var(--brand-mid-navy).
+               Use for the main/confirming action in a form or row (Save,
+               Add, Restore, Apply, Mark reconciled, etc).
+           .btn-secondary / .table-actions.secondary button / .archive-action button
+             → background var(--brand-white), navy text, var(--brand-border)
+               border, hover border var(--brand-gold).
+               Use for secondary or "reversal" actions that undo/oppose the
+               primary action in the same context (Force Restore, Mark
+               unreconciled, Export, archive/delete rows).
+
+         STATUS PILL CONVENTION (.status-pill):
+           One neutral pill style (bg var(--brand-bg-light), text
+           var(--brand-charcoal), border var(--brand-border)) differentiated
+           only by a 3px left-border accent — never by changing the fill
+           colour of the whole pill:
+             var(--brand-steel)  → in-progress   (pending, draft, legacy)
+             var(--brand-navy)   → processed     (issued, approved,
+                                                   auto-posted, filed)
+             var(--brand-gold)   → paid/positive (paid, partially-paid)
+             var(--brand-error)  → at-risk       (overdue, bad-debt,
+                                                   cancelled)
+
+         BADGE CONVENTION (.badge-positive / .badge-negative):
+           Positive/affirmative state (e.g. "Connected"): gold border/outline
+           on var(--brand-bg-light), navy text.
+           Negative/missing state (e.g. "Missing workbook"): var(--brand-error)
+           border and text on var(--brand-bg-light). Reserve red for genuine
+           missing/error conditions, not routine neutral states.
+
+         VAT THRESHOLD BANNER STATES (.notice-ok / .notice-warning / .notice-exceeded):
+           ok       → gold border, navy text        (healthy / on track)
+           warning  → steel-blue border and text     (approaching limit)
+           exceeded → var(--brand-error) border/text on a faint red tint
+                      (limit exceeded — genuine compliance issue, the one
+                      other place red is used besides form validation)
+
+         CARD / SECTION HEADERS:
+           Generic cards (.card, .chart-card): white body, thin
+           var(--brand-border) border, 3px gold left-border accent; the h3
+           inside bleeds edge-to-edge as a var(--brand-mid-navy) bar with
+           white text.
+           Page-level section headers (.section h2): gold left-border accent
+           on navy text, no background bar.
+           Dashboard/summary KPI tiles (.grid .card, reused on every page's
+           top summary row, not just "/"): solid var(--brand-mid-navy)
+           background, white text, 4px gold TOP border — visually distinct
+           from generic content cards above.
+
+         When adding new UI, ask: does this fit an existing convention above?
+         If yes, reuse the class/token. If genuinely new, extend this comment
+         block with the decision so it stays the source of truth.
+         ========================================================================== */
       :root {
         color-scheme: light;
         --brand-navy: #16294A;

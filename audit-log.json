@@ -1395,5 +1395,21 @@
         "Phase Tag": "Phase 1"
       }
     }
+  },
+  {
+    "id": "10f3ddae-1afe-49fa-907f-eba5e7b74aef",
+    "timestamp": "2026-08-07T00:17:20",
+    "action": "create",
+    "entity_type": "client",
+    "details": {
+      "row_number": 2,
+      "record": {
+        "Client Name": "TiciLey",
+        "Contact Person": "Ashane",
+        "Email": "heu_tici@hotmail.com",
+        "Phone": "0838307555",
+        "Country": "Ireland"
+      }
+    }
   }
 ]
