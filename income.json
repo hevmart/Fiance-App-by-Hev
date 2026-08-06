@@ -1,1 +1,34 @@
-[]
+[
+  {
+    "Date": "2026-08-07",
+    "Description": "Test Hev Today 2",
+    "Client / Source": "",
+    "Category": "Consulting / Project Fees",
+    "Invoice #": "",
+    "Amount (\u20ac)": "333.00",
+    "Total incl. VAT (\u20ac)": "333.00",
+    "VAT Rate": "0%",
+    "VAT Amount (\u20ac)": "0.00",
+    "VAT Treatment": "standard",
+    "Supply Type": "services",
+    "Status": "Invoiced",
+    "Payment Method": "Cash",
+    "Phase Tag": "Phase 1"
+  },
+  {
+    "Date": "2026-08-03",
+    "Description": "Job do cheese",
+    "Client / Source": "",
+    "Category": "Other Income",
+    "Invoice #": "",
+    "Amount (\u20ac)": "864.00",
+    "Total incl. VAT (\u20ac)": "864.00",
+    "VAT Rate": "0%",
+    "VAT Amount (\u20ac)": "0.00",
+    "VAT Treatment": "standard",
+    "Supply Type": "services",
+    "Status": "Paid",
+    "Payment Method": "Business Bank Account",
+    "Phase Tag": "Phase 1"
+  }
+]

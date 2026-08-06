@@ -933,5 +933,79 @@
     "credit_total": 50.0,
     "entry_balanced": true,
     "phase_tag": "Phase 1"
+  },
+  {
+    "id": "0cdf99bd-d623-4c0b-9c5e-f9d3255a87e4",
+    "timestamp": "2026-08-07T00:08:31",
+    "action": "create",
+    "entity_type": "income",
+    "source": "workbook",
+    "row_number": 1,
+    "transaction_date": "2026-08-07",
+    "description": "Test Hev Today 2",
+    "category": "Consulting / Project Fees",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 333.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 333.0,
+    "amount_eur": 333.0,
+    "journal_lines": [
+      {
+        "account_code": "1000",
+        "debit": 333.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 333.0
+      }
+    ],
+    "debit_total": 333.0,
+    "credit_total": 333.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "73faa2d9-f6d3-4eb9-b3e5-8b451b1d2e4a",
+    "timestamp": "2026-08-07T00:10:14",
+    "action": "create",
+    "entity_type": "income",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-03",
+    "description": "Job do cheese",
+    "category": "Other Income",
+    "account_code": "4900",
+    "account_name": "Other Income",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 864.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 864.0,
+    "amount_eur": 864.0,
+    "journal_lines": [
+      {
+        "account_code": "1000",
+        "debit": 864.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4900",
+        "debit": 0.0,
+        "credit": 864.0
+      }
+    ],
+    "debit_total": 864.0,
+    "credit_total": 864.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
   }
 ]

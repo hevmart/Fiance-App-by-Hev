@@ -1345,5 +1345,55 @@
         "Phase Tag": "Phase 1"
       }
     }
+  },
+  {
+    "id": "31e5a264-db02-4b49-85c9-e37a573b21e7",
+    "timestamp": "2026-08-07T00:08:31",
+    "action": "create",
+    "entity_type": "income",
+    "details": {
+      "row_number": 1,
+      "record": {
+        "Date": "2026-08-07",
+        "Description": "Test Hev Today 2",
+        "Client / Source": "",
+        "Category": "Consulting / Project Fees",
+        "Invoice #": "",
+        "Amount (\u20ac)": "333.00",
+        "Total incl. VAT (\u20ac)": "333.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Status": "Invoiced",
+        "Payment Method": "Cash",
+        "Phase Tag": "Phase 1"
+      }
+    }
+  },
+  {
+    "id": "dc1bd640-ac19-46e9-94f6-bbcdaa14e380",
+    "timestamp": "2026-08-07T00:10:14",
+    "action": "create",
+    "entity_type": "income",
+    "details": {
+      "row_number": 2,
+      "record": {
+        "Date": "2026-08-03",
+        "Description": "Job do cheese",
+        "Client / Source": "",
+        "Category": "Other Income",
+        "Invoice #": "",
+        "Amount (\u20ac)": "864.00",
+        "Total incl. VAT (\u20ac)": "864.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Status": "Paid",
+        "Payment Method": "Business Bank Account",
+        "Phase Tag": "Phase 1"
+      }
+    }
   }
 ]
