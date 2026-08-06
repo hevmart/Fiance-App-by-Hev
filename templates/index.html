@@ -1,0 +1,1431 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }}</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+      :root {
+        color-scheme: light;
+        --brand-navy: #16294A;
+        --brand-gold: #B08D57;
+        --brand-light-gold: #C9A96E;
+        --brand-light-grey: #F7F7F7;
+        --brand-charcoal: #37373A;
+      }
+      body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: linear-gradient(180deg, #f8f9fb 0%, #f2f5f9 100%); color: var(--brand-charcoal); }
+      .container { max-width: 1240px; margin: 0 auto; padding: 28px 22px 40px; }
+      .header { background: transparent; color: var(--brand-navy); padding: 0 0 18px; border: 0; box-shadow: none; position: relative; overflow: visible; }
+      .brand-row { display: flex; align-items: center; justify-content: flex-start; gap: 22px; flex-wrap: wrap; padding-bottom: 4px; }
+      .brand-mark { flex-shrink: 0; padding: 0; background: transparent; border: 0; }
+      .brand-mark img { max-height: 70px; width: auto; display: block; }
+      .hero-copy { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+      .header h1 { margin: 0; font-size: clamp(24px, 2.4vw, 32px); color: var(--brand-navy); font-weight: 700; line-height: 1.1; }
+      .header .muted { display: none; }
+      nav { display: flex; gap: 10px; flex-wrap: wrap; margin: 22px 0 18px; padding-bottom: 10px; border-bottom: 1px solid #e4e7eb; }
+      nav a { text-decoration: none; padding: 10px 14px; background: transparent; border-radius: 999px; color: var(--brand-navy); font-weight: 600; transition: background 0.2s ease, color 0.2s ease; }
+      nav a:hover, nav a.active { background: var(--brand-navy); color: white; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 16px 0 24px; }
+      .card { background: white; border-radius: 18px; padding: 18px 20px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); border: 1px solid #eef1f5; }
+      .card h3 { margin-top: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brand-gold); }
+      .value { font-size: 24px; font-weight: 700; margin-top: 8px; color: var(--brand-navy); }
+      .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: #f8efe2; color: var(--brand-gold); margin-top: 8px; }
+      .panel { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin: 24px 0; }
+      .panel .card { height: 100%; }
+      table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+      th, td { padding: 12px 14px; border-bottom: 1px solid #edf0f4; text-align: left; font-size: 14px; }
+      th { background: #f8f9fb; color: var(--brand-navy); font-weight: 600; }
+      .muted { color: rgba(255,255,255,0.9); }
+      .section { margin-top: 24px; }
+      .section h2 { margin: 0 0 10px; color: var(--brand-navy); font-size: 20px; }
+      .mini { font-size: 13px; color: var(--brand-charcoal); line-height: 1.6; }
+      .form-shell { display: grid; gap: 12px; max-width: 860px; }
+      .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+      .field { display: flex; flex-direction: column; gap: 6px; }
+      .field.has-error input, .field.has-error select { border-color: #8c2f39; box-shadow: 0 0 0 3px rgba(140, 47, 57, 0.12); }
+      .field label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-navy); }
+      .field-error { font-size: 12px; color: #8c2f39; font-weight: 600; }
+      .field input, .field select {
+        width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid #d6dde6; border-radius: 12px; background: white; color: var(--brand-charcoal); font: inherit; box-sizing: border-box;
+      }
+      .field input:focus, .field select:focus {
+        outline: none; border-color: var(--brand-gold); box-shadow: 0 0 0 3px rgba(176, 141, 87, 0.18);
+      }
+      .field select {
+        appearance: none; padding-right: 38px;
+        background-image: linear-gradient(45deg, transparent 50%, var(--brand-gold) 50%), linear-gradient(135deg, var(--brand-gold) 50%, transparent 50%);
+        background-position: calc(100% - 20px) calc(50% - 2px), calc(100% - 14px) calc(50% - 2px);
+        background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+      }
+      .field input[type="number"] { font-variant-numeric: tabular-nums; }
+      .form-actions { display: flex; justify-content: flex-start; }
+      .form-actions button {
+        border: 0; border-radius: 999px; background: linear-gradient(135deg, var(--brand-navy) 0%, #24406b 100%); color: white; padding: 12px 18px; font-weight: 700; cursor: pointer;
+      }
+      .form-actions button:hover { filter: brightness(1.04); }
+      .table-actions { display: flex; justify-content: flex-end; }
+      .table-action-stack { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+      .table-actions button {
+        border: 0; border-radius: 999px; background: var(--brand-navy); color: white; padding: 8px 12px; font-weight: 700; cursor: pointer;
+      }
+      .table-actions button:hover { filter: brightness(1.05); }
+      .archive-action button {
+        background: linear-gradient(135deg, var(--brand-gold) 0%, var(--brand-light-gold) 100%);
+        color: var(--brand-navy);
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+      .status-pill.pending { background: #f4efe3; color: #6f552c; border-color: #e7dbbf; }
+      .status-pill.draft { background: #edf0f5; color: #43536a; border-color: #dde4ee; }
+      .status-pill.issued { background: #ece5f7; color: #5a3e82; border-color: #ddd0ef; }
+      .status-pill.approved { background: #e8eef9; color: #214a7b; border-color: #cedcf0; }
+      .status-pill.paid { background: #e8f5ee; color: #1f6e3b; border-color: #c9e7d4; }
+      .status-pill.partially-paid { background: #edf6e8; color: #3f6d24; border-color: #d9eccc; }
+      .status-pill.overdue { background: #faece6; color: #8a4326; border-color: #f1d5c8; }
+      .status-pill.bad-debt { background: #f5e8e9; color: #7c2f39; border-color: #e8ccd1; }
+      .status-pill.auto-posted { background: #edf2f8; color: #2f4e73; border-color: #d6e0ec; }
+      .status-pill.filed { background: #eaf2fb; color: #2c4a72; border-color: #d2e0f0; }
+      .status-pill.cancelled { background: #f2f2f2; color: #4f5662; border-color: #e2e2e2; }
+      .status-pill.legacy { background: #f7f7f7; color: #5c6674; border-color: #e6eaf0; }
+      .edit-link, .cancel-link {
+        display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 999px; padding: 8px 12px; font-weight: 700;
+      }
+      .edit-link { background: #eef2f7; color: var(--brand-navy); }
+      .cancel-link { background: transparent; color: var(--brand-navy); }
+      .edit-banner { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+      .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 18px 0 24px; }
+      .chart-card { background: white; border-radius: 18px; padding: 18px 20px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); border: 1px solid #eef1f5; }
+      .chart-card h3 { margin-top: 0; margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brand-gold); }
+      .bar-row { display: grid; grid-template-columns: 88px 1fr 78px; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--brand-charcoal); }
+      .bar-track { height: 10px; border-radius: 999px; background: #eef2f7; overflow: hidden; }
+      .bar-fill { height: 100%; border-radius: inherit; }
+      .bar-fill.income { background: linear-gradient(90deg, var(--brand-gold), #f0c777); transform-origin: left center; animation: grow-bar 900ms ease-out forwards; }
+      .bar-fill.expense { background: linear-gradient(90deg, #4f6f8f, #7fa4c2); transform-origin: left center; animation: grow-bar 900ms ease-out forwards; }
+      .bar-fill.net { background: linear-gradient(90deg, #2a7a4b, #59b177); transform-origin: left center; animation: grow-bar 900ms ease-out forwards; }
+      .donut-wrap { display: flex; justify-content: center; align-items: center; padding: 6px 0; }
+      .donut {
+        width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(var(--brand-gold) 0 var(--income-degree), #4f6f8f var(--income-degree) calc(var(--income-degree) + var(--expense-degree)), #2a7a4b calc(var(--income-degree) + var(--expense-degree)) 100%);
+        position: relative; box-shadow: inset 0 0 0 10px rgba(255,255,255,0.9);
+        animation: fade-scale 900ms ease-out both;
+      }
+      .donut::after { content: 'Cashflow'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--brand-navy); }
+      @keyframes grow-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+      @keyframes fade-scale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+      .alert {
+        display: inline-flex; align-items: center; gap: 8px; margin: 12px 0 0; padding: 10px 12px; border-radius: 999px; background: #ecf8ef; color: #1f6e3b; font-weight: 700; border: 1px solid #cfead7;
+      }
+      @media (max-width: 900px) { .panel { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <div class="container" data-version="{{ version }}">
+      <div class="header">
+        <div class="brand-row">
+          <div class="brand-mark">
+            <img src="{{ url_for('static', filename='H-Queex Logo Blue and Gold with Tagline V4.0.png') }}" alt="H-Queex logo">
+          </div>
+          <div class="hero-copy">
+            <h1>{{ page_title }}</h1>
+          </div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="/" class="{% if active_tab|default('dashboard') == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="/income" class="{% if active_tab == 'income' %}active{% endif %}">Income</a>
+        <a href="/expenses" class="{% if active_tab == 'expenses' %}active{% endif %}">Expenses</a>
+        <a href="/subscriptions" class="{% if active_tab == 'subscriptions' %}active{% endif %}">Subscriptions</a>
+        <a href="/payroll" class="{% if active_tab == 'payroll' %}active{% endif %}">Payroll</a>
+        <a href="/invoices" class="{% if active_tab == 'invoices' %}active{% endif %}">Invoices</a>
+        <a href="/clients" class="{% if active_tab == 'clients' %}active{% endif %}">Clients</a>
+        <a href="/suppliers" class="{% if active_tab == 'suppliers' %}active{% endif %}">Suppliers</a>
+        <a href="/ledger" class="{% if active_tab == 'ledger' %}active{% endif %}">Ledger</a>
+        <a href="/archive" class="{% if active_tab == 'archive' %}active{% endif %}">Archive</a>
+      </nav>
+      <div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div>
+          <h3 style="margin:0 0 4px;">Workbook connection</h3>
+          <div class="mini" style="margin:0;">Connected file: <strong>{{ workbook_path or 'Not detected' }}</strong></div>
+          {% if workbook_status == 'connected' %}
+          <div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#ecf8ef;color:#1f6e3b;font-size:12px;font-weight:700;">● Connected</div>
+          {% else %}
+          <div style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#fff4e5;color:#9a5b00;font-size:12px;font-weight:700;">⚠ Missing workbook</div>
+          {% endif %}
+        </div>
+        <form method="post" action="/refresh?next={{ request.path }}">
+          <button type="submit" style="border:0;border-radius:999px;background:linear-gradient(135deg,var(--brand-navy) 0%,#24406b 100%);color:white;padding:10px 14px;font-weight:700;cursor:pointer;">Refresh workbook</button>
+        </form>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+          <div>
+            <h3 style="margin:0 0 4px;">Business structure</h3>
+            <div class="mini" style="margin:0;">Current phase: <strong>{{ phase_label }}</strong></div>
+            {% if business_profile.transition_date %}
+            <div class="mini" style="margin-top:4px;">Transition date: <strong>{{ business_profile.transition_date }}</strong></div>
+            {% endif %}
+          </div>
+          <form method="post" action="/business-structure/update?next={{ request.path }}" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));width:min(760px,100%);">
+            <label class="field" style="margin:0;">
+              <span>Legal structure</span>
+              <select name="structure">
+                <option value="sole_trader" {% if business_structure == 'sole_trader' %}selected{% endif %}>Sole Trader / Business Name (Phase 1)</option>
+                <option value="limited_company" {% if business_structure == 'limited_company' %}selected{% endif %}>Private Limited Company (Phase 2)</option>
+              </select>
+            </label>
+            <label class="field" style="margin:0;">
+              <span>Transition date</span>
+              <input type="date" name="transition_date" value="{{ business_profile.transition_date }}">
+            </label>
+            <label class="field" style="margin:0;justify-content:flex-end;">
+              <span>VAT registration</span>
+              <div style="display:flex;align-items:center;gap:8px;min-height:46px;">
+                <input id="vat_registered" type="checkbox" name="vat_registered" value="1" {% if vat_registered %}checked{% endif %}>
+                <label for="vat_registered" style="margin:0;font-size:13px;color:var(--brand-charcoal);">VAT registered business</label>
+              </div>
+            </label>
+            <label class="field" style="margin:0;">
+              <span>VAT threshold basis</span>
+              <select name="vat_threshold_basis">
+                {% for option in vat_threshold_options %}
+                <option value="{{ option.value }}" {% if business_profile.vat_threshold_basis == option.value %}selected{% endif %}>{{ option.label }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <div style="display:flex;align-items:flex-end;">
+              <button type="submit" style="border:0;border-radius:999px;background:linear-gradient(135deg,var(--brand-navy) 0%,#24406b 100%);color:white;padding:10px 14px;font-weight:700;cursor:pointer;">Save structure</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {% if message %}
+      <div class="alert">{{ message }}</div>
+      {% endif %}
+
+      {% if error %}
+      <div class="card"><h3>Workbook status</h3><p>{{ error }}</p></div>
+      {% else %}
+      {% if active_tab == 'dashboard' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Income</h3>
+          <div class="value">{{ format_currency(summary.income_total) }}</div>
+          <div class="pill">Tracked from workbook</div>
+        </div>
+        <div class="card">
+          <h3>Expenses</h3>
+          <div class="value">{{ format_currency(summary.expense_total) }}</div>
+          <div class="pill">Live expense register</div>
+        </div>
+        <div class="card">
+          <h3>Net Cashflow</h3>
+          <div class="value">{{ format_currency(summary.net_cashflow) }}</div>
+          <div class="pill">Income minus expenses</div>
+        </div>
+        <div class="card">
+          <h3>Invoice Balance</h3>
+          <div class="value">{{ format_currency(summary.invoice_balance) }}</div>
+          <div class="pill">Receivables tracking</div>
+        </div>
+        <div class="card">
+          <h3>AP Balance</h3>
+          <div class="value">{{ format_currency(summary.ap_balance) }}</div>
+          <div class="pill">Payables tracking</div>
+        </div>
+        <div class="card">
+          <h3>VAT Balance</h3>
+          <div class="value">{{ format_currency(summary.vat_balance) }}</div>
+          <div class="pill">Tax position</div>
+        </div>
+        <div class="card">
+          <h3>Subscriptions</h3>
+          <div class="value">{{ subscription_summary.active_count }}</div>
+          <div class="pill">{{ subscription_summary.due_count }} due now · {{ format_currency(subscription_summary.monthly_commitment) }}/month</div>
+        </div>
+        <div class="card">
+          <h3>Tax regime</h3>
+          <div class="value" style="font-size:18px;">{{ phase_policy.tax_regime }}</div>
+          <div class="pill">Estimated rate: {{ (phase_policy.estimated_tax_rate * 100) | round(1) }}%</div>
+        </div>
+        <div class="card">
+          <h3>Estimated tax due</h3>
+          <div class="value">{{ format_currency(phase_policy.estimated_tax_due) }}</div>
+          <div class="pill">Based on current net cashflow</div>
+        </div>
+        <div class="card">
+          <h3>Report template mode</h3>
+          <div class="value" style="font-size:18px;">{{ phase_policy.report_template }}</div>
+          <div class="pill">{{ phase_policy.owner_account_label }}</div>
+        </div>
+        <div class="card">
+          <h3>Ledger entries</h3>
+          <div class="value">{{ ledger_summary.entries_count }}</div>
+          <div class="pill">Dr {{ format_currency(ledger_summary.debit_total) }} | Cr {{ format_currency(ledger_summary.credit_total) }}</div>
+        </div>
+        <div class="card">
+          <h3>Payroll run cost</h3>
+          <div class="value">{{ format_currency(payroll_summary.employer_cost_total) }}</div>
+          <div class="pill">{{ payroll_summary.count }} runs logged</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="card">
+          <h3>Overview</h3>
+          <p class="mini">This dashboard reads directly from the attached spreadsheet and presents your core finance position in a cleaner interface.</p>
+          <p><strong>Income:</strong> {{ format_currency(summary.income_total) }}</p>
+          <p><strong>Expenses:</strong> {{ format_currency(summary.expense_total) }}</p>
+          <p><strong>Net:</strong> {{ format_currency(summary.net_cashflow) }}</p>
+        </div>
+        <div class="card">
+          <h3>Quick focus</h3>
+          <p class="mini">Use the navigation above to jump into income, expenses, payroll, invoices, clients, and suppliers.</p>
+          <p><strong>Next filing:</strong> {{ phase_policy.next_filing_deadline }}</p>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <h3>Income vs expenses</h3>
+          <div class="bar-row">
+            <span>Income</span>
+            <div class="bar-track"><div class="bar-fill income" style="width: {{ chart_data.income_width }}%"></div></div>
+            <strong>{{ format_currency(chart_data.income) }}</strong>
+          </div>
+          <div class="bar-row">
+            <span>Expenses</span>
+            <div class="bar-track"><div class="bar-fill expense" style="width: {{ chart_data.expense_width }}%"></div></div>
+            <strong>{{ format_currency(chart_data.expense) }}</strong>
+          </div>
+          <div class="bar-row">
+            <span>Net</span>
+            <div class="bar-track"><div class="bar-fill net" style="width: {{ chart_data.net_width }}%"></div></div>
+            <strong>{{ format_currency(chart_data.net) }}</strong>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Cashflow mix</h3>
+          <div class="donut-wrap">
+            <div class="donut" style="--income-degree: {{ ((chart_data.income if chart_data.income >= 0 else 0) / ((chart_data.income if chart_data.income >= 0 else 0) + (chart_data.expense if chart_data.expense >= 0 else 0) + 1) * 360) | round(1) }}deg; --expense-degree: {{ ((chart_data.expense if chart_data.expense >= 0 else 0) / ((chart_data.income if chart_data.income >= 0 else 0) + (chart_data.expense if chart_data.expense >= 0 else 0) + 1) * 360) | round(1) }}deg;"></div>
+          </div>
+        </div>
+      </div>
+
+      {% if income %}
+      <div class="section">
+        <h2>Recent income</h2>
+        <table>
+          <tr><th>Date</th><th>Description</th><th>Client / Source</th><th>Amount (€)</th><th>Status</th></tr>
+          {% for row in income %}
+          <tr>
+            <td>{{ row.get('Date') or '' }}</td>
+            <td>{{ row.get('Description') or '' }}</td>
+            <td>{{ row.get('Client / Source') or '' }}</td>
+            <td>{{ format_currency(row.get('Amount (€)', 0) or 0) }}</td>
+            <td>{{ row.get('Status') or '' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if expenses %}
+      <div class="section">
+        <h2>Recent expenses</h2>
+        <table>
+          <tr><th>Date</th><th>Supplier / Payee</th><th>Description</th><th>Total (€)</th><th>Status</th></tr>
+          {% for row in expenses %}
+          <tr>
+            <td>{{ row.get('Date (Registered)') or '' }}</td>
+            <td>{{ row.get('Supplier / Payee') or '' }}</td>
+            <td>{{ row.get('Description') or '' }}</td>
+            <td>{{ format_currency(row.get('Total (€)', 0) or 0) }}</td>
+            <td>{{ row.get('Status') or '' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if invoices %}
+      <div class="section">
+        <h2>Recent invoices</h2>
+        <table>
+          <tr><th>Invoice #</th><th>Client</th><th>Total (€)</th><th>Balance Due (€)</th><th>Status</th></tr>
+          {% for row in invoices %}
+          <tr>
+            <td>{{ row.get('Invoice #') or '' }}</td>
+            <td>{{ row.get('Client Name') or '' }}</td>
+            <td>{{ format_currency(row.get('Total (€)', 0) or 0) }}</td>
+            <td>{{ format_currency(row.get('Balance Due (€)', 0) or 0) }}</td>
+            <td>{{ row.get('Status') or '' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if clients %}
+      <div class="section">
+        <h2>Clients</h2>
+        <table>
+          <tr><th>Client Name</th><th>Contact Person</th><th>Email</th><th>Phone</th></tr>
+          {% for row in clients %}
+          <tr>
+            <td>{{ row.get('Client Name') or '' }}</td>
+            <td>{{ row.get('Contact Person') or '' }}</td>
+            <td>{{ row.get('Email') or '' }}</td>
+            <td>{{ row.get('Phone') or '' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if suppliers %}
+      <div class="section">
+        <h2>Suppliers</h2>
+        <table>
+          <tr><th>Supplier Name</th><th>Contact Person</th><th>Email</th><th>Country</th></tr>
+          {% for row in suppliers %}
+          <tr>
+            <td>{{ row.get('Supplier Name') or '' }}</td>
+            <td>{{ row.get('Contact Person') or '' }}</td>
+            <td>{{ row.get('Email') or '' }}</td>
+            <td>{{ row.get('Country') or '' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+      {% else %}
+      <div class="section">
+        <h2>{{ page_title }}</h2>
+        <p class="mini">Viewing the {{ active_tab }} register directly from the workbook.</p>
+        {% if message %}
+        <div class="alert">✓ {{ message }}</div>
+        {% endif %}
+        {% if sync_message %}
+        <div class="alert">✓ {{ sync_message }}</div>
+        {% endif %}
+      </div>
+
+      {% if active_tab == 'income' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Total income</h3>
+          <div class="value">{{ format_currency(summary.income_total) }}</div>
+          <div class="pill">Workbook income total</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_income %}Edit income{% else %}Add income{% endif %}</h2>
+          {% if editing_income %}<a href="/income" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_income %}/income/update{% else %}/income/add{% endif %}" class="form-shell">
+          {% if editing_income %}<input type="hidden" name="row_number" value="{{ editing_income.get('__row_number') }}">{% endif %}
+          <div class="form-grid">
+            <div class="field {% if validation_errors.get('date') %}has-error{% endif %}"><label for="income_date">Date</label><input id="income_date" type="date" name="date" value="{{ income_form.get('date') if income_form else (editing_income.get('Date') if editing_income else '') }}" required>{% if validation_errors.get('date') %}<span class="field-error">{{ validation_errors.get('date') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('description') %}has-error{% endif %}"><label for="income_description">Description</label><input id="income_description" type="text" name="description" value="{{ income_form.get('description') if income_form else (editing_income.get('Description') if editing_income else '') }}" placeholder="Description" required>{% if validation_errors.get('description') %}<span class="field-error">{{ validation_errors.get('description') }}</span>{% endif %}</div>
+            <div class="field"><label for="income_client">Client / source</label><select id="income_client" name="client_source"><option value="">Select client / source</option>{% for option in income_clients %}<option value="{{ option }}" {% if (income_form and income_form.get('client_source') == option) or (not income_form and editing_income and editing_income.get('Client / Source') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="income_category">Category</label><select id="income_category" name="category"><option value="">Select category</option>{% for option in income_categories %}<option value="{{ option }}" {% if (income_form and income_form.get('category') == option) or (not income_form and editing_income and editing_income.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="income_invoice">Invoice #</label><input id="income_invoice" type="text" name="invoice_number" value="{{ income_form.get('invoice_number') if income_form else (editing_income.get('Invoice #') if editing_income else '') }}" placeholder="Invoice #"></div>
+            <div class="field {% if validation_errors.get('amount') %}has-error{% endif %}"><label for="income_amount">Amount</label><input id="income_amount" type="number" step="0.01" name="amount" value="{{ income_form.get('amount') if income_form else (editing_income.get('Amount (€)') if editing_income else '') }}" placeholder="Amount" required>{% if validation_errors.get('amount') %}<span class="field-error">{{ validation_errors.get('amount') }}</span>{% endif %}</div>
+            {% if vat_registered %}
+            <div class="field"><label for="income_vat_rate">VAT rate</label><select id="income_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (income_form and income_form.get('vat_rate') == option) or (not income_form and editing_income and editing_income.get('VAT Rate') == option) or (not income_form and not editing_income and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="income_vat_amount">VAT amount</label><input id="income_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ income_form.get('vat_amount') if income_form else (editing_income.get('VAT Amount (€)') if editing_income else '') }}" placeholder="VAT amount"></div>
+            <div class="field"><label for="income_vat_treatment">VAT treatment</label><select id="income_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (income_form and income_form.get('vat_treatment') == option.value) or (not income_form and editing_income and editing_income.get('VAT Treatment') == option.value) or (not income_form and not editing_income and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="income_supply_type">Supply type</label><select id="income_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (income_form and income_form.get('supply_type') == option.value) or (not income_form and editing_income and editing_income.get('Supply Type') == option.value) or (not income_form and not editing_income and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="income_total_vat">Total incl. VAT</label><input id="income_total_vat" type="number" step="0.01" name="total_incl_vat" value="{{ income_form.get('total_incl_vat') if income_form else (editing_income.get('Total incl. VAT (€)') if editing_income else '') }}" placeholder="Total incl. VAT"></div>
+            {% endif %}
+            <div class="field"><label for="income_status">Status</label><input id="income_status" type="text" name="status" placeholder="Status" value="{{ income_form.get('status') if income_form else (editing_income.get('Status') if editing_income else 'Pending') }}"></div>
+            <div class="field"><label for="income_payment_method">Payment method</label><select id="income_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in income_payment_methods %}<option value="{{ option }}" {% if (income_form and income_form.get('payment_method') == option) or (not income_form and editing_income and editing_income.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_income %}Update income{% else %}Save income{% endif %}</button></div>
+        </form>
+      </div>
+      <div class="section">
+        <h2>Income register</h2>
+        <table>
+          <tr><th>Date</th><th>Description</th><th>Client / Source</th><th>Amount (€)</th><th>Status</th><th></th></tr>
+          {% if income %}
+          {% for row in income %}
+          <tr>
+            <td>{{ row.get('Date') or '' }}</td>
+            <td>{{ row.get('Description') or '' }}</td>
+            <td>{{ row.get('Client / Source') or '' }}</td>
+            <td>{{ format_currency(row.get('Amount (€)', 0) or 0) }}</td>
+            <td>{{ row.get('Status') or '' }}</td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/income?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
+                <form method="post" action="/income/delete" class="table-actions archive-action" onsubmit="return confirm('Archive this income entry?');">
+                  <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
+                  <button type="submit">Archive</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="6">No income rows are currently present in the workbook.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if active_tab == 'expenses' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Total expenses</h3>
+          <div class="value">{{ format_currency(summary.expense_total) }}</div>
+          <div class="pill">Workbook expense total</div>
+        </div>
+        <div class="card">
+          <h3>Recurring subscriptions</h3>
+          <div class="value">{{ subscription_summary.active_count }}</div>
+          <div class="pill">Manage all recurring charges in one register</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_expense %}Edit expense{% else %}Add expense{% endif %}</h2>
+          {% if editing_expense %}<a href="/expenses" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_expense %}/expenses/update{% else %}/expenses/add{% endif %}" class="form-shell">
+          {% if editing_expense %}<input type="hidden" name="row_number" value="{{ editing_expense.get('__row_number') }}">{% endif %}
+          <div class="form-grid">
+            <div class="field {% if validation_errors.get('date') %}has-error{% endif %}"><label for="expense_date">Date</label><input id="expense_date" type="date" name="date" value="{{ expense_form.get('date') if expense_form else (editing_expense.get('Date (Registered)') if editing_expense else '') }}" required>{% if validation_errors.get('date') %}<span class="field-error">{{ validation_errors.get('date') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('title') %}has-error{% endif %}"><label for="expense_title">Title</label><input id="expense_title" type="text" name="title" value="{{ expense_form.get('title') if expense_form else (editing_expense.get('Title') if editing_expense else '') }}" placeholder="Title">{% if validation_errors.get('title') %}<span class="field-error">{{ validation_errors.get('title') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('description') %}has-error{% endif %}"><label for="expense_description">Description</label><input id="expense_description" type="text" name="description" value="{{ expense_form.get('description') if expense_form else (editing_expense.get('Description') if editing_expense else '') }}" placeholder="Description">{% if validation_errors.get('description') %}<span class="field-error">{{ validation_errors.get('description') }}</span>{% endif %}</div>
+            <div class="field"><label for="expense_supplier">Supplier / payee</label><select id="expense_supplier" name="supplier"><option value="">Select supplier / payee</option>{% for option in expense_suppliers %}<option value="{{ option }}" {% if (expense_form and expense_form.get('supplier') == option) or (not expense_form and editing_expense and editing_expense.get('Supplier / Payee') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field {% if validation_errors.get('supplier_vat_number') %}has-error{% endif %}"><label for="expense_supplier_vat">Supplier VAT number</label><input id="expense_supplier_vat" type="text" name="supplier_vat_number" value="{{ expense_form.get('supplier_vat_number') if expense_form else (editing_expense.get('Supplier VAT Number') if editing_expense else '') }}" placeholder="IE1234567A">{% if validation_errors.get('supplier_vat_number') %}<span class="field-error">{{ validation_errors.get('supplier_vat_number') }}</span>{% endif %}</div>
+            <div class="field"><label for="expense_receipt_reference">Receipt / invoice ref</label><input id="expense_receipt_reference" type="text" name="receipt_reference" value="{{ expense_form.get('receipt_reference') if expense_form else (editing_expense.get('Receipt / Invoice Ref') if editing_expense else '') }}" placeholder="INV-12345"></div>
+            <div class="field"><label for="expense_category">Category</label><select id="expense_category" name="category"><option value="">Select category</option>{% for option in expense_categories %}<option value="{{ option }}" {% if (expense_form and expense_form.get('category') == option) or (not expense_form and editing_expense and editing_expense.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field {% if validation_errors.get('base_net_amount') %}has-error{% endif %}"><label for="expense_base_net">Base net amount</label><input id="expense_base_net" type="number" step="0.01" name="base_net_amount" value="{{ expense_form.get('base_net_amount') if expense_form else (editing_expense.get('Base Net Amount (€)') if editing_expense and editing_expense.get('Base Net Amount (€)') else (editing_expense.get('Net Amount (€)') if editing_expense else '')) }}" placeholder="Base net amount">{% if validation_errors.get('base_net_amount') %}<span class="field-error">{{ validation_errors.get('base_net_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('delivery_amount') %}has-error{% endif %}"><label for="expense_delivery">Delivery</label><input id="expense_delivery" type="number" step="0.01" name="delivery_amount" value="{{ expense_form.get('delivery_amount') if expense_form else (editing_expense.get('Delivery (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('delivery_amount') %}<span class="field-error">{{ validation_errors.get('delivery_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('fees_amount') %}has-error{% endif %}"><label for="expense_fees">Fees</label><input id="expense_fees" type="number" step="0.01" name="fees_amount" value="{{ expense_form.get('fees_amount') if expense_form else (editing_expense.get('Fees (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('fees_amount') %}<span class="field-error">{{ validation_errors.get('fees_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('other_charges_amount') %}has-error{% endif %}"><label for="expense_other_charges">Other charges</label><input id="expense_other_charges" type="number" step="0.01" name="other_charges_amount" value="{{ expense_form.get('other_charges_amount') if expense_form else (editing_expense.get('Other Charges (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('other_charges_amount') %}<span class="field-error">{{ validation_errors.get('other_charges_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('discount_amount') %}has-error{% endif %}"><label for="expense_discount">Discount</label><input id="expense_discount" type="number" step="0.01" name="discount_amount" value="{{ expense_form.get('discount_amount') if expense_form else (editing_expense.get('Discount (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('discount_amount') %}<span class="field-error">{{ validation_errors.get('discount_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="expense_net">Taxable net (calculated)</label><input id="expense_net" type="number" step="0.01" name="net_amount" value="{{ expense_form.get('net_amount') if expense_form else (editing_expense.get('Net Amount (€)') if editing_expense else '') }}" placeholder="Taxable net" readonly>{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="expense_total">Total amount (calculated)</label><input id="expense_total" type="number" step="0.01" name="total_amount" value="{{ expense_form.get('total_amount') if expense_form else (editing_expense.get('Total (€)') if editing_expense else '') }}" placeholder="Total amount" readonly>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
+            {% if vat_registered %}
+            <div class="field"><label for="expense_vat_rate">VAT rate</label><select id="expense_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('vat_rate') == option) or (not expense_form and editing_expense and editing_expense.get('VAT Rate') == option) or (not expense_form and not editing_expense and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="expense_vat_amount">VAT amount (calculated)</label><input id="expense_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ expense_form.get('vat_amount') if expense_form else (editing_expense.get('VAT Amount (€)') if editing_expense else '') }}" placeholder="VAT amount" readonly></div>
+            <div class="field"><label for="expense_vat_treatment">VAT treatment</label><select id="expense_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (expense_form and expense_form.get('vat_treatment') == option.value) or (not expense_form and editing_expense and editing_expense.get('VAT Treatment') == option.value) or (not expense_form and not editing_expense and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="expense_supply_type">Supply type</label><select id="expense_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (expense_form and expense_form.get('supply_type') == option.value) or (not expense_form and editing_expense and editing_expense.get('Supply Type') == option.value) or (not expense_form and not editing_expense and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            {% endif %}
+            <div class="field"><label for="expense_input_vat_reclaimable">Input VAT reclaimable</label><select id="expense_input_vat_reclaimable" name="input_vat_reclaimable">{% for option in expense_input_vat_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('input_vat_reclaimable') == option) or (not expense_form and editing_expense and editing_expense.get('Input VAT Reclaimable') == option) or (not expense_form and not editing_expense and option == 'Yes') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="expense_deductibility_status">Deductibility status</label><select id="expense_deductibility_status" name="deductibility_status">{% for option in expense_deductibility_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('deductibility_status') == option) or (not expense_form and editing_expense and editing_expense.get('Deductibility Status') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="expense_capital_flag">Capital expenditure flag</label><select id="expense_capital_flag" name="capital_expenditure_flag">{% for option in yes_no_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('capital_expenditure_flag') == option) or (not expense_form and editing_expense and editing_expense.get('Capital Expenditure Flag') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field {% if validation_errors.get('receipt_attached') %}has-error{% endif %}"><label for="expense_receipt_attached">Receipt attached</label><select id="expense_receipt_attached" name="receipt_attached">{% for option in yes_no_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('receipt_attached') == option) or (not expense_form and editing_expense and editing_expense.get('Receipt Attached') == option) or (not expense_form and not editing_expense and option == 'No') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('receipt_attached') %}<span class="field-error">{{ validation_errors.get('receipt_attached') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('bank_reconciliation') %}has-error{% endif %}"><label for="expense_bank_reconciliation">Bank reconciliation</label><select id="expense_bank_reconciliation" name="bank_reconciliation">{% for option in reconciliation_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('bank_reconciliation') == option) or (not expense_form and editing_expense and editing_expense.get('Bank Reconciliation') == option) or (not expense_form and not editing_expense and option == 'Unreconciled') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('bank_reconciliation') %}<span class="field-error">{{ validation_errors.get('bank_reconciliation') }}</span>{% endif %}</div>
+            {% set expense_status_value = expense_form.get('status') if expense_form else (editing_expense.get('Status') if editing_expense else 'Pending') %}
+            <div class="field {% if validation_errors.get('status') %}has-error{% endif %}"><label for="expense_status">Status</label><select id="expense_status" name="status">{% for option in expense_status_options %}<option value="{{ option }}" {% if expense_status_value == option %}selected{% endif %}>{{ option }}</option>{% endfor %}{% if expense_status_value and expense_status_value not in expense_status_options %}<option value="{{ expense_status_value }}" selected>{{ expense_status_value }} (legacy)</option>{% endif %}</select>{% if validation_errors.get('status') %}<span class="field-error">{{ validation_errors.get('status') }}</span>{% endif %}</div>
+            <div class="field"><label for="expense_payment_method">Payment method</label><select id="expense_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in expense_payment_methods %}<option value="{{ option }}" {% if (expense_form and expense_form.get('payment_method') == option) or (not expense_form and editing_expense and editing_expense.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field" style="grid-column: 1 / -1;"><label for="expense_notes">Notes</label><input id="expense_notes" type="text" name="notes" value="{{ expense_form.get('notes') if expense_form else (editing_expense.get('Notes') if editing_expense else '') }}" placeholder="Compliance or audit notes"></div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_expense %}Update expense{% else %}Save expense{% endif %}</button></div>
+        </form>
+      </div>
+      {% if expenses %}
+      <div class="section">
+        <h2>Expense register</h2>
+        <table>
+          <tr><th>Date</th><th>Supplier / Payee</th><th>Description</th><th>Total (€)</th><th>Status</th><th></th></tr>
+          {% for row in expenses %}
+          <tr>
+            <td>{{ row.get('Date (Registered)') or '' }}</td>
+            <td>{{ row.get('Supplier / Payee') or '' }}</td>
+            <td>{{ row.get('Description') or '' }}</td>
+            <td>{{ format_currency(row.get('Total (€)', 0) or 0) }}</td>
+            {% set expense_status_label = row.get('Status') or '' %}
+            {% set expense_status_key = (expense_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
+            <td><span class="status-pill {% if expense_status_key in ['pending', 'approved', 'paid', 'auto-posted', 'cancelled'] %}{{ expense_status_key }}{% else %}legacy{% endif %}">{{ expense_status_label or 'Pending' }}</span></td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/expenses?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
+                <form method="post" action="/expenses/delete" class="inline-form" onsubmit="return confirm('Archive this expense?');" style="display:inline;">
+                  <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
+                  <button
+                    type="submit"
+                    class="archive-expense-button"
+                    style="background:linear-gradient(135deg,var(--brand-gold) 0%,#b48a2f 100%);border:none;border-radius:999px;padding:8px 12px;color:#0f172a;font-weight:700;cursor:pointer;">
+                    Archive
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if active_tab == 'subscriptions' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Active subscriptions</h3>
+          <div class="value">{{ subscription_summary.active_count }}</div>
+          <div class="pill">Recurring services under management</div>
+        </div>
+        <div class="card">
+          <h3>Due now</h3>
+          <div class="value">{{ subscription_summary.due_count }}</div>
+          <div class="pill">Charges that should post immediately</div>
+        </div>
+        <div class="card">
+          <h3>Next 30 days</h3>
+          <div class="value">{{ subscription_summary.upcoming_count }}</div>
+          <div class="pill">Upcoming renewals to monitor</div>
+        </div>
+        <div class="card">
+          <h3>Monthly commitment</h3>
+          <div class="value">{{ format_currency(subscription_summary.monthly_commitment) }}</div>
+          <div class="pill">Normalised monthly run-rate</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Subscription control</h2>
+        <p class="mini">Register each recurring service once. The app will post due charges into the Expenses register automatically based on the next charge date and frequency.</p>
+        <form method="post" action="/subscriptions/sync" class="form-actions" style="margin-top:12px;">
+          <button type="submit">Sync due subscriptions now</button>
+        </form>
+      </div>
+
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_subscription %}Edit subscription{% else %}Add subscription{% endif %}</h2>
+          {% if editing_subscription %}<a href="/subscriptions" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_subscription %}/subscriptions/update{% else %}/subscriptions/add{% endif %}" class="form-shell">
+          {% if editing_subscription %}<input type="hidden" name="subscription_id" value="{{ editing_subscription.get('id') }}">{% endif %}
+          <div class="form-grid">
+            <div class="field {% if validation_errors.get('title') %}has-error{% endif %}"><label for="subscription_title">Subscription name</label><input id="subscription_title" type="text" name="title" value="{{ subscription_form.get('title') if subscription_form else (editing_subscription.get('title') if editing_subscription else '') }}" placeholder="Adobe Creative Cloud" required>{% if validation_errors.get('title') %}<span class="field-error">{{ validation_errors.get('title') }}</span>{% endif %}</div>
+            <div class="field"><label for="subscription_supplier">Supplier / payee</label><select id="subscription_supplier" name="supplier"><option value="">Select supplier / payee</option>{% for option in supplier_names %}<option value="{{ option }}" {% if (subscription_form and subscription_form.get('supplier') == option) or (not subscription_form and editing_subscription and editing_subscription.get('supplier') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="subscription_category">Category</label><select id="subscription_category" name="category"><option value="">Select category</option>{% for option in expense_categories %}<option value="{{ option }}" {% if (subscription_form and subscription_form.get('category') == option) or (not subscription_form and editing_subscription and editing_subscription.get('category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field {% if validation_errors.get('frequency') %}has-error{% endif %}"><label for="subscription_frequency">Frequency</label><select id="subscription_frequency" name="frequency">{% for option in subscription_frequencies %}<option value="{{ option }}" {% if (subscription_form and subscription_form.get('frequency') == option) or (not subscription_form and editing_subscription and editing_subscription.get('frequency') == option) %}selected{% endif %}>{{ option|title }}</option>{% endfor %}</select>{% if validation_errors.get('frequency') %}<span class="field-error">{{ validation_errors.get('frequency') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('start_date') %}has-error{% endif %}"><label for="subscription_start_date">First charge date</label><input id="subscription_start_date" type="date" name="start_date" value="{{ subscription_form.get('start_date') if subscription_form else (editing_subscription.get('start_date') if editing_subscription else today_iso) }}" required>{% if validation_errors.get('start_date') %}<span class="field-error">{{ validation_errors.get('start_date') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('next_charge_date') %}has-error{% endif %}"><label for="subscription_next_charge_date">Next charge date</label><input id="subscription_next_charge_date" type="date" name="next_charge_date" value="{{ subscription_form.get('next_charge_date') if subscription_form else (editing_subscription.get('next_charge_date') if editing_subscription else today_iso) }}">{% if validation_errors.get('next_charge_date') %}<span class="field-error">{{ validation_errors.get('next_charge_date') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('end_date') %}has-error{% endif %}"><label for="subscription_end_date">End date</label><input id="subscription_end_date" type="date" name="end_date" value="{{ subscription_form.get('end_date') if subscription_form else (editing_subscription.get('end_date') if editing_subscription else '') }}">{% if validation_errors.get('end_date') %}<span class="field-error">{{ validation_errors.get('end_date') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="subscription_net_amount">Net amount</label><input id="subscription_net_amount" type="number" step="0.01" name="net_amount" value="{{ subscription_form.get('net_amount') if subscription_form else (editing_subscription.get('net_amount') if editing_subscription else '') }}" placeholder="0.00">{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="subscription_total_amount">Total amount</label><input id="subscription_total_amount" type="number" step="0.01" name="total_amount" value="{{ subscription_form.get('total_amount') if subscription_form else (editing_subscription.get('total_amount') if editing_subscription else '') }}" placeholder="0.00" required>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('status') %}has-error{% endif %}"><label for="subscription_status">Status</label><select id="subscription_status" name="status">{% for option in subscription_statuses %}<option value="{{ option }}" {% if (subscription_form and subscription_form.get('status') == option) or (not subscription_form and ((editing_subscription and editing_subscription.get('status') == option) or (not editing_subscription and option == 'active'))) %}selected{% endif %}>{{ option|title }}</option>{% endfor %}</select>{% if validation_errors.get('status') %}<span class="field-error">{{ validation_errors.get('status') }}</span>{% endif %}</div>
+            <div class="field"><label for="subscription_description">Description</label><input id="subscription_description" type="text" name="description" value="{{ subscription_form.get('description') if subscription_form else (editing_subscription.get('description') if editing_subscription else '') }}" placeholder="Design software subscription"></div>
+            <div class="field" style="grid-column: 1 / -1;"><label for="subscription_notes">Notes</label><input id="subscription_notes" type="text" name="notes" value="{{ subscription_form.get('notes') if subscription_form else (editing_subscription.get('notes') if editing_subscription else '') }}" placeholder="VAT included, annual renewal, company card"></div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_subscription %}Update subscription{% else %}Save subscription{% endif %}</button></div>
+        </form>
+      </div>
+
+      <div class="section">
+        <h2>Subscription register</h2>
+        <table>
+          <tr><th>Subscription</th><th>Supplier</th><th>Frequency</th><th>Next charge</th><th>Total (€)</th><th>Status</th><th>Last posted</th><th></th></tr>
+          {% if subscriptions %}
+          {% for row in subscriptions %}
+          <tr>
+            <td>
+              <strong>{{ row.get('title') or '' }}</strong><br>
+              <span class="mini">{{ row.get('description') or row.get('notes') or '' }}</span>
+            </td>
+            <td>{{ row.get('supplier') or '' }}</td>
+            <td>{{ row.get('frequency', '')|title }}</td>
+            <td>{{ row.get('next_charge_date') or '' }}</td>
+            <td>{{ format_currency(row.get('total_amount', 0) or 0) }}</td>
+            <td>{{ row.get('due_label') or row.get('status', '')|title }}</td>
+            <td>{{ row.get('last_posted_date') or 'Not posted yet' }}</td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/subscriptions?edit_id={{ row.get('id') }}" class="edit-link">Edit</a>
+                <form method="post" action="/subscriptions/delete" class="table-actions archive-action" onsubmit="return confirm('Archive this subscription?');">
+                  <input type="hidden" name="subscription_id" value="{{ row.get('id') }}">
+                  <button type="submit">Archive</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="8">No subscriptions have been registered yet.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if active_tab == 'payroll' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Payroll runs</h3>
+          <div class="value">{{ payroll_summary.count }}</div>
+          <div class="pill">Logged payroll periods</div>
+        </div>
+        <div class="card">
+          <h3>Employer cost</h3>
+          <div class="value">{{ format_currency(payroll_summary.employer_cost_total) }}</div>
+          <div class="pill">Gross plus employer PRSI</div>
+        </div>
+        <div class="card">
+          <h3>Net paid</h3>
+          <div class="value">{{ format_currency(payroll_summary.net_total) }}</div>
+          <div class="pill">Net payroll disbursed</div>
+        </div>
+        <div class="card">
+          <h3>Revenue liabilities</h3>
+          <div class="value">{{ format_currency(payroll_summary.liabilities_total) }}</div>
+          <div class="pill">PAYE, USC and PRSI due</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_payroll %}Edit payroll entry{% else %}Add payroll entry{% endif %}</h2>
+          {% if editing_payroll %}<a href="/payroll" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_payroll %}/payroll/update{% else %}/payroll/add{% endif %}" class="form-shell">
+          {% if editing_payroll %}<input type="hidden" name="payroll_id" value="{{ editing_payroll.get('id') }}">{% endif %}
+          <div class="form-grid">
+            <div class="field {% if validation_errors.get('pay_date') %}has-error{% endif %}"><label for="payroll_pay_date">Pay date</label><input id="payroll_pay_date" type="date" name="pay_date" value="{{ payroll_form.get('pay_date') if payroll_form else (editing_payroll.get('Pay Date') if editing_payroll else '') }}" required>{% if validation_errors.get('pay_date') %}<span class="field-error">{{ validation_errors.get('pay_date') }}</span>{% endif %}</div>
+            <div class="field"><label for="payroll_period">Payroll period</label><input id="payroll_period" type="text" name="payroll_period" value="{{ payroll_form.get('payroll_period') if payroll_form else (editing_payroll.get('Payroll Period') if editing_payroll else '') }}" placeholder="2026-08"></div>
+            <div class="field {% if validation_errors.get('employee_name') %}has-error{% endif %}"><label for="payroll_employee_name">Employee name</label><input id="payroll_employee_name" type="text" name="employee_name" value="{{ payroll_form.get('employee_name') if payroll_form else (editing_payroll.get('Employee Name') if editing_payroll else '') }}" placeholder="Employee" required>{% if validation_errors.get('employee_name') %}<span class="field-error">{{ validation_errors.get('employee_name') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('gross_pay') %}has-error{% endif %}"><label for="payroll_gross_pay">Gross pay</label><input id="payroll_gross_pay" type="number" step="0.01" name="gross_pay" value="{{ payroll_form.get('gross_pay') if payroll_form else (editing_payroll.get('Gross Pay (€)') if editing_payroll else '') }}" placeholder="0.00" required>{% if validation_errors.get('gross_pay') %}<span class="field-error">{{ validation_errors.get('gross_pay') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('paye') %}has-error{% endif %}"><label for="payroll_paye">PAYE</label><input id="payroll_paye" type="number" step="0.01" name="paye" value="{{ payroll_form.get('paye') if payroll_form else (editing_payroll.get('PAYE (€)') if editing_payroll else '') }}" placeholder="0.00">{% if validation_errors.get('paye') %}<span class="field-error">{{ validation_errors.get('paye') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('usc') %}has-error{% endif %}"><label for="payroll_usc">USC</label><input id="payroll_usc" type="number" step="0.01" name="usc" value="{{ payroll_form.get('usc') if payroll_form else (editing_payroll.get('USC (€)') if editing_payroll else '') }}" placeholder="0.00">{% if validation_errors.get('usc') %}<span class="field-error">{{ validation_errors.get('usc') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('employee_prsi') %}has-error{% endif %}"><label for="payroll_employee_prsi">Employee PRSI</label><input id="payroll_employee_prsi" type="number" step="0.01" name="employee_prsi" value="{{ payroll_form.get('employee_prsi') if payroll_form else (editing_payroll.get('Employee PRSI (€)') if editing_payroll else '') }}" placeholder="0.00">{% if validation_errors.get('employee_prsi') %}<span class="field-error">{{ validation_errors.get('employee_prsi') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('employer_prsi') %}has-error{% endif %}"><label for="payroll_employer_prsi">Employer PRSI</label><input id="payroll_employer_prsi" type="number" step="0.01" name="employer_prsi" value="{{ payroll_form.get('employer_prsi') if payroll_form else (editing_payroll.get('Employer PRSI (€)') if editing_payroll else '') }}" placeholder="0.00">{% if validation_errors.get('employer_prsi') %}<span class="field-error">{{ validation_errors.get('employer_prsi') }}</span>{% endif %}</div>
+            <div class="field"><label for="payroll_status">Status</label><select id="payroll_status" name="status">{% for option in payroll_status_options %}<option value="{{ option }}" {% if (payroll_form and payroll_form.get('status') == option) or (not payroll_form and editing_payroll and editing_payroll.get('Status') == option) or (not payroll_form and not editing_payroll and option == 'Draft') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field {% if validation_errors.get('payment_method') %}has-error{% endif %}"><label for="payroll_payment_method">Payment method</label><select id="payroll_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in expense_payment_methods %}<option value="{{ option }}" {% if (payroll_form and payroll_form.get('payment_method') == option) or (not payroll_form and editing_payroll and editing_payroll.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('payment_method') %}<span class="field-error">{{ validation_errors.get('payment_method') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('payment_date') %}has-error{% endif %}"><label for="payroll_payment_date">Payment date</label><input id="payroll_payment_date" type="date" name="payment_date" value="{{ payroll_form.get('payment_date') if payroll_form else (editing_payroll.get('Payment Date') if editing_payroll else '') }}">{% if validation_errors.get('payment_date') %}<span class="field-error">{{ validation_errors.get('payment_date') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('bank_reconciliation') %}has-error{% endif %}"><label for="payroll_bank_reconciliation">Bank reconciliation</label><select id="payroll_bank_reconciliation" name="bank_reconciliation">{% for option in reconciliation_options %}<option value="{{ option }}" {% if (payroll_form and payroll_form.get('bank_reconciliation') == option) or (not payroll_form and editing_payroll and editing_payroll.get('Bank Reconciliation') == option) or (not payroll_form and not editing_payroll and option == 'Unreconciled') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('bank_reconciliation') %}<span class="field-error">{{ validation_errors.get('bank_reconciliation') }}</span>{% endif %}</div>
+            <div class="field" style="grid-column: 1 / -1;"><label for="payroll_notes">Notes</label><input id="payroll_notes" type="text" name="notes" value="{{ payroll_form.get('notes') if payroll_form else (editing_payroll.get('Notes') if editing_payroll else '') }}" placeholder="Payroll notes"></div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_payroll %}Update payroll{% else %}Save payroll{% endif %}</button></div>
+        </form>
+      </div>
+
+      <div class="section">
+        <h2>Payroll register</h2>
+        <div class="form-actions" style="margin: 0 0 12px;">
+          <a href="/payroll/export.csv" class="edit-link">Export payroll CSV</a>
+        </div>
+        <table>
+          <tr><th>Pay date</th><th>Employee</th><th>Gross (€)</th><th>Net (€)</th><th>Employer cost (€)</th><th>Status</th><th></th></tr>
+          {% if payroll %}
+          {% for row in payroll %}
+          <tr>
+            <td>{{ row.get('Pay Date') or '' }}</td>
+            <td>{{ row.get('Employee Name') or '' }}</td>
+            <td>{{ format_currency(row.get('Gross Pay (€)', 0) or 0) }}</td>
+            <td>{{ format_currency(row.get('Net Pay (€)', 0) or 0) }}</td>
+            <td>{{ format_currency(row.get('Employer Cost (€)', 0) or 0) }}</td>
+            {% set payroll_status_label = row.get('Status') or '' %}
+            {% set payroll_status_key = (payroll_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
+            <td><span class="status-pill {% if payroll_status_key in ['draft', 'approved', 'paid', 'filed'] %}{{ payroll_status_key }}{% else %}legacy{% endif %}">{{ payroll_status_label or 'Draft' }}</span></td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/payroll?edit_id={{ row.get('id') }}" class="edit-link">Edit</a>
+                <form method="post" action="/payroll/delete" class="table-actions archive-action" onsubmit="return confirm('Archive this payroll entry?');">
+                  <input type="hidden" name="payroll_id" value="{{ row.get('id') }}">
+                  <button type="submit">Archive</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="7">No payroll entries have been recorded yet.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if active_tab == 'invoices' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Invoice balance</h3>
+          <div class="value">{{ format_currency(summary.invoice_balance) }}</div>
+          <div class="pill">Outstanding receivables</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_invoice %}Edit invoice{% else %}Add invoice{% endif %}</h2>
+          {% if editing_invoice %}<a href="/invoices" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_invoice %}/invoices/update{% else %}/invoices/add{% endif %}" class="form-shell">
+          {% if editing_invoice %}<input type="hidden" name="row_number" value="{{ editing_invoice.get('__row_number') }}">{% endif %}
+          <div class="form-grid">
+            <div class="field {% if validation_errors.get('invoice_number') %}has-error{% endif %}"><label for="invoice_number">Invoice #</label><input id="invoice_number" type="text" name="invoice_number" value="{{ invoice_form.get('invoice_number') if invoice_form else (editing_invoice.get('Invoice #') if editing_invoice else 'Auto-generated on save') }}" {% if not editing_invoice %}readonly{% endif %} required>{% if validation_errors.get('invoice_number') %}<span class="field-error">{{ validation_errors.get('invoice_number') }}</span>{% endif %}</div>
+            <div class="field"><label for="invoice_issue_date">Issue date</label><input id="invoice_issue_date" type="date" name="issue_date" value="{{ invoice_form.get('issue_date') if invoice_form else (editing_invoice.get('Issue Date') if editing_invoice else '') }}"></div>
+            <div class="field {% if validation_errors.get('due_date') %}has-error{% endif %}"><label for="invoice_due_date">Due date</label><input id="invoice_due_date" type="date" name="due_date" value="{{ invoice_form.get('due_date') if invoice_form else (editing_invoice.get('Due Date') if editing_invoice else '') }}">{% if validation_errors.get('due_date') %}<span class="field-error">{{ validation_errors.get('due_date') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('client_name') %}has-error{% endif %}"><label for="invoice_client_name">Client</label><select id="invoice_client_name" name="client_name"><option value="">Select client</option>{% for option in client_names %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('client_name') == option) or (not invoice_form and editing_invoice and editing_invoice.get('Client Name') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('client_name') %}<span class="field-error">{{ validation_errors.get('client_name') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('client_vat_number') %}has-error{% endif %}"><label for="invoice_client_vat_number">Client VAT number</label><input id="invoice_client_vat_number" type="text" name="client_vat_number" value="{{ invoice_form.get('client_vat_number') if invoice_form else (editing_invoice.get('Client VAT Number') if editing_invoice else '') }}" placeholder="IE1234567A">{% if validation_errors.get('client_vat_number') %}<span class="field-error">{{ validation_errors.get('client_vat_number') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('client_address') %}has-error{% endif %}"><label for="invoice_client_address">Client address</label><input id="invoice_client_address" type="text" name="client_address" value="{{ invoice_form.get('client_address') if invoice_form else (editing_invoice.get('Client Address') if editing_invoice else '') }}" placeholder="Client legal address">{% if validation_errors.get('client_address') %}<span class="field-error">{{ validation_errors.get('client_address') }}</span>{% endif %}</div>
+            <div class="field"><label for="invoice_service_product">Service / product</label><input id="invoice_service_product" type="text" name="service_product" value="{{ invoice_form.get('service_product') if invoice_form else (editing_invoice.get('Service / Product') if editing_invoice else '') }}" placeholder="Service or product"></div>
+            <div class="field {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="invoice_net_amount">Net amount</label><input id="invoice_net_amount" type="number" step="0.01" name="net_amount" value="{{ invoice_form.get('net_amount') if invoice_form else (editing_invoice.get('Net (€)') if editing_invoice else '') }}" placeholder="0.00">{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="invoice_total_amount">Total amount</label><input id="invoice_total_amount" type="number" step="0.01" name="total_amount" value="{{ invoice_form.get('total_amount') if invoice_form else (editing_invoice.get('Total (€)') if editing_invoice else '') }}" placeholder="0.00">{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
+            {% if vat_registered %}
+            <div class="field"><label for="invoice_vat_rate">VAT rate</label><select id="invoice_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('vat_rate') == option) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Rate') == option) or (not invoice_form and not editing_invoice and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="invoice_vat_amount">VAT amount</label><input id="invoice_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ invoice_form.get('vat_amount') if invoice_form else (editing_invoice.get('VAT Amount (€)') if editing_invoice else '') }}" placeholder="VAT amount"></div>
+            <div class="field"><label for="invoice_vat_treatment">VAT treatment</label><select id="invoice_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('vat_treatment') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Treatment') == option.value) or (not invoice_form and not editing_invoice and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            <div class="field"><label for="invoice_supply_type">Supply type</label><select id="invoice_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('supply_type') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('Supply Type') == option.value) or (not invoice_form and not editing_invoice and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            {% endif %}
+            <div class="field {% if validation_errors.get('balance_due') %}has-error{% endif %}"><label for="invoice_balance_due">Balance due</label><input id="invoice_balance_due" type="number" step="0.01" name="balance_due" value="{{ invoice_form.get('balance_due') if invoice_form else (editing_invoice.get('Balance Due (€)') if editing_invoice else '') }}" placeholder="0.00">{% if validation_errors.get('balance_due') %}<span class="field-error">{{ validation_errors.get('balance_due') }}</span>{% endif %}</div>
+            <div class="field"><label for="invoice_status">Status</label><select id="invoice_status" name="status">{% for option in invoice_status_options %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('status') == option) or (not invoice_form and editing_invoice and editing_invoice.get('Status') == option) or (not invoice_form and not editing_invoice and option == 'Draft') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field {% if validation_errors.get('payment_method') %}has-error{% endif %}"><label for="invoice_payment_method">Payment method</label><select id="invoice_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in expense_payment_methods %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('payment_method') == option) or (not invoice_form and editing_invoice and editing_invoice.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('payment_method') %}<span class="field-error">{{ validation_errors.get('payment_method') }}</span>{% endif %}</div>
+            <div class="field {% if validation_errors.get('payment_date') %}has-error{% endif %}"><label for="invoice_payment_date">Payment date</label><input id="invoice_payment_date" type="date" name="payment_date" value="{{ invoice_form.get('payment_date') if invoice_form else (editing_invoice.get('Payment Date') if editing_invoice else '') }}">{% if validation_errors.get('payment_date') %}<span class="field-error">{{ validation_errors.get('payment_date') }}</span>{% endif %}</div>
+            <div class="field"><label for="invoice_bank_reconciliation">Bank reconciliation</label><select id="invoice_bank_reconciliation" name="bank_reconciliation"><option value="Reconciled" {% if (invoice_form and invoice_form.get('bank_reconciliation') == 'Reconciled') or (not invoice_form and editing_invoice and editing_invoice.get('Bank Reconciliation') == 'Reconciled') %}selected{% endif %}>Reconciled</option><option value="Unreconciled" {% if (invoice_form and invoice_form.get('bank_reconciliation') == 'Unreconciled') or (not invoice_form and editing_invoice and editing_invoice.get('Bank Reconciliation') == 'Unreconciled') or (not invoice_form and not editing_invoice) %}selected{% endif %}>Unreconciled</option></select></div>
+            <div class="field" style="grid-column: 1 / -1;"><label for="invoice_notes">Notes</label><input id="invoice_notes" type="text" name="notes" value="{{ invoice_form.get('notes') if invoice_form else (editing_invoice.get('Notes') if editing_invoice else '') }}" placeholder="Internal or compliance notes"></div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_invoice %}Update invoice{% else %}Save invoice{% endif %}</button></div>
+        </form>
+      </div>
+      {% if invoices %}
+      <div class="section">
+        <h2>Invoice register</h2>
+        <table>
+          <tr><th>Invoice #</th><th>Client</th><th>Total (€)</th><th>Balance Due (€)</th><th>Status</th><th></th></tr>
+          {% for row in invoices %}
+          <tr>
+            <td>{{ row.get('Invoice #') or '' }}</td>
+            <td>{{ row.get('Client Name') or '' }}</td>
+            <td>{{ format_currency(row.get('Total (€)', 0) or 0) }}</td>
+            <td>{{ format_currency(row.get('Balance Due (€)', 0) or 0) }}</td>
+            {% set invoice_status_label = row.get('Status') or '' %}
+            {% set invoice_status_key = (invoice_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
+            <td><span class="status-pill {% if invoice_status_key in ['draft', 'issued', 'paid', 'partially-paid', 'overdue', 'bad-debt', 'cancelled'] %}{{ invoice_status_key }}{% else %}legacy{% endif %}">{{ invoice_status_label or 'Draft' }}</span></td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/invoices?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
+                <form method="post" action="/invoices/delete" class="table-actions" onsubmit="return confirm('Cancel this invoice and retain it in the register for audit trail?');">
+                  <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
+                  <button type="submit">Cancel</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if active_tab == 'clients' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Client count</h3>
+          <div class="value">{{ clients|length }}</div>
+          <div class="pill">Registered clients</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_client %}Edit client{% else %}Add client{% endif %}</h2>
+          {% if editing_client %}<a href="/clients" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_client %}/clients/update{% else %}/clients/add{% endif %}" class="form-shell">
+          {% if editing_client %}<input type="hidden" name="row_number" value="{{ editing_client.get('__row_number') }}">{% endif %}
+          <div class="form-grid">
+            <div class="field {% if validation_errors.get('client_name') %}has-error{% endif %}"><label for="client_name">Client name</label><input id="client_name" type="text" name="client_name" value="{{ client_form.get('client_name') if client_form else (editing_client.get('Client Name') if editing_client else '') }}" placeholder="Client name" required>{% if validation_errors.get('client_name') %}<span class="field-error">{{ validation_errors.get('client_name') }}</span>{% endif %}</div>
+            <div class="field"><label for="client_contact">Contact person</label><input id="client_contact" type="text" name="contact_person" value="{{ client_form.get('contact_person') if client_form else (editing_client.get('Contact Person') if editing_client else '') }}" placeholder="Contact person"></div>
+            <div class="field"><label for="client_email">Email</label><input id="client_email" type="email" name="email" value="{{ client_form.get('email') if client_form else (editing_client.get('Email') if editing_client else '') }}" placeholder="Email"></div>
+            <div class="field"><label for="client_phone">Phone</label><input id="client_phone" type="text" name="phone" value="{{ client_form.get('phone') if client_form else (editing_client.get('Phone') if editing_client else '') }}" placeholder="Phone"></div>
+            <div class="field"><label for="client_country">Country</label><input id="client_country" type="text" name="country" value="{{ client_form.get('country') if client_form else (editing_client.get('Country') if editing_client else '') }}" placeholder="Country"></div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_client %}Update client{% else %}Save client{% endif %}</button></div>
+        </form>
+      </div>
+      {% if clients %}
+      <div class="section">
+        <h2>Clients</h2>
+        <table>
+          <tr><th>Client Name</th><th>Contact Person</th><th>Email</th><th>Phone</th><th></th></tr>
+          {% for row in clients %}
+          <tr>
+            <td>{{ row.get('Client Name') or '' }}</td>
+            <td>{{ row.get('Contact Person') or '' }}</td>
+            <td>{{ row.get('Email') or '' }}</td>
+            <td>{{ row.get('Phone') or '' }}</td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/clients?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
+                <form method="post" action="/clients/delete" class="table-actions archive-action" onsubmit="return confirm('Archive this client?');">
+                  <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
+                  <button type="submit">Archive</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if active_tab == 'suppliers' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Supplier count</h3>
+          <div class="value">{{ suppliers|length }}</div>
+          <div class="pill">Registered suppliers</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_supplier %}Edit supplier{% else %}Add supplier{% endif %}</h2>
+          {% if editing_supplier %}<a href="/suppliers" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_supplier %}/suppliers/update{% else %}/suppliers/add{% endif %}" class="form-shell">
+          {% if editing_supplier %}<input type="hidden" name="row_number" value="{{ editing_supplier.get('__row_number') }}">{% endif %}
+          <div class="form-grid">
+            <div class="field {% if validation_errors.get('supplier_name') %}has-error{% endif %}"><label for="supplier_name">Supplier name</label><input id="supplier_name" type="text" name="supplier_name" value="{{ supplier_form.get('supplier_name') if supplier_form else (editing_supplier.get('Supplier Name') if editing_supplier else '') }}" placeholder="Supplier name" required>{% if validation_errors.get('supplier_name') %}<span class="field-error">{{ validation_errors.get('supplier_name') }}</span>{% endif %}</div>
+            <div class="field"><label for="supplier_contact">Contact person</label><input id="supplier_contact" type="text" name="contact_person" value="{{ supplier_form.get('contact_person') if supplier_form else (editing_supplier.get('Contact Person') if editing_supplier else '') }}" placeholder="Contact person"></div>
+            <div class="field"><label for="supplier_email">Email</label><input id="supplier_email" type="email" name="email" value="{{ supplier_form.get('email') if supplier_form else (editing_supplier.get('Email') if editing_supplier else '') }}" placeholder="Email"></div>
+            <div class="field"><label for="supplier_phone">Phone</label><input id="supplier_phone" type="text" name="phone" value="{{ supplier_form.get('phone') if supplier_form else (editing_supplier.get('Phone') if editing_supplier else '') }}" placeholder="Phone"></div>
+            <div class="field"><label for="supplier_country">Country</label><input id="supplier_country" type="text" name="country" value="{{ supplier_form.get('country') if supplier_form else (editing_supplier.get('Country') if editing_supplier else '') }}" placeholder="Country"></div>
+            <div class="field"><label for="supplier_vat">Default VAT treatment</label><input id="supplier_vat" type="text" name="default_vat_treatment" value="{{ supplier_form.get('default_vat_treatment') if supplier_form else (editing_supplier.get('Default VAT Treatment') if editing_supplier else '') }}" placeholder="Default VAT treatment"></div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_supplier %}Update supplier{% else %}Save supplier{% endif %}</button></div>
+        </form>
+      </div>
+      {% if suppliers %}
+      <div class="section">
+        <h2>Suppliers</h2>
+        <table>
+          <tr><th>Supplier Name</th><th>Contact Person</th><th>Email</th><th>Country</th><th></th></tr>
+          {% for row in suppliers %}
+          <tr>
+            <td>{{ row.get('Supplier Name') or '' }}</td>
+            <td>{{ row.get('Contact Person') or '' }}</td>
+            <td>{{ row.get('Email') or '' }}</td>
+            <td>{{ row.get('Country') or '' }}</td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/suppliers?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
+                <form method="post" action="/suppliers/delete" class="table-actions archive-action" onsubmit="return confirm('Archive this supplier?');">
+                  <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
+                  <button type="submit">Archive</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      {% if active_tab == 'archive' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Total archived</h3>
+          <div class="value">{{ archived_records|length }}</div>
+          <div class="pill">Recent archived records shown below</div>
+        </div>
+        <div class="card">
+          <h3>Audit events</h3>
+          <div class="value">{{ audit_entries|length }}</div>
+          <div class="pill">Recent create, update, sync, and archive actions</div>
+        </div>
+      </div>
+      <div class="section">
+        <h2>Archive summary</h2>
+        <table>
+          <tr><th>Entity</th><th>Archived items</th></tr>
+          {% if archive_summary %}
+          {% for entity_name, total in archive_summary.items() %}
+          <tr>
+            <td>{{ entity_name|title }}</td>
+            <td>{{ total }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="2">No archived items yet.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      <div class="section">
+        <h2>Archived records</h2>
+        <table>
+          <tr><th>Archived at</th><th>Entity</th><th>Source</th><th>Record</th><th></th></tr>
+          {% if archived_records %}
+          {% for item in archived_records %}
+          <tr>
+            <td>{{ item.get('archived_at') or '' }}</td>
+            <td>{{ item.get('entity_type', '')|title }}</td>
+            <td>{{ item.get('source') or '' }}</td>
+            <td>{{ item.get('record') }}</td>
+            <td>
+              <div class="table-action-stack">
+                <form method="post" action="/archive/restore" class="table-actions" onsubmit="return confirm('Restore this archived record to the active register?');">
+                  <input type="hidden" name="archive_id" value="{{ item.get('id') }}">
+                  <button type="submit" style="background:#2a7a4b;">Restore</button>
+                </form>
+                <form method="post" action="/archive/restore" class="table-actions" onsubmit="return confirm('Force restore this archived record even if it duplicates an existing active record?');">
+                  <input type="hidden" name="archive_id" value="{{ item.get('id') }}">
+                  <input type="hidden" name="force_restore" value="1">
+                  <button type="submit" style="background:#6a4c1e;">Force Restore</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="5">No archived records available.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      <div class="section">
+        <h2>Audit trail</h2>
+        <div class="form-actions" style="margin: 0 0 12px;">
+          <a href="/audit/export.csv" class="edit-link">Export audit CSV</a>
+        </div>
+        <table>
+          <tr><th>Timestamp</th><th>Action</th><th>Entity</th><th>Details</th></tr>
+          {% if audit_entries %}
+          {% for item in audit_entries %}
+          <tr>
+            <td>{{ item.get('timestamp') or '' }}</td>
+            <td>{{ item.get('action') or '' }}</td>
+            <td>{{ item.get('entity_type') or '' }}</td>
+            <td>{{ item.get('details') }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="4">No audit events recorded yet.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      {% endif %}
+
+      {% if active_tab == 'ledger' %}
+      <div class="grid">
+        <div class="card">
+          <h3>Total accounts</h3>
+          <div class="value">{{ coa_summary.total_accounts }}</div>
+          <div class="pill">Chart of accounts loaded</div>
+        </div>
+        <div class="card">
+          <h3>Income accounts</h3>
+          <div class="value">{{ coa_summary.income_accounts }}</div>
+          <div class="pill">Revenue categories mapped</div>
+        </div>
+        <div class="card">
+          <h3>Expense accounts</h3>
+          <div class="value">{{ coa_summary.expense_accounts }}</div>
+          <div class="pill">Cost categories mapped</div>
+        </div>
+        <div class="card">
+          <h3>Journal entries</h3>
+          <div class="value">{{ ledger_summary.entries_count }}</div>
+          <div class="pill">Transaction postings recorded</div>
+        </div>
+        <div class="card">
+          <h3>Trial balance status</h3>
+          <div class="value" style="font-size:18px;">{{ 'Balanced' if trial_balance.is_balanced else 'Out of balance' }}</div>
+          <div class="pill">Difference {{ format_currency(trial_balance.difference) }}</div>
+        </div>
+        <div class="card">
+          <h3>VAT 3 current period</h3>
+          <div class="value" style="font-size:18px;">{{ vat_control_summary.period_label }}</div>
+          <div class="pill">T1 {{ format_currency(vat_control_summary.t1_output_vat) }} · T2 {{ format_currency(vat_control_summary.t2_input_vat) }}</div>
+        </div>
+        <div class="card">
+          <h3>VAT threshold usage</h3>
+          <div class="value" style="font-size:18px;">{{ vat_threshold_summary.progress_pct }}%</div>
+          <div class="pill">{{ vat_threshold_summary.basis_label }} limit {{ format_currency(vat_threshold_summary.annual_threshold) }}</div>
+        </div>
+        <div class="card">
+          <h3>VAT anomalies</h3>
+          <div class="value" style="font-size:18px;">{{ vat_anomaly_count }}</div>
+          <div class="pill">Recent records requiring VAT review</div>
+        </div>
+        <div class="card">
+          <h3>Capital allowances</h3>
+          <div class="value" style="font-size:18px;">{{ capital_summary.asset_count }}</div>
+          <div class="pill">Annual allowance {{ format_currency(capital_summary.annual_allowance_total) }}</div>
+        </div>
+        <div class="card">
+          <h3>Reconciliation exceptions</h3>
+          <div class="value" style="font-size:18px;">{{ reconciliation_summary.exception_rows }}</div>
+          <div class="pill">{{ reconciliation_summary.unreconciled_paid_rows }} unreconciled paid items</div>
+        </div>
+        <div class="card">
+          <h3>Unmatched bank lines</h3>
+          <div class="value" style="font-size:18px;">{{ reconciliation_summary.unmatched_statement_count }}</div>
+          <div class="pill">{{ reconciliation_summary.statement_line_count }} lines imported</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Import bank statement CSV</h2>
+        <p class="mini">Upload a CSV with Date + Amount columns. Optional columns: Description, Reference, Balance, Payment Method, Debit/Credit.</p>
+        <form method="post" action="/reconciliation/import-statement" enctype="multipart/form-data" class="form-shell">
+          <div class="form-grid">
+            <div class="field"><label for="statement_file">Statement file</label><input id="statement_file" type="file" name="statement_file" accept=".csv" required></div>
+          </div>
+          <input type="hidden" name="return_to" value="/ledger">
+          <div class="form-actions"><button type="submit">Import statement</button></div>
+        </form>
+      </div>
+
+      <div class="section">
+        <h2>Bank reconciliation queue</h2>
+        <div class="form-actions" style="margin: 0 0 12px; gap: 10px; flex-wrap: wrap;">
+          <form method="post" action="/reconciliation/apply-suggested" class="table-actions" style="margin:0;">
+            <input type="hidden" name="return_to" value="/ledger">
+            <button type="submit" style="background:#2a7a4b;">Apply suggested matches</button>
+          </form>
+          <a href="/reconciliation/export.csv" class="edit-link">Export reconciliation queue CSV</a>
+          <a href="/reconciliation/exceptions.csv" class="edit-link">Export reconciliation exceptions CSV</a>
+          <a href="/reconciliation/bank-statements.csv" class="edit-link">Export imported bank lines CSV</a>
+          <a href="/reconciliation/unmatched-bank-statements.csv" class="edit-link">Export unmatched bank lines CSV</a>
+        </div>
+        <table>
+          <tr><th>Entity</th><th>Date</th><th>Reference</th><th>Counterparty</th><th>Amount (€)</th><th>Status</th><th>Bank reconciliation</th><th>Age</th><th>Match key</th><th>Statement match</th><th></th></tr>
+          {% if reconciliation_rows %}
+          {% for row in reconciliation_rows %}
+          <tr>
+            <td>{{ row.entity_type|title }}</td>
+            <td>{{ row.date or '' }}</td>
+            <td>{{ row.reference or '' }}</td>
+            <td>{{ row.counterparty or '' }}</td>
+            <td>{{ format_currency(row.amount_eur or 0) }}</td>
+            <td>{{ row.status or '' }}</td>
+            <td>{{ row.bank_reconciliation }}</td>
+            <td>{% if row.age_days is not none %}{{ row.age_days }}d{% else %}-{% endif %}</td>
+            <td>{% if row.matching_group_size > 1 %}Potential match group ({{ row.matching_group_size }}){% else %}-{% endif %}</td>
+            <td>{% if row.statement_match_count > 0 %}Matched ({{ row.statement_match_count }}){% elif row.is_paid %}No match{% else %}-{% endif %}</td>
+            <td>
+              <div class="table-action-stack">
+                <form method="post" action="/reconciliation/mark" class="table-actions">
+                  <input type="hidden" name="entity_type" value="{{ row.entity_type }}">
+                  <input type="hidden" name="row_number" value="{{ row.row_number or '' }}">
+                  <input type="hidden" name="payroll_id" value="{{ row.payroll_id or '' }}">
+                  <input type="hidden" name="bank_reconciliation" value="{% if row.bank_reconciliation == 'Reconciled' %}Unreconciled{% else %}Reconciled{% endif %}">
+                  <input type="hidden" name="return_to" value="/ledger">
+                  <button type="submit" style="background:{% if row.bank_reconciliation == 'Reconciled' %}#6a4c1e{% else %}#2a7a4b{% endif %};">{% if row.bank_reconciliation == 'Reconciled' %}Mark unreconciled{% else %}Mark reconciled{% endif %}</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="11">No reconciliation records are available.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>Unmatched imported bank lines</h2>
+        <table>
+          <tr><th>Date</th><th>Description</th><th>Reference</th><th>Amount (€)</th><th>Balance (€)</th><th>Source</th></tr>
+          {% if unmatched_statement_lines %}
+          {% for line in unmatched_statement_lines %}
+          <tr>
+            <td>{{ line.date or '' }}</td>
+            <td>{{ line.description or '' }}</td>
+            <td>{{ line.reference or '' }}</td>
+            <td>{{ format_currency(line.amount_eur or 0) }}</td>
+            <td>{{ format_currency(line.balance_eur or 0) }}</td>
+            <td>{{ line.source_filename or '' }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="6">No unmatched imported bank lines.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>Reconciliation exceptions</h2>
+        <table>
+          <tr><th>Entity</th><th>Reference</th><th>Issue</th><th>Amount (€)</th><th>Status</th></tr>
+          {% if reconciliation_exceptions %}
+          {% for row in reconciliation_exceptions %}
+          <tr>
+            <td>{{ row.entity_type|title }}</td>
+            <td>{{ row.reference or '' }}</td>
+            <td>{{ row.exception_reasons|join(', ') }}</td>
+            <td>{{ format_currency(row.amount_eur or 0) }}</td>
+            <td>{{ row.bank_reconciliation }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="5">No reconciliation exceptions detected.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>Capital allowances schedule</h2>
+        <div class="form-actions" style="margin: 0 0 12px;">
+          <a href="/capital-allowances/export.csv" class="edit-link">Export capital allowances CSV</a>
+        </div>
+        <table>
+          <tr><th>Asset</th><th>Date</th><th>Cost (€)</th><th>Allowance rate</th><th>Annual allowance (€)</th><th>Phase</th></tr>
+          {% if capital_assets %}
+          {% for asset in capital_assets %}
+          <tr>
+            <td>{{ asset.get('description') or asset.get('category') or asset.get('id') }}</td>
+            <td>{{ asset.get('acquisition_date') or '' }}</td>
+            <td>{{ format_currency(asset.get('cost_eur', 0) or 0) }}</td>
+            <td>{{ ((asset.get('allowance_rate', 0.125) or 0.125) * 100) | round(1) }}%</td>
+            <td>{{ format_currency(asset.get('annual_allowance_eur', 0) or 0) }}</td>
+            <td>{{ asset.get('phase_tag') or '' }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="6">No capital assets tracked yet.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>Chart of accounts</h2>
+        <table>
+          <tr><th>Code</th><th>Account Name</th><th>Type</th><th>Tax treatment</th><th>Active</th></tr>
+          {% for account in chart_of_accounts %}
+          <tr>
+            <td>{{ account.get('code') }}</td>
+            <td>{{ account.get('name') }}</td>
+            <td>{{ account.get('type') }}</td>
+            <td>{{ account.get('tax_treatment') }}</td>
+            <td>{{ 'Yes' if account.get('active', True) else 'No' }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>VAT control summary</h2>
+        <div class="form-actions" style="margin: 0 0 12px;">
+          <a href="/vat3/export.csv" class="edit-link">Export VAT 3 CSV</a>
+        </div>
+        <div style="margin:0 0 12px;padding:12px;border-radius:12px;border:1px solid {% if vat_threshold_summary.status == 'exceeded' %}#e9c6c9{% elif vat_threshold_summary.status == 'warning' %}#f2dfbf{% else %}#cfead7{% endif %};background:{% if vat_threshold_summary.status == 'exceeded' %}#fbeaec{% elif vat_threshold_summary.status == 'warning' %}#fff4e5{% else %}#ecf8ef{% endif %};color:{% if vat_threshold_summary.status == 'exceeded' %}#8c2f39{% elif vat_threshold_summary.status == 'warning' %}#9a5b00{% else %}#1f6e3b{% endif %};font-weight:700;">
+          {{ vat_threshold_summary.message }}
+          <div style="margin-top:6px;font-weight:600;font-size:13px;">
+            Taxable turnover {{ format_currency(vat_threshold_summary.taxable_turnover) }} · {{ vat_threshold_summary.warning_ratio_pct }}% warning at {{ format_currency(vat_threshold_summary.warning_threshold) }} · Remaining to limit {{ format_currency(vat_threshold_summary.remaining_before_limit) }}
+          </div>
+        </div>
+        <table style="margin-bottom:12px;">
+          <tr><th>Turnover stream</th><th>Usage</th><th>Threshold</th><th>Remaining</th><th>Status</th></tr>
+          {% for tracker in vat_threshold_summary.stream_trackers %}
+          <tr>
+            <td>{{ tracker.basis_label }}{% if tracker.is_selected %} (selected){% endif %}</td>
+            <td>{{ format_currency(tracker.taxable_turnover) }} ({{ tracker.progress_pct }}%)</td>
+            <td>{{ format_currency(tracker.annual_threshold) }}</td>
+            <td>{{ format_currency(tracker.remaining_before_limit) }}</td>
+            <td>{{ tracker.status|replace('_', ' ')|title }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        <table>
+          <tr><th>VAT 3 field</th><th>Amount (€)</th><th>Notes</th></tr>
+          <tr><td>T1 Output VAT</td><td>{{ format_currency(vat_control_summary.t1_output_vat) }}</td><td>VAT charged on sales in current bi-monthly period</td></tr>
+          <tr><td>T2 Input VAT</td><td>{{ format_currency(vat_control_summary.t2_input_vat) }}</td><td>VAT reclaimable on purchases in current bi-monthly period</td></tr>
+          <tr><td>T3 Net VAT payable</td><td>{{ format_currency(vat_control_summary.t3_net_vat) }}</td><td>Payable when T1 exceeds T2</td></tr>
+          <tr><td>T4 VAT refundable</td><td>{{ format_currency(vat_control_summary.t4_refund) }}</td><td>Refundable when T2 exceeds T1</td></tr>
+          <tr><td>VAT treatment notes</td><td>{{ vat_control_summary.treatment_notes }}</td><td>Zero-rated, exempt, and reverse-charge indicators for period review</td></tr>
+        </table>
+        {% if vat_anomalies %}
+        <table style="margin-top:12px;">
+          <tr><th>Timestamp</th><th>Entity</th><th>Date</th><th>VAT Profile</th><th>Issue</th></tr>
+          {% for item in vat_anomalies %}
+          <tr>
+            <td>{{ item.timestamp }}</td>
+            <td>{{ item.entity_type }}</td>
+            <td>{{ item.transaction_date }}</td>
+            <td>{{ item.vat_treatment }} · {{ item.vat_rate }} · {{ item.supply_type }}</td>
+            <td>{{ item.flags|join(', ') }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+      </div>
+
+      <div class="section">
+        <h2>Trial balance</h2>
+        <div class="form-actions" style="margin: 0 0 12px;">
+          <a href="/ledger/trial-balance.csv" class="edit-link">Export trial balance CSV</a>
+        </div>
+        <table>
+          <tr><th>Account</th><th>Debit (€)</th><th>Credit (€)</th><th>Net (€)</th></tr>
+          {% if trial_balance.rows %}
+          {% for row in trial_balance.rows %}
+          <tr>
+            <td>{{ row.get('account_code') }} - {{ row.get('account_name') }}</td>
+            <td>{{ format_currency(row.get('debit', 0) or 0) }}</td>
+            <td>{{ format_currency(row.get('credit', 0) or 0) }}</td>
+            <td>{{ format_currency(row.get('net', 0) or 0) }}</td>
+          </tr>
+          {% endfor %}
+          <tr>
+            <td><strong>Total</strong></td>
+            <td><strong>{{ format_currency(trial_balance.total_debit) }}</strong></td>
+            <td><strong>{{ format_currency(trial_balance.total_credit) }}</strong></td>
+            <td><strong>{{ format_currency(trial_balance.difference) }}</strong></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4">No trial balance data yet.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>Ledger journal (latest 80)</h2>
+        <div class="form-actions" style="margin: 0 0 12px;">
+          <a href="/ledger/journal.csv" class="edit-link">Export ledger journal CSV</a>
+        </div>
+        <table>
+          <tr><th>Timestamp</th><th>Action</th><th>Entity</th><th>Date</th><th>Description</th><th>Account</th><th>Amount (€)</th><th>Dr/Cr</th><th>VAT trace</th><th>Anomaly</th><th>Phase</th></tr>
+          {% if ledger_entries %}
+          {% for entry in ledger_entries %}
+          <tr>
+            <td>{{ entry.get('timestamp') or '' }}</td>
+            <td>{{ entry.get('action') or '' }}</td>
+            <td>{{ entry.get('entity_type') or '' }}</td>
+            <td>{{ entry.get('transaction_date') or '' }}</td>
+            <td>{{ entry.get('description') or '' }}</td>
+            <td>{{ entry.get('account_code') }} - {{ entry.get('account_name') }}</td>
+            <td>{{ format_currency(entry.get('amount_eur', 0) or 0) }}</td>
+            <td>{{ format_currency(entry.get('debit_total', 0) or 0) }} / {{ format_currency(entry.get('credit_total', 0) or 0) }}</td>
+            <td>{{ entry.get('vat_treatment') or 'standard' }} · {{ entry.get('vat_rate') or '0%' }} · {{ entry.get('supply_type') or 'services' }}</td>
+            <td>{% set flags = ['non_zero_vat_with_zero_or_exempt_treatment', 'reverse_charge_should_not_post_local_vat_amount', 'missing_vat_amount_for_standard_rate'] %}{% if (entry.get('vat_treatment') in ['zero_rated', 'exempt'] and (entry.get('vat_amount_eur', 0) or 0) > 0) or (entry.get('vat_treatment') == 'reverse_charge' and (entry.get('vat_amount_eur', 0) or 0) > 0) or (entry.get('vat_treatment') == 'standard' and entry.get('vat_rate') not in ['0%', 'Exempt', '', None] and (entry.get('vat_amount_eur', 0) or 0) <= 0 and (entry.get('total_amount_eur', 0) or 0) > 0) %}Review{% else %}-{% endif %}</td>
+            <td>{{ entry.get('phase_tag') or '' }}</td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="11">No ledger entries posted yet.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+      {% endif %}
+      {% endif %}
+      {% endif %}
+    </div>
+    <script>
+      (function () {
+        function parseAmount(value) {
+          var numeric = Number.parseFloat(String(value || "").replace(/,/g, ""));
+          return Number.isFinite(numeric) ? numeric : 0;
+        }
+
+        function round2(value) {
+          return Math.round((value + Number.EPSILON) * 100) / 100;
+        }
+
+        function parseVatRateRatio(value) {
+          var text = String(value || "").trim().toLowerCase();
+          if (!text || text === "exempt") {
+            return 0;
+          }
+          if (text.endsWith("%")) {
+            var percent = Number.parseFloat(text.slice(0, -1));
+            return Number.isFinite(percent) ? percent / 100 : 0;
+          }
+          var direct = Number.parseFloat(text);
+          return Number.isFinite(direct) ? direct : 0;
+        }
+
+        function updateExpenseCalculatedAmounts() {
+          var baseInput = document.getElementById("expense_base_net");
+          if (!baseInput) {
+            return;
+          }
+
+          var deliveryInput = document.getElementById("expense_delivery");
+          var feesInput = document.getElementById("expense_fees");
+          var otherChargesInput = document.getElementById("expense_other_charges");
+          var discountInput = document.getElementById("expense_discount");
+          var vatRateInput = document.getElementById("expense_vat_rate");
+          var vatTreatmentInput = document.getElementById("expense_vat_treatment");
+          var netInput = document.getElementById("expense_net");
+          var vatAmountInput = document.getElementById("expense_vat_amount");
+          var totalInput = document.getElementById("expense_total");
+
+          if (!netInput || !totalInput) {
+            return;
+          }
+
+          var subtotal =
+            parseAmount(baseInput.value)
+            + parseAmount(deliveryInput && deliveryInput.value)
+            + parseAmount(feesInput && feesInput.value)
+            + parseAmount(otherChargesInput && otherChargesInput.value);
+          var discount = parseAmount(discountInput && discountInput.value);
+          var taxableNet = Math.max(subtotal - discount, 0);
+
+          var vatRateRatio = parseVatRateRatio(vatRateInput && vatRateInput.value);
+          var vatTreatment = String((vatTreatmentInput && vatTreatmentInput.value) || "").toLowerCase();
+          var vatAmount = vatRateRatio > 0 ? taxableNet * vatRateRatio : 0;
+          if (vatTreatment === "exempt" || vatTreatment === "zero_rated" || vatTreatment === "reverse_charge") {
+            vatAmount = 0;
+          }
+          if (!vatRateInput) {
+            vatAmount = 0;
+          }
+
+          netInput.value = round2(taxableNet).toFixed(2);
+          if (vatAmountInput) {
+            vatAmountInput.value = round2(vatAmount).toFixed(2);
+          }
+          totalInput.value = round2(taxableNet + vatAmount).toFixed(2);
+        }
+
+        var watchedIds = [
+          "expense_base_net",
+          "expense_delivery",
+          "expense_fees",
+          "expense_other_charges",
+          "expense_discount",
+          "expense_vat_rate",
+          "expense_vat_treatment",
+        ];
+
+        watchedIds.forEach(function (id) {
+          var element = document.getElementById(id);
+          if (!element) {
+            return;
+          }
+          element.addEventListener("input", updateExpenseCalculatedAmounts);
+          element.addEventListener("change", updateExpenseCalculatedAmounts);
+        });
+
+        var expenseForm = document.querySelector("form[action='/expenses/update']");
+        if (expenseForm) {
+          expenseForm.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter") {
+              return;
+            }
+
+            var target = event.target;
+            if (!target || target.tagName === "TEXTAREA") {
+              return;
+            }
+
+            event.preventDefault();
+          });
+        }
+
+        updateExpenseCalculatedAmounts();
+      })();
+    </script>
+  </body>
+</html>

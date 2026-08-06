@@ -1,0 +1,23 @@
+[
+  {
+    "id": "d69ca328-0185-4c8b-b01e-f02cb341e077",
+    "Pay Date": "2026-08-05",
+    "Payroll Period": "2026-08",
+    "Employee Name": "UI Smoke Payroll 126884",
+    "Gross Pay (\u20ac)": "1000.00",
+    "PAYE (\u20ac)": "100.00",
+    "USC (\u20ac)": "30.00",
+    "Employee PRSI (\u20ac)": "40.00",
+    "Employer PRSI (\u20ac)": "110.00",
+    "Net Pay (\u20ac)": "830.00",
+    "Employer Cost (\u20ac)": "1110.00",
+    "Status": "Paid",
+    "Payment Method": "Business Bank",
+    "Payment Date": "2026-08-05",
+    "Bank Reconciliation": "Unreconciled",
+    "Notes": "",
+    "Phase Tag": "Phase 1",
+    "created_at": "2026-08-05T22:25:27",
+    "last_updated_at": "2026-08-05T22:25:27"
+  }
+]

@@ -1,0 +1,135 @@
+[
+  {
+    "code": "1000",
+    "name": "Cash at Bank",
+    "type": "Asset",
+    "tax_treatment": "n/a",
+    "active": true
+  },
+  {
+    "code": "1100",
+    "name": "Accounts Receivable",
+    "type": "Asset",
+    "tax_treatment": "n/a",
+    "active": true
+  },
+  {
+    "code": "1200",
+    "name": "Input VAT Control",
+    "type": "Asset",
+    "tax_treatment": "vat",
+    "active": true
+  },
+  {
+    "code": "2000",
+    "name": "Accounts Payable",
+    "type": "Liability",
+    "tax_treatment": "n/a",
+    "active": true
+  },
+  {
+    "code": "2100",
+    "name": "Output VAT Control",
+    "type": "Liability",
+    "tax_treatment": "vat",
+    "active": true
+  },
+  {
+    "code": "3000",
+    "name": "Owner / Director Account",
+    "type": "Equity",
+    "tax_treatment": "entity",
+    "active": true
+  },
+  {
+    "code": "4000",
+    "name": "Consulting / Project Fees",
+    "type": "Income",
+    "tax_treatment": "trading",
+    "active": true
+  },
+  {
+    "code": "4010",
+    "name": "Retainer / Advisory Fees",
+    "type": "Income",
+    "tax_treatment": "trading",
+    "active": true
+  },
+  {
+    "code": "4020",
+    "name": "Service Add-ons",
+    "type": "Income",
+    "tax_treatment": "trading",
+    "active": true
+  },
+  {
+    "code": "4030",
+    "name": "Grant Income",
+    "type": "Income",
+    "tax_treatment": "non-trading",
+    "active": true
+  },
+  {
+    "code": "4040",
+    "name": "BTWEA / Welfare Support",
+    "type": "Income",
+    "tax_treatment": "personal-excluded",
+    "active": true
+  },
+  {
+    "code": "4900",
+    "name": "Other Income",
+    "type": "Income",
+    "tax_treatment": "trading",
+    "active": true
+  },
+  {
+    "code": "5000",
+    "name": "Software and Subscriptions",
+    "type": "Expense",
+    "tax_treatment": "deductible",
+    "active": true
+  },
+  {
+    "code": "5010",
+    "name": "Domain / Hosting / Website",
+    "type": "Expense",
+    "tax_treatment": "deductible",
+    "active": true
+  },
+  {
+    "code": "5020",
+    "name": "Professional Fees",
+    "type": "Expense",
+    "tax_treatment": "deductible",
+    "active": true
+  },
+  {
+    "code": "5030",
+    "name": "Marketing and Advertising",
+    "type": "Expense",
+    "tax_treatment": "deductible",
+    "active": true
+  },
+  {
+    "code": "5040",
+    "name": "Bank and Transaction Fees",
+    "type": "Expense",
+    "tax_treatment": "deductible",
+    "active": true
+  },
+  {
+    "code": "5200",
+    "name": "Equipment and Hardware",
+    "type": "Expense",
+    "tax_treatment": "capital-check",
+    "active": true
+  },
+  {
+    "code": "5900",
+    "name": "Non-Deductible Items",
+    "type": "Expense",
+    "tax_treatment": "non-deductible",
+    "active": true
+  }
+]

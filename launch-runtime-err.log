@@ -1,0 +1,15 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+127.0.0.1 - - [06/Aug/2026 19:37:11] "GET /healthz HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 19:38:05] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 19:38:05] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 19:38:16] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 19:38:16] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 19:39:05] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 19:39:05] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 19:39:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [06/Aug/2026 19:48:38] "POST /expenses/delete HTTP/1.1" 302 -
+127.0.0.1 - - [06/Aug/2026 20:32:15] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 20:32:15] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Aug/2026 20:32:15] "GET /favicon.ico HTTP/1.1" 404 -

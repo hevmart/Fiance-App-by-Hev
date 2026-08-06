@@ -1,0 +1,106 @@
+[2026-08-06 00:17:42] Launch requested
+[2026-08-06 00:17:42] Stale listener detected on port 5000; terminating owning process(es)
+[2026-08-06 00:18:15] Launch requested
+[2026-08-06 00:18:19] Python start command issued (PID: 38072)
+[2026-08-06 00:18:21] App HTTP endpoint is responsive
+[2026-08-06 00:18:21] Browser open command issued (explorer)
+[2026-08-06 00:22:39] Launch requested
+[2026-08-06 00:22:39] Existing app HTTP endpoint is responsive
+[2026-08-06 00:22:39] Browser open command issued (existing healthy app)
+[2026-08-06 00:24:31] Launch requested
+[2026-08-06 00:24:36] Python start command issued (PID: 15656)
+[2026-08-06 00:24:38] App HTTP endpoint is responsive
+[2026-08-06 00:24:38] Browser open command issued (explorer)
+[2026-08-06 00:25:07] Launch requested
+[2026-08-06 00:25:08] Existing app HTTP endpoint is responsive
+[2026-08-06 00:25:08] Browser open command issued (existing healthy app)
+[2026-08-06 00:31:31] Launch requested
+[2026-08-06 00:31:37] Python start command issued (PID: 40080)
+[2026-08-06 00:31:39] App HTTP endpoint is responsive
+[2026-08-06 00:31:40] Browser open command issued (explorer)
+[2026-08-06 00:39:56] Launch requested
+[2026-08-06 00:40:02] Python start command issued (PID: 46016)
+[2026-08-06 00:40:04] App HTTP endpoint is responsive
+[2026-08-06 00:40:05] Browser open command issued (explorer)
+[2026-08-06 00:47:40] Launch requested
+[2026-08-06 00:47:47] App HTTP endpoint is responsive
+[2026-08-06 00:47:47] Browser open command issued (explorer)
+[2026-08-06 00:54:10] Launch requested
+[2026-08-06 00:54:14] Duplicate app processes detected (2); keeping port owner PID 5324
+[2026-08-06 00:54:19] Python start command issued (PID: 30400)
+[2026-08-06 00:54:21] App HTTP endpoint is responsive
+[2026-08-06 00:54:21] Browser open command issued (explorer)
+[2026-08-06 01:05:47] Launch requested
+[2026-08-06 01:05:53] Python start command issued (PID: 35440)
+[2026-08-06 01:05:57] App HTTP endpoint is responsive
+[2026-08-06 01:05:57] Browser open command issued (explorer)
+[2026-08-06 01:09:33] Launch requested
+[2026-08-06 01:09:38] Python start command issued (PID: 36376)
+[2026-08-06 01:09:40] Browser open command issued (explorer)
+[2026-08-06 01:11:37] Launch requested
+[2026-08-06 01:11:42] Python start command issued (PID: 14356)
+[2026-08-06 01:11:44] Browser open command issued (explorer)
+[2026-08-06 01:14:27] Launch requested
+[2026-08-06 01:14:33] Python start command issued (PID: 53952)
+[2026-08-06 01:14:53] Launch failed: App did not become HTTP-responsive at http://127.0.0.1:5000/healthz within 20s. Stdout tail:
+
+Stderr tail:
+  File "C:\Users\hevma\OneDrive\_H-Queex\Finance\Fiance App by Hev\app.py", line 4048
+    return Response(
+IndentationError: unexpected indent
+
+[2026-08-06 01:15:35] Launch requested
+[2026-08-06 01:15:40] Python start command issued (PID: 1232)
+[2026-08-06 01:15:43] App HTTP endpoint is responsive
+[2026-08-06 01:15:43] Browser open command issued (explorer)
+[2026-08-06 01:28:11] Launch requested
+[2026-08-06 01:28:15] Duplicate app processes detected (2); keeping port owner PID 33236
+[2026-08-06 01:28:20] Python start command issued (PID: 36300)
+[2026-08-06 01:38:59] Launch requested
+[2026-08-06 01:39:03] Duplicate app processes detected (2); keeping port owner PID 46028
+[2026-08-06 01:39:08] Python start command issued (PID: 6768)
+[2026-08-06 02:20:25] Launch requested
+[2026-08-06 02:20:25] Existing app HTTP endpoint is responsive
+[2026-08-06 02:20:25] Browser open command issued (existing healthy app)
+[2026-08-06 02:38:28] Launch requested
+[2026-08-06 02:38:29] Existing app HTTP endpoint is responsive
+[2026-08-06 02:38:29] Browser open command issued (existing healthy app)
+[2026-08-06 18:00:52] Launch requested
+[2026-08-06 18:00:56] Stale listener detected on port 5000; terminating owning process(es)
+[2026-08-06 18:01:07] Python start command issued (PID: 32664)
+[2026-08-06 18:01:27] Launch failed: App did not become HTTP-responsive at http://127.0.0.1:5000/healthz within 20s. Stdout tail:
+ * Serving Flask app 'app'
+ * Debug mode: off
+
+Stderr tail:
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+
+[2026-08-06 18:01:44] Launch requested
+[2026-08-06 18:01:52] Duplicate app processes detected (2); terminating all to reset
+[2026-08-06 18:01:56] Stale listener detected on port 5000; terminating owning process(es)
+[2026-08-06 18:01:59] Python start command issued (PID: 30284)
+[2026-08-06 18:02:01] App HTTP endpoint is responsive
+[2026-08-06 18:02:01] Browser open command issued (explorer)
+[2026-08-06 18:15:47] Launch requested
+[2026-08-06 18:15:52] Duplicate app processes detected (2); terminating all to reset
+[2026-08-06 18:15:53] Existing app HTTP endpoint is responsive
+[2026-08-06 18:15:53] Browser open command issued (existing healthy app)
+[2026-08-06 18:25:40] Launch requested
+[2026-08-06 18:25:41] Existing app HTTP endpoint is responsive
+[2026-08-06 18:25:41] Browser open command issued (existing healthy app)
+[2026-08-06 19:35:25] Launch requested
+[2026-08-06 19:35:30] Python start command issued (PID: 14180)
+[2026-08-06 19:35:33] App HTTP endpoint is responsive
+[2026-08-06 19:35:33] Browser open command issued (explorer)
+[2026-08-06 19:35:56] Launch requested
+[2026-08-06 19:36:02] Duplicate app processes detected (2); keeping port owner PID 12672
+[2026-08-06 19:36:07] Python start command issued (PID: 11324)
+[2026-08-06 19:36:10] App HTTP endpoint is responsive
+[2026-08-06 19:36:10] Browser open command issued (explorer)
+[2026-08-06 19:36:55] Launch requested
+[2026-08-06 19:37:03] Duplicate app processes detected (2); keeping port owner PID 23068
+[2026-08-06 19:37:09] Python start command issued (PID: 33568)
+[2026-08-06 19:37:11] App HTTP endpoint is responsive
+[2026-08-06 19:37:12] Browser open command issued (explorer)

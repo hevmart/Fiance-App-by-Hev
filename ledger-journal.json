@@ -1,0 +1,789 @@
+[
+  {
+    "id": "af9dc8c9-67a0-49bf-b25e-b539a1bd4f89",
+    "timestamp": "2026-08-05T22:25:27",
+    "action": "create",
+    "entity_type": "payroll",
+    "source": "payroll",
+    "row_number": null,
+    "transaction_date": "2026-08-05",
+    "description": "UI Smoke Payroll 126884",
+    "category": "2026-08",
+    "account_code": "5300",
+    "account_name": "Unmapped Account",
+    "tax_treatment": "review",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 1000.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 1110.0,
+    "amount_eur": 1110.0,
+    "journal_lines": [
+      {
+        "account_code": "5300",
+        "debit": 1000.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "5310",
+        "debit": 110.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "2200",
+        "debit": 0.0,
+        "credit": 280.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 830.0
+      }
+    ],
+    "debit_total": 1110.0,
+    "credit_total": 1110.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "e5cfe8cc-750a-443c-bc34-38fd2cba0795",
+    "timestamp": "2026-08-06T01:05:59",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-07-27",
+    "description": "Domain Registration - h-elixstudio.ie - 1 Year/s (21/05/2026 - 20/05/2027) - Domain ID: 242647 (edited)",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 7.37,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 7.37,
+    "amount_eur": 7.37,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 7.37,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 7.37
+      }
+    ],
+    "debit_total": 7.37,
+    "credit_total": 7.37,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "2114b450-b8a9-4d85-8238-2aaeec9562ab",
+    "timestamp": "2026-08-06T01:09:57",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-07-27",
+    "description": "Domain Registration - h-elixstudio.ie - 1 Year/s (21/05/2026 - 20/05/2027) - Domain ID: 242647 quick",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 7.37,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 7.37,
+    "amount_eur": 7.37,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 7.37,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 7.37
+      }
+    ],
+    "debit_total": 7.37,
+    "credit_total": 7.37,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "49467be9-1984-40ae-a74d-25d39dc694fc",
+    "timestamp": "2026-08-06T01:13:16",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-07-27",
+    "description": "Domain Registration - h-elixstudio.ie - 1 Year/s (21/05/2026 - 20/05/2027) - Domain ID: 242647 FAST",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 7.37,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 7.37,
+    "amount_eur": 7.37,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 7.37,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 7.37
+      }
+    ],
+    "debit_total": 7.37,
+    "credit_total": 7.37,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "0005e41f-3838-4f6e-8934-e6e0165cda1f",
+    "timestamp": "2026-08-06T01:15:45",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-07-27",
+    "description": "Domain Registration - h-elixstudio.ie instant",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 7.37,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 7.37,
+    "amount_eur": 7.37,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 7.37,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 7.37
+      }
+    ],
+    "debit_total": 7.37,
+    "credit_total": 7.37,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "ada5fecb-af08-4b58-aed0-dcfb9468406c",
+    "timestamp": "2026-08-06T01:19:50",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 13,
+    "transaction_date": "2026-07-27",
+    "description": "Test by Hev",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 880.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 880.0,
+    "amount_eur": 880.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 880.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 880.0
+      }
+    ],
+    "debit_total": 880.0,
+    "credit_total": 880.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "2fdf0ccc-6dd0-4686-a0a6-19e2e9d9472f",
+    "timestamp": "2026-08-06T18:06:12",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-06",
+    "description": "diag",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 100.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 100.0,
+    "amount_eur": 100.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 100.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 100.0
+      }
+    ],
+    "debit_total": 100.0,
+    "credit_total": 100.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "875bc1db-abf4-426f-a367-0438338a4254",
+    "timestamp": "2026-08-06T18:06:40",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-06",
+    "description": "speed test",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 110.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 110.0,
+    "amount_eur": 110.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 110.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 110.0
+      }
+    ],
+    "debit_total": 110.0,
+    "credit_total": 110.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "e2fd351f-7155-4e5c-a73f-f11291faf4dd",
+    "timestamp": "2026-08-06T18:06:54",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-06",
+    "description": "speed test",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 110.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 110.0,
+    "amount_eur": 110.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 110.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 110.0
+      }
+    ],
+    "debit_total": 110.0,
+    "credit_total": 110.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "4281dd03-124d-43a5-b2ea-ff373d2e3f94",
+    "timestamp": "2026-08-06T18:07:40",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-06",
+    "description": "speed test",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 110.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 110.0,
+    "amount_eur": 110.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 110.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 110.0
+      }
+    ],
+    "debit_total": 110.0,
+    "credit_total": 110.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "a839116e-51e2-4e6b-b9af-832e7e8deec3",
+    "timestamp": "2026-08-06T18:07:52",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-06",
+    "description": "speed test",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 110.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 110.0,
+    "amount_eur": 110.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 110.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 110.0
+      }
+    ],
+    "debit_total": 110.0,
+    "credit_total": 110.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "7882837e-b568-4385-8b1e-d0668911b3ea",
+    "timestamp": "2026-08-06T18:10:02",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-07-27",
+    "description": "Domain Registration - h-elixstudio.ie instant",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 7.37,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 7.37,
+    "amount_eur": 7.37,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 7.37,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 7.37
+      }
+    ],
+    "debit_total": 7.37,
+    "credit_total": 7.37,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "6e8fb831-07ad-42ed-9a6a-2987818e513b",
+    "timestamp": "2026-08-06T18:25:06",
+    "action": "create",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 100012,
+    "transaction_date": "2026-08-06",
+    "description": "Debug Save",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 13.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 13.0,
+    "amount_eur": 13.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 13.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 13.0
+      }
+    ],
+    "debit_total": 13.0,
+    "credit_total": 13.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "4eaa44ae-c7a6-4827-9cb5-b8797ec23253",
+    "timestamp": "2026-08-06T18:26:02",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 13,
+    "transaction_date": "2026-07-27",
+    "description": "Test by Hev",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 180.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 180.0,
+    "amount_eur": 180.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 180.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 180.0
+      }
+    ],
+    "debit_total": 180.0,
+    "credit_total": 180.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "25c054fa-5217-493e-824d-75fd5956c92b",
+    "timestamp": "2026-08-06T18:29:17",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-07-27",
+    "description": "Domain Registration - h-elixstudio.ie instant",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 7.37,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 7.37,
+    "amount_eur": 7.37,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 7.37,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 7.37
+      }
+    ],
+    "debit_total": 7.37,
+    "credit_total": 7.37,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "33fed060-ca45-4124-a2b4-86e5635a456f",
+    "timestamp": "2026-08-06T18:33:28",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 13,
+    "transaction_date": "2026-07-27",
+    "description": "Test by Hev",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 371.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 371.0,
+    "amount_eur": 371.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 371.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 371.0
+      }
+    ],
+    "debit_total": 371.0,
+    "credit_total": 371.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "ad3fba38-42b2-48b1-b99d-cd6f0ff1afd3",
+    "timestamp": "2026-08-06T18:34:08",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 13,
+    "transaction_date": "2026-07-27",
+    "description": "Test by Hev",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 471.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 471.0,
+    "amount_eur": 471.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 471.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 471.0
+      }
+    ],
+    "debit_total": 471.0,
+    "credit_total": 471.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "9aa181c6-8941-4874-a116-d2be7466936d",
+    "timestamp": "2026-08-06T18:34:51",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 13,
+    "transaction_date": "2026-07-27",
+    "description": "Test by Hev",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 496.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 496.0,
+    "amount_eur": 496.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 496.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 496.0
+      }
+    ],
+    "debit_total": 496.0,
+    "credit_total": 496.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "57422ea9-9494-4efb-bee5-adece463c2c0",
+    "timestamp": "2026-08-06T18:49:08",
+    "action": "update",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 13,
+    "transaction_date": "2026-07-27",
+    "description": "Test by Hev",
+    "category": "Operations",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 496.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 496.0,
+    "amount_eur": 496.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 496.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 496.0
+      }
+    ],
+    "debit_total": 496.0,
+    "credit_total": 496.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "820a7ceb-b0fb-4790-b8bd-f734299068bd",
+    "timestamp": "2026-08-06T19:48:38",
+    "action": "archive",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 100012,
+    "transaction_date": "2026-08-06",
+    "description": "Debug Save",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 13.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 13.0,
+    "amount_eur": 13.0,
+    "journal_lines": [
+      {
+        "account_code": "1000",
+        "debit": 13.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "5000",
+        "debit": 0.0,
+        "credit": 13.0
+      }
+    ],
+    "debit_total": 13.0,
+    "credit_total": 13.0,
+    "entry_balanced": true,
+    "phase_tag": ""
+  },
+  {
+    "id": "29507f45-2e18-4d07-a5d4-4264c054d6a4",
+    "timestamp": "2026-08-06T20:58:33",
+    "action": "archive",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-07-27",
+    "description": "Domain Registration - h-elixstudio.ie instant",
+    "category": "IT/Tech",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 7.37,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 7.37,
+    "amount_eur": 7.37,
+    "journal_lines": [
+      {
+        "account_code": "1000",
+        "debit": 7.37,
+        "credit": 0.0
+      },
+      {
+        "account_code": "5000",
+        "debit": 0.0,
+        "credit": 7.37
+      }
+    ],
+    "debit_total": 7.37,
+    "credit_total": 7.37,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "id": "e026882c-cf36-4c84-92ea-2252216238c9",
+    "date": "2026-08-05",
+    "description": "Unknown Item",
+    "reference": "UNK-1",
+    "amount_eur": -55.0,
+    "balance_eur": 0.0,
+    "payment_method": "Business Bank",
+    "source_filename": "statement.csv",
+    "uploaded_at": "2026-08-05T21:50:00"
+  },
+  {
+    "id": "b82baa67-5f36-43f4-a6f6-c7ef58409e18",
+    "date": "2026-08-05",
+    "description": "Payroll Payment",
+    "reference": "PAY-1",
+    "amount_eur": -830.0,
+    "balance_eur": 0.0,
+    "payment_method": "Business Bank",
+    "source_filename": "statement.csv",
+    "uploaded_at": "2026-08-05T22:13:44"
+  },
+  {
+    "id": "6d7e3ac7-4861-4b37-9d9b-1e229e8df51f",
+    "date": "2026-08-05",
+    "description": "Expense Payment",
+    "reference": "EXP-1",
+    "amount_eur": -123.0,
+    "balance_eur": 0.0,
+    "payment_method": "Business Bank",
+    "source_filename": "statement.csv",
+    "uploaded_at": "2026-08-05T21:50:00"
+  },
+  {
+    "id": "336af8d8-f04f-4813-9417-6f73f796623a",
+    "date": "2026-08-05",
+    "description": "Single line",
+    "reference": "AMB-1",
+    "amount_eur": -123.0,
+    "balance_eur": 0.0,
+    "payment_method": "Business Bank",
+    "source_filename": "statement.csv",
+    "uploaded_at": "2026-08-05T22:16:11"
+  }
+]
