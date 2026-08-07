@@ -2424,5 +2424,57 @@
       },
       "source": "quick_add"
     }
+  },
+  {
+    "id": "56ece9d0-3157-4c32-9206-5affb23aa1f7",
+    "timestamp": "2026-08-07T23:30:23",
+    "action": "archive",
+    "entity_type": "service",
+    "details": {
+      "service_id": "2f23de35-de1b-40bf-ba09-a74273f1024e",
+      "record": {
+        "id": "2f23de35-de1b-40bf-ba09-a74273f1024e",
+        "name": "Implementation Roadmap Document",
+        "tier": "addon",
+        "group": "Communication and Strategic Assets",
+        "description": "Structured roadmap document mapping the implementation sequence for process improvement initiatives.",
+        "price": 350.0,
+        "price_type": "fixed",
+        "billing_frequency": "one-off",
+        "quarterly_price": null,
+        "annual_price": null,
+        "status": "archived",
+        "website_display_price": false,
+        "website_display_label": "\u20ac350",
+        "date_added": "2026-08-07T23:15:13",
+        "date_updated": "2026-08-07T23:30:23"
+      }
+    }
+  },
+  {
+    "id": "a0693dfa-fbdc-4ade-a897-3b4028e26a41",
+    "timestamp": "2026-08-07T23:30:38",
+    "action": "restore",
+    "entity_type": "service",
+    "details": {
+      "service_id": "2f23de35-de1b-40bf-ba09-a74273f1024e",
+      "record": {
+        "id": "2f23de35-de1b-40bf-ba09-a74273f1024e",
+        "name": "Implementation Roadmap Document",
+        "tier": "addon",
+        "group": "Communication and Strategic Assets",
+        "description": "Structured roadmap document mapping the implementation sequence for process improvement initiatives.",
+        "price": 350.0,
+        "price_type": "fixed",
+        "billing_frequency": "one-off",
+        "quarterly_price": null,
+        "annual_price": null,
+        "status": "active",
+        "website_display_price": false,
+        "website_display_label": "\u20ac350",
+        "date_added": "2026-08-07T23:15:13",
+        "date_updated": "2026-08-07T23:30:38"
+      }
+    }
   }
 ]

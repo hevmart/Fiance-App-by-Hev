@@ -3059,10 +3059,20 @@ def _normalize_service(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+CORE_TIER_DISPLAY_ORDER = {"Clarity Base": 0, "Clarity Plus": 1, "Clarity Partner": 2}
+
+
 def _load_services() -> list[dict[str, Any]]:
     records = _load_json_records(SERVICES_PATH)
     services = [_normalize_service(record) for record in records if isinstance(record, dict)]
-    services.sort(key=lambda item: (item.get("tier") != "core", item.get("group") or "", item.get("name") or ""))
+    services.sort(
+        key=lambda item: (
+            item.get("tier") != "core",
+            CORE_TIER_DISPLAY_ORDER.get(item.get("name") or "", 99),
+            item.get("group") or "",
+            item.get("name") or "",
+        )
+    )
     return services
 
 
@@ -3870,6 +3880,20 @@ def index():
             chart_data=_build_chart_data(summary),
             message=request.args.get("message"),
             sync_message=_build_sync_message(sync_result),
+        ),
+    )
+
+
+@app.route("/finance")
+def finance_view():
+    data = load_finance_data()
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Finance hub",
+            "finance",
+            data,
+            message=request.args.get("message"),
         ),
     )
 

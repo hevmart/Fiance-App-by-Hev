@@ -150,31 +150,23 @@
       .nav-item.active { color: var(--brand-navy); font-weight: 700; border-bottom-color: var(--brand-gold); }
       .nav-item-disabled { color: var(--brand-border); cursor: not-allowed; }
       .nav-item-disabled:hover { color: var(--brand-border); border-bottom-color: transparent; }
-      .nav-dropdown { position: relative; }
-      .nav-dropdown-toggle { font: inherit; }
-      .nav-caret { font-size: 10px; transition: transform 0.15s ease; }
-      .nav-dropdown.open .nav-caret { transform: rotate(180deg); }
-      .nav-dropdown-menu {
-        display: none; position: absolute; top: 100%; left: 0; min-width: 190px; background: var(--brand-white);
-        border: 1px solid var(--brand-border); border-radius: 8px; box-shadow: 0 10px 24px rgba(22, 41, 74, 0.15); padding: 6px; z-index: 40;
+      .finance-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 14px; }
+      .finance-card-link { text-decoration: none; color: inherit; display: block; }
+      .finance-card {
+        background: var(--brand-white); border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold);
+        border-radius: 10px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(22, 41, 74, 0.06);
+        min-height: 148px; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
       }
-      .nav-dropdown.open .nav-dropdown-menu { display: block; }
-      .nav-dropdown-item { display: block; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: var(--brand-navy); font-weight: 600; font-size: 14px; font-family: 'Segoe UI', sans-serif; }
-      .nav-dropdown-item:hover { background: var(--brand-bg-light); }
-      .nav-dropdown-item.active { background: var(--brand-navy); color: var(--brand-white); }
-      .nav-dropdown-divider { height: 1px; background: var(--brand-border); margin: 6px 4px; }
-      .nav-dropdown-form { margin: 0; }
-      .nav-dropdown-button { width: 100%; text-align: left; background: transparent; border: 0; cursor: pointer; color: var(--brand-gold); }
-      .nav-dropdown-button:hover { background: var(--brand-bg-light); }
+      .finance-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(22, 41, 74, 0.12); border-color: var(--brand-gold); }
+      .finance-card h3 { margin: 0 0 8px; color: var(--brand-navy); font-size: 18px; font-weight: 700; }
+      .finance-card p { margin: 0; font-size: 14px; color: var(--brand-dark-grey); line-height: 1.6; }
+      .finance-card .pill { margin-top: 10px; }
       @media (max-width: 900px) {
         .nav-hamburger { display: inline-flex; }
         .nav-menu { display: none; flex-direction: column; align-items: stretch; width: 100%; border-top: 1px solid var(--brand-border); margin-top: 10px; padding-top: 6px; }
         .nav-menu.open { display: flex; }
         .nav-item { border-bottom: 0; border-left: 3px solid transparent; padding: 12px 10px; }
         .nav-item.active { border-left-color: var(--brand-gold); border-bottom-color: transparent; }
-        .nav-dropdown-toggle { width: 100%; justify-content: space-between; }
-        .nav-dropdown-menu { display: none; position: static; box-shadow: none; border: 0; padding: 2px 2px 2px 14px; }
-        .nav-dropdown.open .nav-dropdown-menu { display: flex; flex-direction: column; }
       }
       .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 16px 0 24px; }
       .card { background: var(--brand-white); border-radius: 10px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(22, 41, 74, 0.06); border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold); overflow: hidden; }
@@ -231,24 +223,50 @@
       .tier-card-label { margin-top: 12px; font-size: 12px; color: var(--brand-steel); font-weight: 600; }
       .tier-card .table-actions button { background: transparent; border: 1px solid var(--brand-gold); border-bottom: 1px solid var(--brand-gold); color: var(--brand-gold); }
       .tier-card .table-actions button:hover { background: var(--brand-gold); color: var(--brand-navy); }
-      .line-items-header, .line-item-row {
-        display: grid;
-        grid-template-columns: 1.3fr 1.3fr 55px 90px 110px 85px 80px 80px 90px 28px;
-        gap: 6px;
-        align-items: center;
+      .line-items-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px; }
+      .line-item-card {
+        background: var(--brand-bg-light); border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold);
+        border-radius: 8px; padding: 12px 14px;
       }
-      .line-items-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand-steel); padding: 0 0 6px; }
-      .line-items-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
-      .line-item-row { padding: 6px 0; border-bottom: 1px solid var(--brand-border); }
-      .line-item-row input, .line-item-row select {
-        width: 100%; min-height: 38px; padding: 6px 8px; border: 1px solid var(--brand-border); border-radius: 6px; background: var(--brand-bg-light); color: var(--brand-charcoal); font: inherit; font-size: 13px; box-sizing: border-box;
+      .line-item-card input, .line-item-card select {
+        width: 100%; min-height: 38px; padding: 7px 9px; border: 1px solid var(--brand-border); border-radius: 6px; background: var(--brand-white); color: var(--brand-charcoal); font: inherit; font-size: 13px; box-sizing: border-box;
       }
-      .line-item-row .li-discount-group { display: flex; gap: 4px; }
-      .line-item-row .li-discount-group select { flex: 0 0 44px; padding: 6px 2px; }
-      .line-item-row .li-net, .line-item-row .li-vat-amount, .line-item-row .li-total { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--brand-navy); text-align: right; padding-right: 4px; }
-      .line-item-row .li-total { font-weight: 700; color: var(--brand-gold); }
-      .line-item-row .li-remove { background: transparent; border: 1px solid var(--brand-error); color: var(--brand-error); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-weight: 700; line-height: 1; }
-      .line-item-row .li-remove:hover { background: var(--brand-error); color: var(--brand-white); }
+      .li-row-primary { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .li-row-primary .li-service { flex: 1 1 260px; min-width: 200px; }
+      .li-row-primary .li-name { flex: 2 1 240px; min-width: 180px; }
+      .li-row-amounts { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-top: 10px; margin-left: 14px; padding-left: 14px; border-left: 2px solid var(--brand-border); }
+      .li-field { display: flex; flex-direction: column; gap: 4px; }
+      .li-field-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand-steel); }
+      .li-field-qty { flex: 0 0 60px; }
+      .li-field-price { flex: 0 0 104px; }
+      .li-field-discount { flex: 0 0 130px; }
+      .li-field-vat { flex: 0 0 90px; }
+      .li-field-net, .li-field-vat-amt, .li-field-total { flex: 0 0 100px; }
+      .li-discount-group { display: flex; gap: 4px; }
+      .li-discount-group select { flex: 0 0 44px; padding: 7px 2px; }
+      .li-readonly-box {
+        min-height: 38px; padding: 7px 8px; border: 1px solid var(--brand-border); border-radius: 6px; background: var(--brand-bg-deep);
+        color: var(--brand-charcoal); font-size: 13px; font-variant-numeric: tabular-nums; text-align: right;
+        box-sizing: border-box; display: flex; align-items: center; justify-content: flex-end;
+      }
+      .li-field-total .li-readonly-box { color: var(--brand-gold); font-weight: 700; border-color: var(--brand-gold); }
+      .li-remove {
+        flex: 0 0 32px; margin-left: auto; background: transparent; border: 1px solid var(--brand-error); color: var(--brand-error);
+        border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-weight: 700; line-height: 1;
+      }
+      .li-remove:hover { background: var(--brand-error); color: var(--brand-white); }
+      .btn-add-line {
+        background: transparent; border: 0; color: var(--brand-steel); font-weight: 600; font-size: 13px; cursor: pointer;
+        padding: 8px 2px; display: inline-flex; align-items: center; gap: 6px; font-family: 'Segoe UI', sans-serif;
+      }
+      .btn-add-line:hover { color: var(--brand-navy); }
+      .btn-add-line .add-line-icon { font-size: 15px; font-weight: 700; }
+      @media (max-width: 640px) {
+        .li-row-primary { flex-direction: column; align-items: stretch; }
+        .li-row-primary .li-remove { align-self: flex-end; margin-left: 0; }
+        .li-row-amounts { flex-direction: column; align-items: stretch; margin-left: 0; padding-left: 10px; }
+        .li-field-qty, .li-field-price, .li-field-discount, .li-field-vat, .li-field-net, .li-field-vat-amt, .li-field-total { flex: 1 1 auto; }
+      }
       .calc-block { border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold); border-radius: 8px; padding: 14px 16px; background: var(--brand-bg-light); }
       .calc-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
       .calc-block-header h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--brand-navy); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -337,6 +355,7 @@
       .compliance-modal-box .btn-go-back {
         background: var(--brand-white); color: var(--brand-navy); border: 1.5px solid var(--brand-navy); border-radius: 8px;
         padding: 10px 16px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif;
+        text-decoration: none; display: inline-block;
       }
       .compliance-modal-box .btn-go-back:hover { background: var(--brand-bg-light); }
       .compliance-modal-box .btn-confirm-save {
@@ -345,6 +364,34 @@
       }
       .compliance-modal-box .btn-confirm-save:hover { background: #9c7a49; }
       .compliance-flag-item { padding: 10px 12px; border-radius: 6px; background: rgba(198, 40, 40, 0.06); border-left: 3px solid var(--brand-error); font-size: 13px; color: var(--brand-navy); line-height: 1.5; }
+      .service-modal-box { max-width: 640px; }
+      .service-modal-box .compliance-modal-body { max-height: 74vh; overflow-y: auto; }
+      .service-modal-box .modal-actions { margin-top: 18px; }
+      .archive-confirm-wrap { position: relative; display: inline-block; }
+      .archive-confirm-tooltip {
+        display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 60; width: 200px;
+        background: var(--brand-white); border: 1px solid var(--brand-border); border-radius: 8px; padding: 10px 12px;
+        box-shadow: 0 8px 20px rgba(22, 41, 74, 0.2); font-family: 'Segoe UI', sans-serif;
+      }
+      .archive-confirm-tooltip.open { display: block; }
+      .archive-confirm-tooltip p { margin: 0 0 8px; font-size: 12px; color: var(--brand-navy); line-height: 1.4; }
+      .archive-confirm-actions { display: flex; gap: 6px; justify-content: flex-end; }
+      .archive-confirm-yes {
+        background: var(--brand-error); color: var(--brand-white); border: 0; border-radius: 6px; padding: 6px 10px;
+        font-weight: 700; font-size: 12px; cursor: pointer; font-family: 'Segoe UI', sans-serif;
+      }
+      .archive-confirm-yes:hover { background: #a31f1f; }
+      .archive-confirm-cancel {
+        background: var(--brand-white); color: var(--brand-navy); border: 1px solid var(--brand-border); border-radius: 6px; padding: 6px 10px;
+        font-weight: 700; font-size: 12px; cursor: pointer; font-family: 'Segoe UI', sans-serif;
+      }
+      .archive-confirm-cancel:hover { border-color: var(--brand-gold); }
+      .form-modal-box { max-width: 560px; }
+      .compact-summary-bar {
+        background: var(--brand-bg-light); border: 1px solid var(--brand-border); border-radius: 8px; padding: 10px 16px;
+        color: var(--brand-steel); font-size: 13px; font-weight: 600; font-family: 'Segoe UI', sans-serif; margin-bottom: 16px;
+      }
+      .compact-summary-bar .summary-divider { margin: 0 8px; color: var(--brand-border); }
       @keyframes fade-scale { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
       .form-actions { display: flex; justify-content: flex-start; }
       .form-actions button, .btn-primary {
@@ -465,27 +512,12 @@
         </div>
       </div>
 
-      {% set finance_tabs = ['income', 'expenses', 'invoices', 'subscriptions', 'payroll', 'ledger', 'archive'] %}
+      {% set finance_tabs = ['finance', 'income', 'expenses', 'invoices', 'subscriptions', 'payroll', 'ledger', 'archive'] %}
       <nav class="main-nav">
         <button type="button" class="nav-hamburger" id="nav_hamburger" aria-label="Toggle menu" aria-expanded="false">☰ Menu</button>
         <div class="nav-menu" id="nav_menu">
           <a href="/" class="nav-item {% if active_tab|default('dashboard') == 'dashboard' %}active{% endif %}">Dashboard</a>
-          <div class="nav-dropdown {% if active_tab in finance_tabs %}active open-on-load{% endif %}">
-            <button type="button" class="nav-item nav-dropdown-toggle {% if active_tab in finance_tabs %}active{% endif %}">Finance <span class="nav-caret">▾</span></button>
-            <div class="nav-dropdown-menu">
-              <a href="/income" class="nav-dropdown-item {% if active_tab == 'income' %}active{% endif %}">Income</a>
-              <a href="/expenses" class="nav-dropdown-item {% if active_tab == 'expenses' %}active{% endif %}">Expenses</a>
-              <a href="/invoices" class="nav-dropdown-item {% if active_tab == 'invoices' %}active{% endif %}">Invoices</a>
-              <a href="/subscriptions" class="nav-dropdown-item {% if active_tab == 'subscriptions' %}active{% endif %}">Subscriptions</a>
-              <a href="/payroll" class="nav-dropdown-item {% if active_tab == 'payroll' %}active{% endif %}">Payroll</a>
-              <a href="/ledger" class="nav-dropdown-item {% if active_tab == 'ledger' %}active{% endif %}">Ledger</a>
-              <a href="/archive" class="nav-dropdown-item {% if active_tab == 'archive' %}active{% endif %}">Archive</a>
-              <div class="nav-dropdown-divider"></div>
-              <form method="post" action="/export/xlsm?next={{ request.path }}" class="nav-dropdown-form">
-                <button type="submit" class="nav-dropdown-item nav-dropdown-button">Export</button>
-              </form>
-            </div>
-          </div>
+          <a href="/finance" class="nav-item {% if active_tab in finance_tabs %}active{% endif %}">Finance</a>
           <a href="/services" class="nav-item {% if active_tab == 'services' %}active{% endif %}">Services</a>
           <a href="/clients" class="nav-item {% if active_tab == 'clients' %}active{% endif %}">Clients</a>
           <a href="/suppliers" class="nav-item {% if active_tab == 'suppliers' %}active{% endif %}">Suppliers</a>
@@ -502,33 +534,71 @@
               hamburger.setAttribute("aria-expanded", isOpen ? "true" : "false");
             });
           }
-          document.querySelectorAll(".nav-dropdown-toggle").forEach(function (toggle) {
-            toggle.addEventListener("click", function (event) {
-              event.stopPropagation();
-              var dropdown = toggle.closest(".nav-dropdown");
-              var wasOpen = dropdown.classList.contains("open");
-              document.querySelectorAll(".nav-dropdown.open").forEach(function (d) { d.classList.remove("open"); });
-              if (!wasOpen) {
-                dropdown.classList.add("open");
-              }
-            });
-          });
-          document.addEventListener("click", function (event) {
-            document.querySelectorAll(".nav-dropdown.open").forEach(function (dropdown) {
-              if (!dropdown.contains(event.target)) {
-                dropdown.classList.remove("open");
-              }
-            });
-          });
-          if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) {
-            document.querySelectorAll(".nav-dropdown.open-on-load").forEach(function (dropdown) {
-              dropdown.classList.add("open");
-            });
-          }
         })();
       </script>
       {% if message %}
       <div class="alert">{{ message }}</div>
+      {% endif %}
+      {% if sync_message %}
+      <div class="alert">✓ {{ sync_message }}</div>
+      {% endif %}
+
+      {% if active_tab == 'finance' %}
+      <div class="section">
+        <h2>Finance hub</h2>
+        <p class="mini" style="margin:0 0 14px;">Choose a module to review, update, or export your finance work.</p>
+        <div class="finance-card-grid">
+          <a href="/income" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Income</h3>
+              <p>Review received income, track payment status, and keep the income ledger current.</p>
+              <span class="pill">Revenue</span>
+            </div>
+          </a>
+          <a href="/expenses" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Expenses</h3>
+              <p>Capture bills, reconcile spending, and manage VAT-related expense entries.</p>
+              <span class="pill">Costs</span>
+            </div>
+          </a>
+          <a href="/invoices" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Invoices</h3>
+              <p>Follow issued invoices, balances due, and payment progress from one place.</p>
+              <span class="pill">Billing</span>
+            </div>
+          </a>
+          <a href="/subscriptions" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Subscriptions</h3>
+              <p>Monitor recurring expenses and keep subscription charges aligned with your books.</p>
+              <span class="pill">Recurring</span>
+            </div>
+          </a>
+          <a href="/payroll" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Payroll</h3>
+              <p>Review payroll runs, payables, and filing status for the current period.</p>
+              <span class="pill">People</span>
+            </div>
+          </a>
+          <a href="/ledger" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Ledger</h3>
+              <p>Inspect journal entries, trial balances, and the chart of accounts structure.</p>
+              <span class="pill">Reports</span>
+            </div>
+          </a>
+          <a href="/archive" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Archive</h3>
+              <p>Review restored history, audit activity, and archived records in one view.</p>
+              <span class="pill">History</span>
+            </div>
+          </a>
+        </div>
+      </div>
       {% endif %}
 
       {% if active_tab == 'settings' and available_backups is not defined %}
@@ -856,16 +926,12 @@
       </div>
       {% endif %}
       {% else %}
+      {% if active_tab not in ['finance', 'income', 'expenses', 'invoices', 'services', 'clients', 'suppliers', 'subscriptions', 'payroll', 'archive', 'ledger', 'settings'] %}
       <div class="section">
         <h2>{{ page_title }}</h2>
         <p class="mini">Viewing the {{ active_tab }} register directly from the workbook.</p>
-        {% if message %}
-        <div class="alert">✓ {{ message }}</div>
-        {% endif %}
-        {% if sync_message %}
-        <div class="alert">✓ {{ sync_message }}</div>
-        {% endif %}
       </div>
+      {% endif %}
 
       {% if active_tab == 'income' %}
       <div class="grid">
@@ -1329,12 +1395,9 @@
           <div class="calc-block">
             <div class="calc-block-header">
               <h3>Line items</h3>
-              <button type="button" id="invoice_add_line_btn" class="btn-secondary calc-toggle-btn">+ Add line</button>
-            </div>
-            <div class="line-items-header">
-              <span>Service</span><span>Name</span><span>Qty</span><span>Unit price (€)</span><span>Discount</span><span>VAT</span><span>Net</span><span>VAT amt</span><span>Total</span><span></span>
             </div>
             <div id="invoice_line_items_container" class="line-items-container"></div>
+            <button type="button" id="invoice_add_line_btn" class="btn-add-line"><span class="add-line-icon">+</span> Add line</button>
             {% if validation_errors.get('line_items') %}<span class="field-error">{{ validation_errors.get('line_items') }}</span>{% endif %}
             <input type="hidden" name="line_items_json" id="invoice_line_items_json">
             <div class="calc-summary" id="invoice_calc_summary">Net <span class="calc-summary-value" id="invoice_summary_net">€0.00</span> + VAT <span class="calc-summary-value" id="invoice_summary_vat">€0.00</span> = Total <span class="calc-summary-value calc-summary-total" id="invoice_summary_total">€0.00</span></div>
@@ -1451,7 +1514,10 @@
 
       {% if active_tab == 'services' %}
       <div class="section">
-        <h2>Core service tiers</h2>
+        <div class="edit-banner">
+          <h2>Core service tiers</h2>
+          <a href="/services#service-modal" class="btn-secondary" id="service_add_btn">+ Add Service</a>
+        </div>
         <div class="tier-card-grid">
           {% for service in services if service.tier == 'core' and service.status == 'active' %}
           <div class="tier-card">
@@ -1472,100 +1538,24 @@
             {% endif %}
             <div class="tier-card-label">Website: {{ service.website_display_label or '—' }}</div>
             <div class="table-action-stack" style="margin-top:14px;">
-              <a href="/services?edit_id={{ service.id }}" class="edit-link">Edit</a>
-              <form method="post" action="/services/archive" class="table-actions" onsubmit="return confirm('Archive this service?');">
-                <input type="hidden" name="service_id" value="{{ service.id }}">
-                <button type="submit">Archive</button>
-              </form>
+              <a href="/services?edit_id={{ service.id }}#service-modal" class="edit-link">Edit</a>
+              <div class="archive-confirm-wrap">
+                <button type="button" class="archive-trigger">Archive</button>
+                <div class="archive-confirm-tooltip">
+                  <p>Archive this service?</p>
+                  <div class="archive-confirm-actions">
+                    <button type="button" class="archive-confirm-yes">Yes</button>
+                    <button type="button" class="archive-confirm-cancel">Cancel</button>
+                  </div>
+                </div>
+                <form method="post" action="/services/archive" class="archive-confirm-form" style="display:none;">
+                  <input type="hidden" name="service_id" value="{{ service.id }}">
+                </form>
+              </div>
             </div>
           </div>
           {% endfor %}
         </div>
-      </div>
-
-      <div class="section">
-        <div class="edit-banner">
-          <h2>{% if editing_service %}Edit service{% else %}Add service{% endif %}</h2>
-          {% if editing_service %}<a href="/services" class="cancel-link">Cancel edit</a>{% endif %}
-        </div>
-        <form method="post" action="{% if editing_service %}/services/update{% else %}/services/add{% endif %}" class="form-shell" novalidate>
-          {% if editing_service %}<input type="hidden" name="service_id" value="{{ editing_service.id }}">{% endif %}
-          <div class="form-grid">
-            <div class="field required {% if validation_errors.get('name') %}has-error{% endif %}">
-              <label for="service_name">Service name</label>
-              <input id="service_name" type="text" name="name" value="{{ service_form.get('name') if service_form else (editing_service.name if editing_service else '') }}" placeholder="Service name">
-              {% if validation_errors.get('name') %}<span class="field-error">{{ validation_errors.get('name') }}</span>{% endif %}
-            </div>
-            <div class="field required {% if validation_errors.get('tier') %}has-error{% endif %}">
-              <label for="service_tier_field">Tier</label>
-              <select id="service_tier_field" name="tier">
-                <option value="core" {% if (service_form and service_form.get('tier') == 'core') or (not service_form and editing_service and editing_service.tier == 'core') %}selected{% endif %}>Core</option>
-                <option value="addon" {% if (service_form and service_form.get('tier') == 'addon') or (not service_form and editing_service and editing_service.tier == 'addon') or (not service_form and not editing_service) %}selected{% endif %}>Add-on</option>
-              </select>
-            </div>
-            <div class="field optional {% if validation_errors.get('group') %}has-error{% endif %}" id="service_group_field_wrapper">
-              <label for="service_group_field">Add-on group</label>
-              <select id="service_group_field" name="group">
-                <option value="">Select group</option>
-                {% for group in service_groups %}
-                <option value="{{ group }}" {% if (service_form and service_form.get('group') == group) or (not service_form and editing_service and editing_service.group == group) %}selected{% endif %}>{{ group }}</option>
-                {% endfor %}
-              </select>
-              {% if validation_errors.get('group') %}<span class="field-error">{{ validation_errors.get('group') }}</span>{% endif %}
-            </div>
-            <div class="field optional" style="grid-column: 1 / -1;">
-              <label for="service_description">Description</label>
-              <input id="service_description" type="text" name="description" value="{{ service_form.get('description') if service_form else (editing_service.description if editing_service else '') }}" placeholder="Description">
-            </div>
-            <div class="field required {% if validation_errors.get('price') %}has-error{% endif %}">
-              <label for="service_price">Price (€)</label>
-              <input id="service_price" type="number" step="0.01" name="price" value="{{ service_form.get('price') if service_form else (editing_service.price if editing_service else '') }}" placeholder="0.00">
-              {% if validation_errors.get('price') %}<span class="field-error">{{ validation_errors.get('price') }}</span>{% endif %}
-            </div>
-            <div class="field optional">
-              <label for="service_price_type">Price type</label>
-              <select id="service_price_type" name="price_type">
-                {% for price_type in service_price_types %}
-                <option value="{{ price_type }}" {% if (service_form and service_form.get('price_type') == price_type) or (not service_form and editing_service and editing_service.price_type == price_type) %}selected{% endif %}>{{ price_type|capitalize }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="field optional">
-              <label for="service_billing_frequency">Billing frequency</label>
-              <select id="service_billing_frequency" name="billing_frequency">
-                {% for frequency in service_billing_frequencies %}
-                <option value="{{ frequency }}" {% if (service_form and service_form.get('billing_frequency') == frequency) or (not service_form and editing_service and editing_service.billing_frequency == frequency) %}selected{% endif %}>{{ frequency|capitalize }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="field optional">
-              <label for="service_quarterly_price">Quarterly price (€)</label>
-              <input id="service_quarterly_price" type="number" step="0.01" name="quarterly_price" value="{{ service_form.get('quarterly_price') if service_form else (editing_service.quarterly_price if editing_service and editing_service.quarterly_price else '') }}" placeholder="Optional">
-            </div>
-            <div class="field optional">
-              <label for="service_annual_price">Annual price (€)</label>
-              <input id="service_annual_price" type="number" step="0.01" name="annual_price" value="{{ service_form.get('annual_price') if service_form else (editing_service.annual_price if editing_service and editing_service.annual_price else '') }}" placeholder="Optional">
-            </div>
-            <div class="field optional">
-              <label for="service_status">Status</label>
-              <select id="service_status" name="status">
-                <option value="active" {% if (service_form and service_form.get('status') == 'active') or (not service_form and (not editing_service or editing_service.status == 'active')) %}selected{% endif %}>Active</option>
-                <option value="archived" {% if (service_form and service_form.get('status') == 'archived') or (not service_form and editing_service and editing_service.status == 'archived') %}selected{% endif %}>Archived</option>
-              </select>
-            </div>
-            <div class="field optional">
-              <label for="service_website_display_price" style="text-transform:none;letter-spacing:normal;display:flex;align-items:center;gap:8px;min-height:46px;">
-                <input id="service_website_display_price" type="checkbox" name="website_display_price" style="width:auto;min-height:auto;" {% if (service_form and service_form.get('website_display_price')) or (not service_form and (not editing_service or editing_service.website_display_price)) %}checked{% endif %}>
-                Show price on website
-              </label>
-            </div>
-            <div class="field optional" style="grid-column: 1 / -1;">
-              <label for="service_website_display_label">Website display label</label>
-              <input id="service_website_display_label" type="text" name="website_display_label" value="{{ service_form.get('website_display_label') if service_form else (editing_service.website_display_label if editing_service else '') }}" placeholder='e.g. "From €950"'>
-            </div>
-          </div>
-          <div class="form-actions"><button type="submit">{% if editing_service %}Update service{% else %}Save service{% endif %}</button></div>
-        </form>
       </div>
 
       <div class="section">
@@ -1587,12 +1577,21 @@
             <td><span class="status-pill {% if service.status == 'active' %}paid{% else %}cancelled{% endif %}">{{ service.status|capitalize }}</span></td>
             <td>
               <div class="table-action-stack">
-                <a href="/services?edit_id={{ service.id }}" class="edit-link">Edit</a>
+                <a href="/services?edit_id={{ service.id }}#service-modal" class="edit-link">Edit</a>
                 {% if service.status == 'active' %}
-                <form method="post" action="/services/archive" class="table-actions" onsubmit="return confirm('Archive this service?');">
-                  <input type="hidden" name="service_id" value="{{ service.id }}">
-                  <button type="submit">Archive</button>
-                </form>
+                <div class="archive-confirm-wrap">
+                  <button type="button" class="archive-trigger">Archive</button>
+                  <div class="archive-confirm-tooltip">
+                    <p>Archive this service?</p>
+                    <div class="archive-confirm-actions">
+                      <button type="button" class="archive-confirm-yes">Yes</button>
+                      <button type="button" class="archive-confirm-cancel">Cancel</button>
+                    </div>
+                  </div>
+                  <form method="post" action="/services/archive" class="archive-confirm-form" style="display:none;">
+                    <input type="hidden" name="service_id" value="{{ service.id }}">
+                  </form>
+                </div>
                 {% else %}
                 <form method="post" action="/services/restore" class="table-actions">
                   <input type="hidden" name="service_id" value="{{ service.id }}">
@@ -1607,43 +1606,111 @@
         {% endif %}
         {% endfor %}
       </div>
+
+      <div class="modal-overlay" id="service_modal_overlay">
+        <div class="modal-box compliance-modal-box service-modal-box">
+          <div class="compliance-modal-header">
+            <h3 id="service_modal_title">{% if editing_service %}Edit Service{% else %}Add Service{% endif %}</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="{% if editing_service %}/services/update{% else %}/services/add{% endif %}" class="form-shell" novalidate>
+              {% if editing_service %}<input type="hidden" name="service_id" value="{{ editing_service.id }}">{% endif %}
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('name') %}has-error{% endif %}">
+                  <label for="service_name">Service name</label>
+                  <input id="service_name" type="text" name="name" value="{{ service_form.get('name') if service_form else (editing_service.name if editing_service else '') }}" placeholder="Service name">
+                  {% if validation_errors.get('name') %}<span class="field-error">{{ validation_errors.get('name') }}</span>{% endif %}
+                </div>
+                <div class="field required {% if validation_errors.get('tier') %}has-error{% endif %}">
+                  <label for="service_tier_field">Tier</label>
+                  <select id="service_tier_field" name="tier">
+                    <option value="core" {% if (service_form and service_form.get('tier') == 'core') or (not service_form and editing_service and editing_service.tier == 'core') %}selected{% endif %}>Core</option>
+                    <option value="addon" {% if (service_form and service_form.get('tier') == 'addon') or (not service_form and editing_service and editing_service.tier == 'addon') or (not service_form and not editing_service) %}selected{% endif %}>Add-on</option>
+                  </select>
+                </div>
+                <div class="field optional {% if validation_errors.get('group') %}has-error{% endif %}" id="service_group_field_wrapper">
+                  <label for="service_group_field">Add-on group</label>
+                  <select id="service_group_field" name="group">
+                    <option value="">Select group</option>
+                    {% for group in service_groups %}
+                    <option value="{{ group }}" {% if (service_form and service_form.get('group') == group) or (not service_form and editing_service and editing_service.group == group) %}selected{% endif %}>{{ group }}</option>
+                    {% endfor %}
+                  </select>
+                  {% if validation_errors.get('group') %}<span class="field-error">{{ validation_errors.get('group') }}</span>{% endif %}
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="service_description">Description</label>
+                  <input id="service_description" type="text" name="description" value="{{ service_form.get('description') if service_form else (editing_service.description if editing_service else '') }}" placeholder="Description">
+                </div>
+                <div class="field required {% if validation_errors.get('price') %}has-error{% endif %}">
+                  <label for="service_price">Price (€)</label>
+                  <input id="service_price" type="number" step="0.01" name="price" value="{{ service_form.get('price') if service_form else (editing_service.price if editing_service else '') }}" placeholder="0.00">
+                  {% if validation_errors.get('price') %}<span class="field-error">{{ validation_errors.get('price') }}</span>{% endif %}
+                </div>
+                <div class="field optional">
+                  <label for="service_price_type">Price type</label>
+                  <select id="service_price_type" name="price_type">
+                    {% for price_type in service_price_types %}
+                    <option value="{{ price_type }}" {% if (service_form and service_form.get('price_type') == price_type) or (not service_form and editing_service and editing_service.price_type == price_type) %}selected{% endif %}>{{ price_type|capitalize }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field optional">
+                  <label for="service_billing_frequency">Billing frequency</label>
+                  <select id="service_billing_frequency" name="billing_frequency">
+                    {% for frequency in service_billing_frequencies %}
+                    <option value="{{ frequency }}" {% if (service_form and service_form.get('billing_frequency') == frequency) or (not service_form and editing_service and editing_service.billing_frequency == frequency) %}selected{% endif %}>{{ frequency|capitalize }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field optional">
+                  <label for="service_quarterly_price">Quarterly price (€)</label>
+                  <input id="service_quarterly_price" type="number" step="0.01" name="quarterly_price" value="{{ service_form.get('quarterly_price') if service_form else (editing_service.quarterly_price if editing_service and editing_service.quarterly_price else '') }}" placeholder="Optional">
+                </div>
+                <div class="field optional">
+                  <label for="service_annual_price">Annual price (€)</label>
+                  <input id="service_annual_price" type="number" step="0.01" name="annual_price" value="{{ service_form.get('annual_price') if service_form else (editing_service.annual_price if editing_service and editing_service.annual_price else '') }}" placeholder="Optional">
+                </div>
+                <div class="field optional">
+                  <label for="service_status">Status</label>
+                  <select id="service_status" name="status">
+                    <option value="active" {% if (service_form and service_form.get('status') == 'active') or (not service_form and (not editing_service or editing_service.status == 'active')) %}selected{% endif %}>Active</option>
+                    <option value="archived" {% if (service_form and service_form.get('status') == 'archived') or (not service_form and editing_service and editing_service.status == 'archived') %}selected{% endif %}>Archived</option>
+                  </select>
+                </div>
+                <div class="field optional">
+                  <label for="service_website_display_price" style="text-transform:none;letter-spacing:normal;display:flex;align-items:center;gap:8px;min-height:46px;">
+                    <input id="service_website_display_price" type="checkbox" name="website_display_price" style="width:auto;min-height:auto;" {% if (service_form and service_form.get('website_display_price')) or (not service_form and (not editing_service or editing_service.website_display_price)) %}checked{% endif %}>
+                    Show price on website
+                  </label>
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="service_website_display_label">Website display label</label>
+                  <input id="service_website_display_label" type="text" name="website_display_label" value="{{ service_form.get('website_display_label') if service_form else (editing_service.website_display_label if editing_service else '') }}" placeholder='e.g. "From €950"'>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <a href="/services" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">{% if editing_service %}Update Service{% else %}Save Service{% endif %}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.SERVICE_MODAL_OPEN = {{ 'true' if (editing_service or validation_errors) else 'false' }};
+      </script>
       {% endif %}
 
       {% if active_tab == 'clients' %}
-      <div class="grid">
-        <div class="card">
-          <h3>Client count</h3>
-          <div class="value">{{ clients|length }}</div>
-          <div class="pill">Registered clients</div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="edit-banner">
-          <h2>{% if editing_client %}Edit client{% else %}Add client{% endif %}</h2>
-          {% if editing_client %}<a href="/clients" class="cancel-link">Cancel edit</a>{% endif %}
-        </div>
-        <form method="post" action="{% if editing_client %}/clients/update{% else %}/clients/add{% endif %}" class="form-shell" novalidate>
-          {% if editing_client %}<input type="hidden" name="row_number" value="{{ editing_client.get('__row_number') }}">{% endif %}
-          <div class="form-grid">
-            <div class="field required {% if validation_errors.get('client_name') %}has-error{% endif %}"><label for="client_name">Client name</label><input id="client_name" type="text" name="client_name" value="{{ client_form.get('client_name') if client_form else (editing_client.get('Client Name') if editing_client else '') }}" placeholder="Client name">{% if validation_errors.get('client_name') %}<span class="field-error">{{ validation_errors.get('client_name') }}</span>{% endif %}</div>
-            <div class="field optional"><label for="client_contact">Contact person</label><input id="client_contact" type="text" name="contact_person" value="{{ client_form.get('contact_person') if client_form else (editing_client.get('Contact Person') if editing_client else '') }}" placeholder="Contact person"></div>
-            <div class="field optional"><label for="client_email">Email</label><input id="client_email" type="email" name="email" value="{{ client_form.get('email') if client_form else (editing_client.get('Email') if editing_client else '') }}" placeholder="Email"></div>
-            <div class="field optional"><label for="client_phone">Phone</label><input id="client_phone" type="text" name="phone" value="{{ client_form.get('phone') if client_form else (editing_client.get('Phone') if editing_client else '') }}" placeholder="Phone"></div>
-            <div class="field optional"><label for="client_country">Country</label><input id="client_country" type="text" name="country" value="{{ client_form.get('country') if client_form else (editing_client.get('Country') if editing_client else '') }}" placeholder="Country"></div>
-            {% set client_service_tier_value = client_form.get('service_tier') if client_form else (editing_client.get('Service Tier') if editing_client else 'None') %}
-            <div class="field optional"><label for="client_service_tier">Service tier</label><select id="client_service_tier" name="service_tier">{% for tier in client_service_tiers %}<option value="{{ tier }}" {% if client_service_tier_value == tier %}selected{% endif %}>{{ tier }}</option>{% endfor %}</select></div>
-            <div id="client_retainer_fields" style="display:contents;">
-              {% set client_retainer_frequency_value = client_form.get('retainer_frequency') if client_form else (editing_client.get('Retainer Frequency') if editing_client else 'monthly') %}
-              <div class="field optional"><label for="client_retainer_frequency">Retainer frequency</label><select id="client_retainer_frequency" name="retainer_frequency">{% for frequency in client_retainer_frequencies %}<option value="{{ frequency }}" {% if client_retainer_frequency_value == frequency %}selected{% endif %}>{{ frequency|capitalize }}</option>{% endfor %}</select></div>
-              <div class="field optional {% if validation_errors.get('retainer_amount') %}has-error{% endif %}"><label for="client_retainer_amount">Retainer amount (€)</label><input id="client_retainer_amount" type="number" step="0.01" name="retainer_amount" value="{{ client_form.get('retainer_amount') if client_form else (editing_client.get('Retainer Amount (€)') if editing_client else '') }}" placeholder="0.00">{% if validation_errors.get('retainer_amount') %}<span class="field-error">{{ validation_errors.get('retainer_amount') }}</span>{% endif %}</div>
-            </div>
-          </div>
-          <div class="form-actions"><button type="submit">{% if editing_client %}Update client{% else %}Save client{% endif %}</button></div>
-        </form>
-      </div>
+      {% set clarity_partner_count = clients|selectattr('Service Tier', 'equalto', 'Clarity Partner')|list|length %}
+      <div class="compact-summary-bar">Total Clients: {{ clients|length }}<span class="summary-divider">|</span>Active: {{ clients|length }}<span class="summary-divider">|</span>Clarity Partner: {{ clarity_partner_count }}<span class="summary-divider">|</span>Other tiers: {{ clients|length - clarity_partner_count }}</div>
       {% if clients %}
       <div class="section">
-        <h2>Clients</h2>
+        <div class="edit-banner">
+          <h2>Clients</h2>
+          <a href="/clients#client-modal" class="btn-secondary" id="client_add_btn">+ Add Client</a>
+        </div>
         <table>
           <tr><th>Client Name</th><th>Contact Person</th><th>Email</th><th>Phone</th><th>Service Tier</th><th></th></tr>
           {% for row in clients %}
@@ -1655,49 +1722,79 @@
             <td>{% if row.get('Service Tier') and row.get('Service Tier') != 'None' %}{{ row.get('Service Tier') }}{% if row.get('Service Tier') == 'Clarity Partner' %} ({{ row.get('Retainer Frequency')|capitalize }}, {{ format_currency(row.get('Retainer Amount (€)', 0) or 0) }}){% endif %}{% else %}—{% endif %}</td>
             <td>
               <div class="table-action-stack">
-                <a href="/clients?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
-                <form method="post" action="/clients/delete" class="table-actions archive-action" onsubmit="return confirm('Archive this client?');">
-                  <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
-                  <button type="submit">Archive</button>
-                </form>
+                <a href="/clients?edit_row={{ row.get('__row_number') }}#client-modal" class="edit-link">Edit</a>
+                <div class="archive-confirm-wrap">
+                  <button type="button" class="archive-trigger">Archive</button>
+                  <div class="archive-confirm-tooltip">
+                    <p>Archive this record?</p>
+                    <div class="archive-confirm-actions">
+                      <button type="button" class="archive-confirm-yes">Yes</button>
+                      <button type="button" class="archive-confirm-cancel">Cancel</button>
+                    </div>
+                  </div>
+                  <form method="post" action="/clients/delete" class="archive-confirm-form" style="display:none;">
+                    <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
+                  </form>
+                </div>
               </div>
             </td>
           </tr>
           {% endfor %}
         </table>
       </div>
+      {% else %}
+      <div class="section">
+        <div class="edit-banner">
+          <h2>Clients</h2>
+          <a href="/clients#client-modal" class="btn-secondary" id="client_add_btn">+ Add Client</a>
+        </div>
+      </div>
       {% endif %}
+
+      <div class="modal-overlay" id="client_modal_overlay">
+        <div class="modal-box compliance-modal-box form-modal-box">
+          <div class="compliance-modal-header">
+            <h3>{% if editing_client %}Edit Client{% else %}Add Client{% endif %}</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="{% if editing_client %}/clients/update{% else %}/clients/add{% endif %}" class="form-shell" novalidate>
+              {% if editing_client %}<input type="hidden" name="row_number" value="{{ editing_client.get('__row_number') }}">{% endif %}
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('client_name') %}has-error{% endif %}"><label for="client_name">Client name</label><input id="client_name" type="text" name="client_name" value="{{ client_form.get('client_name') if client_form else (editing_client.get('Client Name') if editing_client else '') }}" placeholder="Client name">{% if validation_errors.get('client_name') %}<span class="field-error">{{ validation_errors.get('client_name') }}</span>{% endif %}</div>
+                <div class="field optional"><label for="client_contact">Contact person</label><input id="client_contact" type="text" name="contact_person" value="{{ client_form.get('contact_person') if client_form else (editing_client.get('Contact Person') if editing_client else '') }}" placeholder="Contact person"></div>
+                <div class="field optional"><label for="client_email">Email</label><input id="client_email" type="email" name="email" value="{{ client_form.get('email') if client_form else (editing_client.get('Email') if editing_client else '') }}" placeholder="Email"></div>
+                <div class="field optional"><label for="client_phone">Phone</label><input id="client_phone" type="text" name="phone" value="{{ client_form.get('phone') if client_form else (editing_client.get('Phone') if editing_client else '') }}" placeholder="Phone"></div>
+                <div class="field optional"><label for="client_country">Country</label><input id="client_country" type="text" name="country" value="{{ client_form.get('country') if client_form else (editing_client.get('Country') if editing_client else '') }}" placeholder="Country"></div>
+                {% set client_service_tier_value = client_form.get('service_tier') if client_form else (editing_client.get('Service Tier') if editing_client else 'None') %}
+                <div class="field optional"><label for="client_service_tier">Service tier</label><select id="client_service_tier" name="service_tier">{% for tier in client_service_tiers %}<option value="{{ tier }}" {% if client_service_tier_value == tier %}selected{% endif %}>{{ tier }}</option>{% endfor %}</select></div>
+                <div id="client_retainer_fields" style="display:contents;">
+                  {% set client_retainer_frequency_value = client_form.get('retainer_frequency') if client_form else (editing_client.get('Retainer Frequency') if editing_client else 'monthly') %}
+                  <div class="field optional"><label for="client_retainer_frequency">Retainer frequency</label><select id="client_retainer_frequency" name="retainer_frequency">{% for frequency in client_retainer_frequencies %}<option value="{{ frequency }}" {% if client_retainer_frequency_value == frequency %}selected{% endif %}>{{ frequency|capitalize }}</option>{% endfor %}</select></div>
+                  <div class="field optional {% if validation_errors.get('retainer_amount') %}has-error{% endif %}"><label for="client_retainer_amount">Retainer amount (€)</label><input id="client_retainer_amount" type="number" step="0.01" name="retainer_amount" value="{{ client_form.get('retainer_amount') if client_form else (editing_client.get('Retainer Amount (€)') if editing_client else '') }}" placeholder="0.00">{% if validation_errors.get('retainer_amount') %}<span class="field-error">{{ validation_errors.get('retainer_amount') }}</span>{% endif %}</div>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <a href="/clients" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">{% if editing_client %}Update Client{% else %}Save Client{% endif %}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.CLIENT_MODAL_OPEN = {{ 'true' if (editing_client or validation_errors) else 'false' }};
+      </script>
       {% endif %}
 
       {% if active_tab == 'suppliers' %}
-      <div class="grid">
-        <div class="card">
-          <h3>Supplier count</h3>
-          <div class="value">{{ suppliers|length }}</div>
-          <div class="pill">Registered suppliers</div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="edit-banner">
-          <h2>{% if editing_supplier %}Edit supplier{% else %}Add supplier{% endif %}</h2>
-          {% if editing_supplier %}<a href="/suppliers" class="cancel-link">Cancel edit</a>{% endif %}
-        </div>
-        <form method="post" action="{% if editing_supplier %}/suppliers/update{% else %}/suppliers/add{% endif %}" class="form-shell" novalidate>
-          {% if editing_supplier %}<input type="hidden" name="row_number" value="{{ editing_supplier.get('__row_number') }}">{% endif %}
-          <div class="form-grid">
-            <div class="field required {% if validation_errors.get('supplier_name') %}has-error{% endif %}"><label for="supplier_name">Supplier name</label><input id="supplier_name" type="text" name="supplier_name" value="{{ supplier_form.get('supplier_name') if supplier_form else (editing_supplier.get('Supplier Name') if editing_supplier else '') }}" placeholder="Supplier name">{% if validation_errors.get('supplier_name') %}<span class="field-error">{{ validation_errors.get('supplier_name') }}</span>{% endif %}</div>
-            <div class="field optional"><label for="supplier_contact">Contact person</label><input id="supplier_contact" type="text" name="contact_person" value="{{ supplier_form.get('contact_person') if supplier_form else (editing_supplier.get('Contact Person') if editing_supplier else '') }}" placeholder="Contact person"></div>
-            <div class="field optional"><label for="supplier_email">Email</label><input id="supplier_email" type="email" name="email" value="{{ supplier_form.get('email') if supplier_form else (editing_supplier.get('Email') if editing_supplier else '') }}" placeholder="Email"></div>
-            <div class="field optional"><label for="supplier_phone">Phone</label><input id="supplier_phone" type="text" name="phone" value="{{ supplier_form.get('phone') if supplier_form else (editing_supplier.get('Phone') if editing_supplier else '') }}" placeholder="Phone"></div>
-            <div class="field optional"><label for="supplier_country">Country</label><input id="supplier_country" type="text" name="country" value="{{ supplier_form.get('country') if supplier_form else (editing_supplier.get('Country') if editing_supplier else '') }}" placeholder="Country"></div>
-            <div class="field optional"><label for="supplier_vat">Default VAT treatment</label><input id="supplier_vat" type="text" name="default_vat_treatment" value="{{ supplier_form.get('default_vat_treatment') if supplier_form else (editing_supplier.get('Default VAT Treatment') if editing_supplier else '') }}" placeholder="Standard"></div>
-          </div>
-          <div class="form-actions"><button type="submit">{% if editing_supplier %}Update supplier{% else %}Save supplier{% endif %}</button></div>
-        </form>
-      </div>
+      {% set incomplete_supplier_count = suppliers|selectattr('Needs Completion', 'equalto', 'Yes')|list|length %}
+      <div class="compact-summary-bar">Total Suppliers: {{ suppliers|length }}<span class="summary-divider">|</span>Active: {{ suppliers|length }}<span class="summary-divider">|</span>Incomplete records: {{ incomplete_supplier_count }}</div>
       {% if suppliers %}
       <div class="section">
-        <h2>Suppliers</h2>
+        <div class="edit-banner">
+          <h2>Suppliers</h2>
+          <a href="/suppliers#supplier-modal" class="btn-secondary" id="supplier_add_btn">+ Add Supplier</a>
+        </div>
         <table>
           <tr><th>Supplier Name</th><th>Contact Person</th><th>Email</th><th>Country</th><th></th><th></th></tr>
           {% for row in suppliers %}
@@ -1709,18 +1806,62 @@
             <td>{% if row.get('Needs Completion') == 'Yes' %}<span class="supplier-badge-incomplete">Incomplete — add details</span>{% endif %}</td>
             <td>
               <div class="table-action-stack">
-                <a href="/suppliers?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
-                <form method="post" action="/suppliers/delete" class="table-actions archive-action" onsubmit="return confirm('Archive this supplier?');">
-                  <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
-                  <button type="submit">Archive</button>
-                </form>
+                <a href="/suppliers?edit_row={{ row.get('__row_number') }}#supplier-modal" class="edit-link">Edit</a>
+                <div class="archive-confirm-wrap">
+                  <button type="button" class="archive-trigger">Archive</button>
+                  <div class="archive-confirm-tooltip">
+                    <p>Archive this record?</p>
+                    <div class="archive-confirm-actions">
+                      <button type="button" class="archive-confirm-yes">Yes</button>
+                      <button type="button" class="archive-confirm-cancel">Cancel</button>
+                    </div>
+                  </div>
+                  <form method="post" action="/suppliers/delete" class="archive-confirm-form" style="display:none;">
+                    <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
+                  </form>
+                </div>
               </div>
             </td>
           </tr>
           {% endfor %}
         </table>
       </div>
+      {% else %}
+      <div class="section">
+        <div class="edit-banner">
+          <h2>Suppliers</h2>
+          <a href="/suppliers#supplier-modal" class="btn-secondary" id="supplier_add_btn">+ Add Supplier</a>
+        </div>
+      </div>
       {% endif %}
+
+      <div class="modal-overlay" id="supplier_modal_overlay">
+        <div class="modal-box compliance-modal-box form-modal-box">
+          <div class="compliance-modal-header">
+            <h3>{% if editing_supplier %}Edit Supplier{% else %}Add Supplier{% endif %}</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="{% if editing_supplier %}/suppliers/update{% else %}/suppliers/add{% endif %}" class="form-shell" novalidate>
+              {% if editing_supplier %}<input type="hidden" name="row_number" value="{{ editing_supplier.get('__row_number') }}">{% endif %}
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('supplier_name') %}has-error{% endif %}"><label for="supplier_name">Supplier name</label><input id="supplier_name" type="text" name="supplier_name" value="{{ supplier_form.get('supplier_name') if supplier_form else (editing_supplier.get('Supplier Name') if editing_supplier else '') }}" placeholder="Supplier name">{% if validation_errors.get('supplier_name') %}<span class="field-error">{{ validation_errors.get('supplier_name') }}</span>{% endif %}</div>
+                <div class="field optional"><label for="supplier_contact">Contact person</label><input id="supplier_contact" type="text" name="contact_person" value="{{ supplier_form.get('contact_person') if supplier_form else (editing_supplier.get('Contact Person') if editing_supplier else '') }}" placeholder="Contact person"></div>
+                <div class="field optional"><label for="supplier_email">Email</label><input id="supplier_email" type="email" name="email" value="{{ supplier_form.get('email') if supplier_form else (editing_supplier.get('Email') if editing_supplier else '') }}" placeholder="Email"></div>
+                <div class="field optional"><label for="supplier_phone">Phone</label><input id="supplier_phone" type="text" name="phone" value="{{ supplier_form.get('phone') if supplier_form else (editing_supplier.get('Phone') if editing_supplier else '') }}" placeholder="Phone"></div>
+                <div class="field optional"><label for="supplier_country">Country</label><input id="supplier_country" type="text" name="country" value="{{ supplier_form.get('country') if supplier_form else (editing_supplier.get('Country') if editing_supplier else '') }}" placeholder="Country"></div>
+                <div class="field optional"><label for="supplier_vat">Default VAT treatment</label><input id="supplier_vat" type="text" name="default_vat_treatment" value="{{ supplier_form.get('default_vat_treatment') if supplier_form else (editing_supplier.get('Default VAT Treatment') if editing_supplier else '') }}" placeholder="Standard"></div>
+              </div>
+              <div class="modal-actions">
+                <a href="/suppliers" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">{% if editing_supplier %}Update Supplier{% else %}Save Supplier{% endif %}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.SUPPLIER_MODAL_OPEN = {{ 'true' if (editing_supplier or validation_errors) else 'false' }};
+      </script>
       {% endif %}
 
       {% if active_tab == 'archive' %}
@@ -2356,10 +2497,33 @@
         }
 
         function buildServiceOptionsHtml(selectedId) {
-          var html = '<option value="">Custom…</option>';
-          servicesCatalog.forEach(function (service) {
-            html += '<option value="' + service.id + '"' + (service.id === selectedId ? " selected" : "") + '>' + escapeAttr(service.name) + '</option>';
+          var core = servicesCatalog.filter(function (service) { return service.tier === "core"; });
+          var addons = servicesCatalog.filter(function (service) { return service.tier !== "core"; });
+          var groupOrder = [];
+          var groups = {};
+          addons.forEach(function (service) {
+            var groupName = service.group || "Add-ons";
+            if (!groups[groupName]) {
+              groups[groupName] = [];
+              groupOrder.push(groupName);
+            }
+            groups[groupName].push(service);
           });
+
+          function optionsFor(list) {
+            return list.map(function (service) {
+              return '<option value="' + service.id + '"' + (service.id === selectedId ? " selected" : "") + '>' + escapeAttr(service.name) + '</option>';
+            }).join("");
+          }
+
+          var html = "";
+          if (core.length > 0) {
+            html += '<optgroup label="Core Services">' + optionsFor(core) + '</optgroup>';
+          }
+          groupOrder.forEach(function (groupName) {
+            html += '<optgroup label="' + escapeAttr(groupName) + '">' + optionsFor(groups[groupName]) + '</optgroup>';
+          });
+          html += '<optgroup label="Custom"><option value=""' + (!selectedId ? " selected" : "") + '>Custom line item</option></optgroup>';
           return html;
         }
 
@@ -2374,18 +2538,22 @@
         function createLineItemRow(data) {
           data = data || {};
           var row = document.createElement("div");
-          row.className = "line-item-row";
+          row.className = "line-item-card";
           row.innerHTML =
-            '<select class="li-service">' + buildServiceOptionsHtml(data.service_id || "") + '</select>' +
-            '<input type="text" class="li-name" value="' + escapeAttr(data.name) + '" placeholder="Item name">' +
-            '<input type="number" class="li-quantity" step="1" min="0" value="' + (data.quantity != null ? data.quantity : 1) + '">' +
-            '<input type="number" class="li-unit-price" step="0.01" value="' + (data.unit_price != null ? Number(data.unit_price).toFixed(2) : "0.00") + '">' +
-            '<div class="li-discount-group"><input type="number" class="li-discount-value" step="0.01" value="' + (data.discount_value != null ? data.discount_value : 0) + '"><select class="li-discount-type"><option value="€"' + (data.discount_type !== "%" ? " selected" : "") + '>€</option><option value="%"' + (data.discount_type === "%" ? " selected" : "") + '>%</option></select></div>' +
-            '<select class="li-vat-rate">' + buildVatRateOptionsHtml(data.vat_rate || defaultLineVatRate) + '</select>' +
-            '<span class="li-net">€0.00</span>' +
-            '<span class="li-vat-amount">€0.00</span>' +
-            '<span class="li-total">€0.00</span>' +
-            '<button type="button" class="li-remove" title="Remove line">✕</button>';
+            '<div class="li-row-primary">' +
+              '<select class="li-service">' + buildServiceOptionsHtml(data.service_id || "") + '</select>' +
+              '<input type="text" class="li-name" value="' + escapeAttr(data.name) + '" placeholder="Item name">' +
+              '<button type="button" class="li-remove" title="Remove line">✕</button>' +
+            '</div>' +
+            '<div class="li-row-amounts">' +
+              '<div class="li-field li-field-qty"><span class="li-field-label">Qty</span><input type="number" class="li-quantity" step="1" min="0" value="' + (data.quantity != null ? data.quantity : 1) + '"></div>' +
+              '<div class="li-field li-field-price"><span class="li-field-label">Unit price (€)</span><input type="number" class="li-unit-price" step="0.01" value="' + (data.unit_price != null ? Number(data.unit_price).toFixed(2) : "0.00") + '"></div>' +
+              '<div class="li-field li-field-discount"><span class="li-field-label">Discount</span><div class="li-discount-group"><input type="number" class="li-discount-value" step="0.01" value="' + (data.discount_value != null ? data.discount_value : 0) + '"><select class="li-discount-type"><option value="€"' + (data.discount_type !== "%" ? " selected" : "") + '>€</option><option value="%"' + (data.discount_type === "%" ? " selected" : "") + '>%</option></select></div></div>' +
+              '<div class="li-field li-field-vat"><span class="li-field-label">VAT rate</span><select class="li-vat-rate">' + buildVatRateOptionsHtml(data.vat_rate || defaultLineVatRate) + '</select></div>' +
+              '<div class="li-field li-field-net"><span class="li-field-label">Net</span><span class="li-net li-readonly-box">€0.00</span></div>' +
+              '<div class="li-field li-field-vat-amt"><span class="li-field-label">VAT amt</span><span class="li-vat-amount li-readonly-box">€0.00</span></div>' +
+              '<div class="li-field li-field-total"><span class="li-field-label">Total</span><span class="li-total li-readonly-box">€0.00</span></div>' +
+            '</div>';
           return row;
         }
 
@@ -2410,7 +2578,7 @@
           if (!lineItemsContainer) {
             return;
           }
-          var rows = lineItemsContainer.querySelectorAll(".line-item-row");
+          var rows = lineItemsContainer.querySelectorAll(".line-item-card");
           var totalNet = 0, totalVat = 0, totalAmount = 0;
           rows.forEach(function (row) {
             var result = recalcLineItemRow(row);
@@ -2422,7 +2590,7 @@
         }
 
         function serializeLineItems() {
-          var rows = lineItemsContainer.querySelectorAll(".line-item-row");
+          var rows = lineItemsContainer.querySelectorAll(".line-item-card");
           var items = [];
           rows.forEach(function (row) {
             var name = row.querySelector(".li-name").value.trim();
@@ -2454,13 +2622,13 @@
 
         if (lineItemsContainer) {
           lineItemsContainer.addEventListener("input", function (event) {
-            if (event.target.closest(".line-item-row")) {
+            if (event.target.closest(".line-item-card")) {
               recalcAllLineItems();
             }
           });
           lineItemsContainer.addEventListener("change", function (event) {
             if (event.target.classList.contains("li-service")) {
-              var row = event.target.closest(".line-item-row");
+              var row = event.target.closest(".line-item-card");
               var service = servicesCatalog.filter(function (item) { return item.id === event.target.value; })[0];
               if (service) {
                 row.querySelector(".li-name").value = service.name;
@@ -2471,7 +2639,7 @@
           });
           lineItemsContainer.addEventListener("click", function (event) {
             if (event.target.classList.contains("li-remove")) {
-              event.target.closest(".line-item-row").remove();
+              event.target.closest(".line-item-card").remove();
               recalcAllLineItems();
             }
           });
@@ -2505,7 +2673,7 @@
           if (!client || client.tier !== "Clarity Partner") {
             return;
           }
-          var rows = lineItemsContainer.querySelectorAll(".line-item-row");
+          var rows = lineItemsContainer.querySelectorAll(".line-item-card");
           var onlyEmptyRow = rows.length === 1 && !rows[0].querySelector(".li-name").value.trim() && parseAmount(rows[0].querySelector(".li-unit-price").value) === 0;
           if (!onlyEmptyRow) {
             return;
@@ -3053,6 +3221,76 @@
             }
           });
         }
+      })();
+    </script>
+    <script>
+      (function () {
+        function initFormModal(config) {
+          var overlay = document.getElementById(config.overlayId);
+          if (!overlay) { return; }
+
+          function openModal() { overlay.classList.add("open"); }
+
+          if (window[config.openFlag] || window.location.hash === config.hash) {
+            openModal();
+          }
+
+          var addBtn = document.getElementById(config.addBtnId);
+          if (addBtn) {
+            addBtn.addEventListener("click", function (event) {
+              if (window.location.pathname === config.basePath && !window.location.search) {
+                event.preventDefault();
+                openModal();
+              }
+            });
+          }
+
+          overlay.addEventListener("click", function (event) {
+            if (event.target === overlay) {
+              window.location.href = config.basePath;
+            }
+          });
+        }
+
+        initFormModal({ overlayId: "service_modal_overlay", addBtnId: "service_add_btn", basePath: "/services", hash: "#service-modal", openFlag: "SERVICE_MODAL_OPEN" });
+        initFormModal({ overlayId: "client_modal_overlay", addBtnId: "client_add_btn", basePath: "/clients", hash: "#client-modal", openFlag: "CLIENT_MODAL_OPEN" });
+        initFormModal({ overlayId: "supplier_modal_overlay", addBtnId: "supplier_add_btn", basePath: "/suppliers", hash: "#supplier-modal", openFlag: "SUPPLIER_MODAL_OPEN" });
+      })();
+    </script>
+    <script>
+      (function () {
+        function closeAllArchiveTooltips(except) {
+          document.querySelectorAll(".archive-confirm-tooltip.open").forEach(function (tooltip) {
+            if (tooltip !== except) { tooltip.classList.remove("open"); }
+          });
+        }
+
+        document.addEventListener("click", function (event) {
+          var trigger = event.target.closest(".archive-trigger");
+          if (trigger) {
+            var wrap = trigger.closest(".archive-confirm-wrap");
+            var tooltip = wrap ? wrap.querySelector(".archive-confirm-tooltip") : null;
+            if (tooltip) {
+              var willOpen = !tooltip.classList.contains("open");
+              closeAllArchiveTooltips();
+              if (willOpen) { tooltip.classList.add("open"); }
+            }
+            return;
+          }
+          if (event.target.classList.contains("archive-confirm-cancel")) {
+            closeAllArchiveTooltips();
+            return;
+          }
+          if (event.target.classList.contains("archive-confirm-yes")) {
+            var confirmWrap = event.target.closest(".archive-confirm-wrap");
+            var form = confirmWrap ? confirmWrap.querySelector(".archive-confirm-form") : null;
+            if (form) { form.submit(); }
+            return;
+          }
+          if (!event.target.closest(".archive-confirm-wrap")) {
+            closeAllArchiveTooltips();
+          }
+        });
       })();
     </script>
   </body>

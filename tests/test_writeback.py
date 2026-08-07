@@ -264,6 +264,19 @@ def test_income_validation_prevents_invalid_amount(workbook_copy):
     assert b'value="-10.00"' in response.data
 
 
+def test_finance_landing_page_renders_module_cards(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+
+    response = app.app.test_client().get('/finance')
+
+    assert response.status_code == 200
+    assert b'Finance hub' in response.data
+    assert b'/income' in response.data
+    assert b'/expenses' in response.data
+    assert b'/archive' in response.data
+
+
 def test_refresh_route_redirects_back_to_page(workbook_copy):
     app.WORKBOOK_PATH = workbook_copy
     app.load_finance_data.cache_clear()
