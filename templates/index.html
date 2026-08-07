@@ -127,24 +127,60 @@
       }
       body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--brand-bg-light); color: var(--brand-charcoal); }
       .container { max-width: 1240px; margin: 0 auto; padding: 28px 22px 40px; }
-      .header { background: transparent; color: var(--brand-navy); padding: 0 0 18px; border: 0; box-shadow: none; position: relative; overflow: visible; }
-      .brand-row { display: flex; align-items: center; justify-content: flex-start; gap: 22px; flex-wrap: wrap; padding-bottom: 4px; }
-      .brand-mark { flex-shrink: 0; padding: 0; background: transparent; border: 0; }
+      .header { background: transparent; color: var(--brand-navy); padding: 0 0 10px; border: 0; box-shadow: none; position: relative; overflow: visible; }
+      .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-bottom: 4px; }
+      .brand-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+      .brand-mark { flex-shrink: 0; padding: 0; background: transparent; border: 0; display: block; line-height: 0; }
       .brand-mark img { max-height: 70px; width: auto; display: block; }
-      .hero-copy { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-      .header h1 { margin: 0; font-size: clamp(24px, 2.4vw, 32px); color: var(--brand-navy); font-weight: 700; line-height: 1.1; font-family: 'Segoe UI', sans-serif; }
+      .app-name { font-family: 'Segoe UI', sans-serif; font-size: 13px; font-weight: 700; color: var(--brand-steel); letter-spacing: 0.12em; text-transform: uppercase; }
+      .header-right { display: flex; align-items: center; gap: 12px; }
+      .phase-badge { font-family: 'Segoe UI', sans-serif; font-size: 12px; font-weight: 600; color: var(--brand-steel); background: var(--brand-bg-deep); padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+      .settings-link { color: var(--brand-steel); font-size: 22px; text-decoration: none; padding: 8px; border-radius: 8px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+      .settings-link:hover, .settings-link.active { color: var(--brand-navy); background: var(--brand-bg-deep); }
       .header .muted { display: none; }
-      nav { display: flex; gap: 4px; flex-wrap: wrap; margin: 22px 0 18px; padding-bottom: 0; border-bottom: 1px solid var(--brand-border); }
-      nav a { text-decoration: none; padding: 10px 14px; background: transparent; border-radius: 0; color: var(--brand-navy); font-weight: 600; border-bottom: 3px solid transparent; transition: border-color 0.2s ease, color 0.2s ease; }
-      nav a:hover { color: var(--brand-mid-navy); border-bottom-color: var(--brand-border); }
-      nav a.active { color: var(--brand-navy); font-weight: 700; border-bottom-color: var(--brand-gold); }
+      .main-nav { position: relative; margin: 18px 0 18px; padding-bottom: 0; border-bottom: 1px solid var(--brand-border); }
+      .nav-hamburger { display: none; background: transparent; border: 1px solid var(--brand-border); border-radius: 8px; padding: 9px 14px; font-size: 14px; font-weight: 700; color: var(--brand-navy); cursor: pointer; font-family: 'Segoe UI', sans-serif; }
+      .nav-menu { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+      .nav-item {
+        text-decoration: none; padding: 12px 14px; background: transparent; border: 0; border-bottom: 3px solid transparent; border-radius: 0;
+        color: var(--brand-navy); font-weight: 600; font-family: 'Segoe UI', sans-serif; font-size: 15px; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 4px; transition: border-color 0.2s ease, color 0.2s ease;
+      }
+      .nav-item:hover { color: var(--brand-mid-navy); border-bottom-color: var(--brand-border); }
+      .nav-item.active { color: var(--brand-navy); font-weight: 700; border-bottom-color: var(--brand-gold); }
+      .nav-item-disabled { color: var(--brand-border); cursor: not-allowed; }
+      .nav-item-disabled:hover { color: var(--brand-border); border-bottom-color: transparent; }
+      .nav-dropdown { position: relative; }
+      .nav-dropdown-toggle { font: inherit; }
+      .nav-caret { font-size: 10px; transition: transform 0.15s ease; }
+      .nav-dropdown.open .nav-caret { transform: rotate(180deg); }
+      .nav-dropdown-menu {
+        display: none; position: absolute; top: 100%; left: 0; min-width: 190px; background: var(--brand-white);
+        border: 1px solid var(--brand-border); border-radius: 8px; box-shadow: 0 10px 24px rgba(22, 41, 74, 0.15); padding: 6px; z-index: 40;
+      }
+      .nav-dropdown.open .nav-dropdown-menu { display: block; }
+      .nav-dropdown-item { display: block; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: var(--brand-navy); font-weight: 600; font-size: 14px; font-family: 'Segoe UI', sans-serif; }
+      .nav-dropdown-item:hover { background: var(--brand-bg-light); }
+      .nav-dropdown-item.active { background: var(--brand-navy); color: var(--brand-white); }
+      .nav-dropdown-divider { height: 1px; background: var(--brand-border); margin: 6px 4px; }
+      .nav-dropdown-form { margin: 0; }
+      .nav-dropdown-button { width: 100%; text-align: left; background: transparent; border: 0; cursor: pointer; color: var(--brand-gold); }
+      .nav-dropdown-button:hover { background: var(--brand-bg-light); }
+      @media (max-width: 900px) {
+        .nav-hamburger { display: inline-flex; }
+        .nav-menu { display: none; flex-direction: column; align-items: stretch; width: 100%; border-top: 1px solid var(--brand-border); margin-top: 10px; padding-top: 6px; }
+        .nav-menu.open { display: flex; }
+        .nav-item { border-bottom: 0; border-left: 3px solid transparent; padding: 12px 10px; }
+        .nav-item.active { border-left-color: var(--brand-gold); border-bottom-color: transparent; }
+        .nav-dropdown-toggle { width: 100%; justify-content: space-between; }
+        .nav-dropdown-menu { display: none; position: static; box-shadow: none; border: 0; padding: 2px 2px 2px 14px; }
+        .nav-dropdown.open .nav-dropdown-menu { display: flex; flex-direction: column; }
+      }
       .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 16px 0 24px; }
       .card { background: var(--brand-white); border-radius: 10px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(22, 41, 74, 0.06); border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold); overflow: hidden; }
       .card h3 { margin: -18px -20px 14px; padding: 10px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; background: var(--brand-mid-navy); color: var(--brand-white); border-radius: 8px 8px 0 0; font-weight: 700; }
       .value { font-size: 24px; font-weight: 700; margin-top: 8px; color: var(--brand-navy); font-family: 'Segoe UI', sans-serif; }
       .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--brand-bg-light); color: var(--brand-gold); border: 1px solid var(--brand-border); margin-top: 8px; }
-      .panel { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px; margin: 24px 0; }
-      .panel .card { height: 100%; }
       .grid .card { background: var(--brand-mid-navy); color: var(--brand-white); border: 0; border-top: 4px solid var(--brand-gold); border-radius: 10px; }
       .grid .card h3 { margin: 0 0 6px; padding: 0; background: transparent; color: rgba(255,255,255,0.75); border-radius: 0; }
       .grid .card .value { color: var(--brand-white); }
@@ -230,6 +266,28 @@
       .info-trigger:hover .popover, .info-trigger:focus .popover { display: block; }
       .popover-row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
       .popover-total { border-top: 1px solid rgba(255,255,255,0.25); margin-top: 4px; padding-top: 6px; font-weight: 700; color: var(--brand-gold); }
+      .info-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; width: 15px; height: 15px; border-radius: 50%; background: var(--brand-bg-deep); color: var(--brand-steel); font-size: 11px; font-weight: 700; cursor: help; text-transform: none; letter-spacing: normal; vertical-align: middle; }
+      .info-icon .category-tooltip {
+        display: none; position: absolute; z-index: 50; top: 100%; left: 0; margin-top: 6px; width: 260px;
+        background: var(--brand-navy); color: var(--brand-white); border-radius: 8px; padding: 12px 14px;
+        box-shadow: 0 8px 20px rgba(22, 41, 74, 0.35); font-size: 12px; font-weight: 500; line-height: 1.5; white-space: normal;
+      }
+      .info-icon:hover .category-tooltip, .info-icon:focus .category-tooltip, .info-icon.open .category-tooltip { display: block; }
+      .category-tooltip strong { color: var(--brand-gold); }
+      .compliance-panel {
+        margin-top: 8px; padding: 8px 12px; border-radius: 6px; font-size: 12px; line-height: 1.5; font-weight: 600;
+        display: flex; align-items: flex-start; gap: 8px; animation: fade-scale 200ms ease-out both;
+      }
+      .compliance-panel.severity-info { background: rgba(97, 128, 150, 0.08); border-left: 3px solid var(--brand-steel); color: var(--brand-navy); }
+      .compliance-panel.severity-warning { background: rgba(176, 141, 87, 0.12); border-left: 3px solid var(--brand-gold); color: var(--brand-navy); }
+      .compliance-panel.severity-danger { background: rgba(198, 40, 40, 0.08); border-left: 3px solid var(--brand-error); color: var(--brand-error); }
+      .compliance-panel .compliance-icon { flex-shrink: 0; }
+      .compliance-panel .learn-more-link { color: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; }
+      .field select.field-amber-border, .field input.field-amber-border { border-color: var(--brand-gold) !important; box-shadow: 0 0 0 2px rgba(176, 141, 87, 0.15); }
+      .compliance-modal-box { max-width: 480px; }
+      .compliance-modal-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; max-height: 320px; overflow-y: auto; }
+      .compliance-flag-item { padding: 10px 12px; border-radius: 6px; background: rgba(198, 40, 40, 0.06); border-left: 3px solid var(--brand-error); font-size: 13px; color: var(--brand-navy); line-height: 1.5; }
+      @keyframes fade-scale { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
       .form-actions { display: flex; justify-content: flex-start; }
       .form-actions button, .btn-primary {
         border: 0; border-bottom: 2px solid var(--brand-gold); border-radius: 8px; background: var(--brand-navy); color: var(--brand-white); padding: 12px 18px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif;
@@ -288,24 +346,40 @@
       .modal-box .mini { margin: 0 0 14px; }
       .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
       .modal-actions .btn-cancel { background: var(--brand-white); color: var(--brand-navy); border: 1px solid var(--brand-border); border-radius: 8px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
-      .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 18px 0 24px; }
       .chart-card { background: var(--brand-white); border-radius: 10px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(22, 41, 74, 0.06); border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold); overflow: hidden; }
       .chart-card h3 { margin: -18px -20px 14px; padding: 10px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; background: var(--brand-mid-navy); color: var(--brand-white); border-radius: 8px 8px 0 0; font-weight: 700; }
-      .bar-row { display: grid; grid-template-columns: 88px 1fr 78px; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--brand-charcoal); }
-      .bar-track { height: 10px; border-radius: 999px; background: var(--brand-bg-deep); overflow: hidden; }
+      .chart-card-wide { width: 100%; box-sizing: border-box; padding: 26px 28px; }
+      .bar-row { display: grid; grid-template-columns: 110px 1fr 96px; align-items: center; gap: 16px; margin-bottom: 18px; font-size: 14px; color: var(--brand-charcoal); }
+      .bar-row:last-child { margin-bottom: 0; }
+      .bar-track { height: 14px; border-radius: 999px; background: var(--brand-bg-deep); overflow: hidden; }
       .bar-fill { height: 100%; border-radius: inherit; }
       .bar-fill.income { background: var(--brand-gold); transform-origin: left center; animation: grow-bar 900ms ease-out forwards; }
       .bar-fill.expense { background: var(--brand-steel); transform-origin: left center; animation: grow-bar 900ms ease-out forwards; }
       .bar-fill.net { background: var(--brand-navy); transform-origin: left center; animation: grow-bar 900ms ease-out forwards; }
-      .donut-wrap { display: flex; justify-content: center; align-items: center; padding: 6px 0; }
-      .donut {
-        width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(var(--brand-gold) 0 var(--income-degree), var(--brand-steel) var(--income-degree) calc(var(--income-degree) + var(--expense-degree)), var(--brand-navy) calc(var(--income-degree) + var(--expense-degree)) 100%);
-        position: relative; box-shadow: inset 0 0 0 10px var(--brand-white);
-        animation: fade-scale 900ms ease-out both;
-      }
-      .donut::after { content: 'Cashflow'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--brand-navy); }
       @keyframes grow-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-      @keyframes fade-scale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+      .dashboard-stack { display: flex; flex-direction: column; gap: 26px; margin: 24px 0; }
+      .section-heading { margin: 0 0 10px; color: var(--brand-navy); font-size: 16px; font-weight: 700; font-family: 'Segoe UI', sans-serif; padding-left: 10px; border-left: 3px solid var(--brand-gold); }
+      .actions-card { padding: 10px 14px; }
+      .actions-list { display: flex; flex-direction: column; }
+      .action-row { display: flex; align-items: center; gap: 12px; padding: 12px 8px; text-decoration: none; color: var(--brand-charcoal); border-bottom: 1px solid var(--brand-border); transition: background 0.15s ease; }
+      .action-row:last-child { border-bottom: 0; }
+      .action-row:hover { background: var(--brand-bg-light); }
+      .action-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; background: var(--brand-steel); }
+      .action-danger .action-dot { background: var(--brand-error); }
+      .action-warning .action-dot { background: var(--brand-gold); }
+      .action-info .action-dot { background: var(--brand-steel); }
+      .action-label { flex: 1; font-weight: 700; color: var(--brand-navy); font-size: 14px; }
+      .action-detail { font-size: 13px; font-weight: 600; color: var(--brand-steel); }
+      .action-danger .action-detail { color: var(--brand-error); }
+      .action-warning .action-detail { color: #9c7a2f; }
+      .sparkline { display: flex; align-items: flex-end; gap: 18px; height: 140px; padding-top: 24px; }
+      .sparkline-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 6px; }
+      .sparkline-bar { width: 100%; max-width: 42px; border-radius: 4px 4px 0 0; min-height: 3px; animation: grow-bar-v 700ms ease-out both; transform-origin: bottom center; }
+      .sparkline-bar.positive { background: var(--brand-navy); }
+      .sparkline-bar.negative { background: var(--brand-steel); }
+      .sparkline-value { font-size: 11px; font-weight: 700; color: var(--brand-navy); white-space: nowrap; }
+      .sparkline-label { font-size: 12px; font-weight: 600; color: var(--brand-steel); text-transform: uppercase; letter-spacing: 0.04em; }
+      @keyframes grow-bar-v { from { transform: scaleY(0); } to { transform: scaleY(1); } }
       .alert {
         display: inline-flex; align-items: center; gap: 8px; margin: 12px 0 0; padding: 10px 12px; border-radius: 8px; background: var(--brand-bg-light); color: var(--brand-navy); font-weight: 700; border: 1px solid var(--brand-gold);
       }
@@ -314,116 +388,208 @@
       .notice-ok { border-color: var(--brand-gold); background: var(--brand-bg-light); color: var(--brand-navy); }
       .notice-warning { border-color: var(--brand-steel); background: var(--brand-bg-light); color: var(--brand-steel); }
       .notice-exceeded { border-color: var(--brand-error); background: rgba(198, 40, 40, 0.06); color: var(--brand-error); }
-      @media (max-width: 900px) { .panel { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
     <div class="container" data-version="{{ version }}">
       <div class="header">
         <div class="brand-row">
-          <div class="brand-mark">
-            <img src="{{ url_for('static', filename='H-Queex Logo Blue and Gold with Tagline V4.0.png') }}" alt="H-Queex logo">
+          <div class="brand-left">
+            <a href="/" class="brand-mark" aria-label="H-Queex Control — dashboard">
+              <img src="{{ url_for('static', filename='H-Queex Logo Blue and Gold with Tagline V4.0.png') }}" alt="H-Queex logo">
+            </a>
+            <span class="app-name">Control</span>
           </div>
-          <div class="hero-copy">
-            <h1>{{ page_title }}</h1>
+          <div class="header-right">
+            <span class="phase-badge">{% if business_structure == 'limited_company' %}Phase 2 — Limited Company{% else %}Phase 1 — Sole Trader{% endif %}</span>
+            <a href="/settings" class="settings-link {% if active_tab == 'settings' %}active{% endif %}" title="Settings" aria-label="Settings">⚙</a>
           </div>
         </div>
       </div>
 
-      <nav>
-        <a href="/" class="{% if active_tab|default('dashboard') == 'dashboard' %}active{% endif %}">Dashboard</a>
-        <a href="/income" class="{% if active_tab == 'income' %}active{% endif %}">Income</a>
-        <a href="/expenses" class="{% if active_tab == 'expenses' %}active{% endif %}">Expenses</a>
-        <a href="/subscriptions" class="{% if active_tab == 'subscriptions' %}active{% endif %}">Subscriptions</a>
-        <a href="/payroll" class="{% if active_tab == 'payroll' %}active{% endif %}">Payroll</a>
-        <a href="/invoices" class="{% if active_tab == 'invoices' %}active{% endif %}">Invoices</a>
-        <a href="/services" class="{% if active_tab == 'services' %}active{% endif %}">Services</a>
-        <a href="/clients" class="{% if active_tab == 'clients' %}active{% endif %}">Clients</a>
-        <a href="/suppliers" class="{% if active_tab == 'suppliers' %}active{% endif %}">Suppliers</a>
-        <a href="/ledger" class="{% if active_tab == 'ledger' %}active{% endif %}">Ledger</a>
-        <a href="/archive" class="{% if active_tab == 'archive' %}active{% endif %}">Archive</a>
-      </nav>
-      <div class="card" style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
-        <div>
-          <h3>Workbook connection</h3>
-          <div class="mini" style="margin:0;">Connected file: <strong>{{ workbook_path or 'Not detected' }}</strong></div>
-          {% if workbook_status == 'connected' %}
-          <div class="badge-positive" style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;">● Connected</div>
-          {% else %}
-          <div class="badge-negative" style="margin-top:6px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;">⚠ Missing workbook</div>
-          {% endif %}
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <form method="post" action="/refresh?next={{ request.path }}">
-            <button type="submit" class="btn-primary" style="border-radius:999px;">Refresh workbook</button>
-          </form>
-          <form method="post" action="/export/xlsm?next={{ request.path }}">
-            <button type="submit" class="btn-secondary" style="border-radius:999px;">Export to Excel</button>
-          </form>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-          <div>
-            <h3>Business structure</h3>
-            <div class="mini" style="margin:0;">Current phase: <strong>{{ phase_label }}</strong></div>
-            {% if business_profile.transition_date %}
-            <div class="mini" style="margin-top:4px;">Transition date: <strong>{{ business_profile.transition_date }}</strong></div>
-            {% endif %}
-          </div>
-          <form method="post" action="/business-structure/update?next={{ request.path }}" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));width:min(760px,100%);">
-            <label class="field" style="margin:0;">
-              <span>Legal structure</span>
-              <select name="structure">
-                <option value="sole_trader" {% if business_structure == 'sole_trader' %}selected{% endif %}>Sole Trader / Business Name (Phase 1)</option>
-                <option value="limited_company" {% if business_structure == 'limited_company' %}selected{% endif %}>Private Limited Company (Phase 2)</option>
-              </select>
-            </label>
-            <label class="field" style="margin:0;">
-              <span>Transition date</span>
-              <input type="date" name="transition_date" value="{{ business_profile.transition_date }}">
-            </label>
-            <label class="field" style="margin:0;justify-content:flex-end;">
-              <span>VAT registration</span>
-              <div style="display:flex;align-items:center;gap:8px;min-height:46px;">
-                <input id="vat_registered" type="checkbox" name="vat_registered" value="1" {% if vat_registered %}checked{% endif %}>
-                <label for="vat_registered" style="margin:0;font-size:13px;color:var(--brand-charcoal);">VAT registered business</label>
-              </div>
-            </label>
-            <label class="field" style="margin:0;">
-              <span>VAT threshold basis</span>
-              <select name="vat_threshold_basis">
-                {% for option in vat_threshold_options %}
-                <option value="{{ option.value }}" {% if business_profile.vat_threshold_basis == option.value %}selected{% endif %}>{{ option.label }}</option>
-                {% endfor %}
-              </select>
-            </label>
-            <div style="display:flex;align-items:flex-end;">
-              <button type="submit" class="btn-primary" style="border-radius:999px;">Save structure</button>
+      {% set finance_tabs = ['income', 'expenses', 'invoices', 'subscriptions', 'payroll', 'ledger', 'archive'] %}
+      <nav class="main-nav">
+        <button type="button" class="nav-hamburger" id="nav_hamburger" aria-label="Toggle menu" aria-expanded="false">☰ Menu</button>
+        <div class="nav-menu" id="nav_menu">
+          <a href="/" class="nav-item {% if active_tab|default('dashboard') == 'dashboard' %}active{% endif %}">Dashboard</a>
+          <div class="nav-dropdown {% if active_tab in finance_tabs %}active open-on-load{% endif %}">
+            <button type="button" class="nav-item nav-dropdown-toggle {% if active_tab in finance_tabs %}active{% endif %}">Finance <span class="nav-caret">▾</span></button>
+            <div class="nav-dropdown-menu">
+              <a href="/income" class="nav-dropdown-item {% if active_tab == 'income' %}active{% endif %}">Income</a>
+              <a href="/expenses" class="nav-dropdown-item {% if active_tab == 'expenses' %}active{% endif %}">Expenses</a>
+              <a href="/invoices" class="nav-dropdown-item {% if active_tab == 'invoices' %}active{% endif %}">Invoices</a>
+              <a href="/subscriptions" class="nav-dropdown-item {% if active_tab == 'subscriptions' %}active{% endif %}">Subscriptions</a>
+              <a href="/payroll" class="nav-dropdown-item {% if active_tab == 'payroll' %}active{% endif %}">Payroll</a>
+              <a href="/ledger" class="nav-dropdown-item {% if active_tab == 'ledger' %}active{% endif %}">Ledger</a>
+              <a href="/archive" class="nav-dropdown-item {% if active_tab == 'archive' %}active{% endif %}">Archive</a>
+              <div class="nav-dropdown-divider"></div>
+              <form method="post" action="/export/xlsm?next={{ request.path }}" class="nav-dropdown-form">
+                <button type="submit" class="nav-dropdown-item nav-dropdown-button">Export</button>
+              </form>
             </div>
-          </form>
+          </div>
+          <a href="/services" class="nav-item {% if active_tab == 'services' %}active{% endif %}">Services</a>
+          <a href="/clients" class="nav-item {% if active_tab == 'clients' %}active{% endif %}">Clients</a>
+          <a href="/suppliers" class="nav-item {% if active_tab == 'suppliers' %}active{% endif %}">Suppliers</a>
+          <span class="nav-item nav-item-disabled" tabindex="0" title="Coming soon">Operations</span>
         </div>
-      </div>
-
+      </nav>
+      <script>
+        (function () {
+          var hamburger = document.getElementById("nav_hamburger");
+          var menu = document.getElementById("nav_menu");
+          if (hamburger && menu) {
+            hamburger.addEventListener("click", function () {
+              var isOpen = menu.classList.toggle("open");
+              hamburger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            });
+          }
+          document.querySelectorAll(".nav-dropdown-toggle").forEach(function (toggle) {
+            toggle.addEventListener("click", function (event) {
+              event.stopPropagation();
+              var dropdown = toggle.closest(".nav-dropdown");
+              var wasOpen = dropdown.classList.contains("open");
+              document.querySelectorAll(".nav-dropdown.open").forEach(function (d) { d.classList.remove("open"); });
+              if (!wasOpen) {
+                dropdown.classList.add("open");
+              }
+            });
+          });
+          document.addEventListener("click", function (event) {
+            document.querySelectorAll(".nav-dropdown.open").forEach(function (dropdown) {
+              if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove("open");
+              }
+            });
+          });
+          if (window.matchMedia && window.matchMedia("(max-width: 900px)").matches) {
+            document.querySelectorAll(".nav-dropdown.open-on-load").forEach(function (dropdown) {
+              dropdown.classList.add("open");
+            });
+          }
+        })();
+      </script>
       {% if message %}
       <div class="alert">{{ message }}</div>
+      {% endif %}
+
+      {% if active_tab == 'settings' and available_backups is not defined %}
+      <div class="section">
+        <h2>Business structure</h2>
+        <div class="card" style="margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+            <div>
+              <div class="mini" style="margin:0;">Current phase: <strong>{{ phase_label }}</strong></div>
+              {% if business_profile.transition_date %}
+              <div class="mini" style="margin-top:4px;">Transition date: <strong>{{ business_profile.transition_date }}</strong></div>
+              {% endif %}
+            </div>
+            <form method="post" action="/business-structure/update?next={{ request.path }}" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));width:min(760px,100%);">
+              <label class="field" style="margin:0;">
+                <span>Legal structure</span>
+                <select name="structure">
+                  <option value="sole_trader" {% if business_structure == 'sole_trader' %}selected{% endif %}>Sole Trader / Business Name (Phase 1)</option>
+                  <option value="limited_company" {% if business_structure == 'limited_company' %}selected{% endif %}>Private Limited Company (Phase 2)</option>
+                </select>
+              </label>
+              <label class="field" style="margin:0;">
+                <span>Transition date</span>
+                <input type="date" name="transition_date" value="{{ business_profile.transition_date }}">
+              </label>
+              <label class="field" style="margin:0;justify-content:flex-end;">
+                <span>VAT registration</span>
+                <div style="display:flex;align-items:center;gap:8px;min-height:46px;">
+                  <input id="vat_registered" type="checkbox" name="vat_registered" value="1" {% if vat_registered %}checked{% endif %}>
+                  <label for="vat_registered" style="margin:0;font-size:13px;color:var(--brand-charcoal);">VAT registered business</label>
+                </div>
+              </label>
+              <label class="field" style="margin:0;">
+                <span>VAT threshold basis</span>
+                <select name="vat_threshold_basis">
+                  {% for option in vat_threshold_options %}
+                  <option value="{{ option.value }}" {% if business_profile.vat_threshold_basis == option.value %}selected{% endif %}>{{ option.label }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+              <div style="display:flex;align-items:flex-end;">
+                <button type="submit" class="btn-primary" style="border-radius:999px;">Save structure</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Backups</h2>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="mini" style="margin:0;">
+            {% if backup_status and backup_status.timestamp %}
+            Last backup: <strong>{{ backup_status.timestamp }}</strong> —
+            {% if backup_status.local_ok %}<span style="color:var(--brand-navy);font-weight:700;">Local ✓</span>{% else %}<span style="color:var(--brand-error);font-weight:700;">Local ✗</span>{% endif %}
+            &nbsp;
+            {% if backup_status.gdrive_ok %}<span style="color:var(--brand-navy);font-weight:700;">Google Drive ✓</span>{% else %}<span style="color:var(--brand-error);font-weight:700;">Google Drive ✗</span>{% endif %}
+            {% if backup_status.error %}<div class="mini" style="margin-top:6px;color:var(--brand-error);">{{ backup_status.error }}</div>{% endif %}
+            {% else %}
+            No backups have been made yet.
+            {% endif %}
+          </div>
+          <div style="margin-top:12px;"><a href="/settings/backups" class="btn-primary" style="border-radius:999px;display:inline-block;text-decoration:none;">Restore from backup</a></div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if active_tab == 'settings' and available_backups is defined %}
+      <div class="section">
+        <div class="edit-banner">
+          <h2>Restore from backup</h2>
+          <a href="/settings" class="cancel-link">Back to settings</a>
+        </div>
+        {% if available_backups %}
+        {% for entry in available_backups %}
+        <div class="card" style="margin-bottom:12px;">
+          <h3>{{ entry.date }}</h3>
+          <table>
+            <tr><th>File</th><th></th></tr>
+            {% for filename in entry.files %}
+            <tr>
+              <td>{{ filename }}</td>
+              <td>
+                <form method="post" action="/settings/backups/restore" class="table-actions" onsubmit="return confirm('Restore ' + '{{ filename }}' + ' from {{ entry.date }}? This overwrites the current file.');">
+                  <input type="hidden" name="backup_date" value="{{ entry.date }}">
+                  <input type="hidden" name="filename" value="{{ filename }}">
+                  <button type="submit">Restore</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="mini">No backups available yet.</p>
+        {% endif %}
+      </div>
       {% endif %}
 
       {% if error %}
       <div class="card"><h3>Workbook status</h3><p>{{ error }}</p></div>
       {% else %}
       {% if active_tab == 'dashboard' %}
+      {% if backup_status and backup_status.timestamp and (not backup_status.local_ok or not backup_status.gdrive_ok) %}
+      <div class="notice-exceeded" style="margin-bottom:16px;padding:10px 14px;border-radius:8px;border:1px solid var(--brand-error);">
+        ⚠ Backup failed — {{ backup_status.error or "the last backup did not complete successfully." }} <a href="/settings/backups" style="color:var(--brand-error);font-weight:700;">Check backups</a>
+      </div>
+      {% endif %}
       <div class="grid">
         <div class="card">
           <h3>Income</h3>
           <div class="value">{{ format_currency(summary.income_total) }}</div>
-          <div class="pill">Tracked from workbook</div>
+          <div class="pill">Received to date</div>
         </div>
         <div class="card">
           <h3>Expenses</h3>
           <div class="value">{{ format_currency(summary.expense_total) }}</div>
-          <div class="pill">Live expense register</div>
+          <div class="pill">Spent to date</div>
         </div>
         <div class="card">
           <h3>Net Cashflow</h3>
@@ -433,17 +599,27 @@
         <div class="card">
           <h3>Invoice Balance</h3>
           <div class="value">{{ format_currency(summary.invoice_balance) }}</div>
-          <div class="pill">Receivables tracking</div>
+          <div class="pill">Outstanding receivables</div>
         </div>
         <div class="card">
           <h3>AP Balance</h3>
           <div class="value">{{ format_currency(summary.ap_balance) }}</div>
-          <div class="pill">Payables tracking</div>
+          <div class="pill">Outstanding payables</div>
         </div>
         <div class="card">
-          <h3>VAT Balance</h3>
+          <h3>VAT Position</h3>
           <div class="value">{{ format_currency(summary.vat_balance) }}</div>
-          <div class="pill">Tax position</div>
+          <div class="pill">Current VAT liability</div>
+        </div>
+        <div class="card">
+          <h3>Active Clients</h3>
+          <div class="value">{{ active_clients_count }}</div>
+          <div class="pill">Active engagements</div>
+        </div>
+        <div class="card">
+          <h3>Last Backup</h3>
+          <div class="value" style="font-size:16px;">{% if backup_status and backup_status.timestamp %}{{ backup_status.timestamp }}{% else %}Never{% endif %}</div>
+          <div class="pill" {% if backup_status and backup_status.timestamp and (not backup_status.local_ok or not backup_status.gdrive_ok) %}style="color:var(--brand-error);"{% endif %}>{% if backup_status and backup_status.timestamp %}{% if backup_status.local_ok and backup_status.gdrive_ok %}Local + Google Drive{% elif backup_status.local_ok %}Local only — Drive failed{% else %}Backup failed{% endif %}{% else %}No backups yet{% endif %}</div>
         </div>
         <div class="card">
           <h3>Subscriptions</h3>
@@ -477,44 +653,59 @@
         </div>
       </div>
 
-      <div class="panel">
-        <div class="card">
-          <h3>Overview</h3>
-          <p class="mini">This dashboard reads directly from the attached spreadsheet and presents your core finance position in a cleaner interface.</p>
-          <p><strong>Income:</strong> {{ format_currency(summary.income_total) }}</p>
-          <p><strong>Expenses:</strong> {{ format_currency(summary.expense_total) }}</p>
-          <p><strong>Net:</strong> {{ format_currency(summary.net_cashflow) }}</p>
+      <div class="dashboard-stack">
+        <div class="section-block">
+          <h2 class="section-heading">Upcoming actions</h2>
+          <div class="card actions-card">
+            {% if upcoming_actions %}
+            <div class="actions-list">
+              {% for action in upcoming_actions %}
+              <a href="{{ action.link }}" class="action-row action-{{ action.severity }}">
+                <span class="action-dot"></span>
+                <span class="action-label">{{ action.label }}</span>
+                <span class="action-detail">{{ action.detail }}</span>
+              </a>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="mini" style="margin:0;">Nothing needs attention right now.</p>
+            {% endif %}
+          </div>
         </div>
-        <div class="card">
-          <h3>Quick focus</h3>
-          <p class="mini">Use the navigation above to jump into income, expenses, payroll, invoices, clients, and suppliers.</p>
-          <p><strong>Next filing:</strong> {{ phase_policy.next_filing_deadline }}</p>
-        </div>
-      </div>
 
-      <div class="chart-grid">
-        <div class="chart-card">
-          <h3>Income vs expenses</h3>
-          <div class="bar-row">
-            <span>Income</span>
-            <div class="bar-track"><div class="bar-fill income" style="width: {{ chart_data.income_width }}%"></div></div>
-            <strong>{{ format_currency(chart_data.income) }}</strong>
-          </div>
-          <div class="bar-row">
-            <span>Expenses</span>
-            <div class="bar-track"><div class="bar-fill expense" style="width: {{ chart_data.expense_width }}%"></div></div>
-            <strong>{{ format_currency(chart_data.expense) }}</strong>
-          </div>
-          <div class="bar-row">
-            <span>Net</span>
-            <div class="bar-track"><div class="bar-fill net" style="width: {{ chart_data.net_width }}%"></div></div>
-            <strong>{{ format_currency(chart_data.net) }}</strong>
+        <div class="section-block">
+          <h2 class="section-heading">Income vs expenses — {{ current_month_label }}</h2>
+          <div class="chart-card chart-card-wide">
+            <div class="bar-row">
+              <span>Income</span>
+              <div class="bar-track"><div class="bar-fill income" style="width: {{ chart_data.income_width }}%"></div></div>
+              <strong>{{ format_currency(chart_data.income) }}</strong>
+            </div>
+            <div class="bar-row">
+              <span>Expenses</span>
+              <div class="bar-track"><div class="bar-fill expense" style="width: {{ chart_data.expense_width }}%"></div></div>
+              <strong>{{ format_currency(chart_data.expense) }}</strong>
+            </div>
+            <div class="bar-row">
+              <span>Net</span>
+              <div class="bar-track"><div class="bar-fill net" style="width: {{ chart_data.net_width }}%"></div></div>
+              <strong>{{ format_currency(chart_data.net) }}</strong>
+            </div>
           </div>
         </div>
-        <div class="chart-card">
-          <h3>Cashflow mix</h3>
-          <div class="donut-wrap">
-            <div class="donut" style="--income-degree: {{ ((chart_data.income if chart_data.income >= 0 else 0) / ((chart_data.income if chart_data.income >= 0 else 0) + (chart_data.expense if chart_data.expense >= 0 else 0) + 1) * 360) | round(1) }}deg; --expense-degree: {{ ((chart_data.expense if chart_data.expense >= 0 else 0) / ((chart_data.income if chart_data.income >= 0 else 0) + (chart_data.expense if chart_data.expense >= 0 else 0) + 1) * 360) | round(1) }}deg;"></div>
+
+        <div class="section-block">
+          <h2 class="section-heading">Net cashflow — last 6 months</h2>
+          <div class="chart-card chart-card-wide">
+            <div class="sparkline">
+              {% for point in monthly_net_trend %}
+              <div class="sparkline-bar-wrap">
+                <div class="sparkline-bar {% if point.positive %}positive{% else %}negative{% endif %}" style="height: {{ point.height_pct }}%;" title="{{ point.label }}: {{ format_currency(point.net) }}"></div>
+                <span class="sparkline-value">{{ format_currency(point.net) }}</span>
+                <span class="sparkline-label">{{ point.label }}</span>
+              </div>
+              {% endfor %}
+            </div>
           </div>
         </div>
       </div>
@@ -672,7 +863,9 @@
             <div class="field required {% if validation_errors.get('date') %}has-error{% endif %}"><label for="income_date">Date</label><input id="income_date" type="date" name="date" value="{{ income_form.get('date') if income_form else (editing_income.get('Date') if editing_income else '') }}">{% if validation_errors.get('date') %}<span class="field-error">{{ validation_errors.get('date') }}</span>{% endif %}</div>
             <div class="field required {% if validation_errors.get('description') %}has-error{% endif %}"><label for="income_description">Description</label><input id="income_description" type="text" name="description" value="{{ income_form.get('description') if income_form else (editing_income.get('Description') if editing_income else '') }}" placeholder="Description">{% if validation_errors.get('description') %}<span class="field-error">{{ validation_errors.get('description') }}</span>{% endif %}</div>
             <div class="field optional"><label for="income_client">Source</label><select id="income_client" name="client_source"><option value="">Select source</option>{% for option in income_clients %}<option value="{{ option }}" {% if (income_form and income_form.get('client_source') == option) or (not income_form and editing_income and editing_income.get('Client / Source') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
-            <div class="field required"><label for="income_category">Category</label><select id="income_category" name="category"><option value="">Select category</option>{% for option in income_categories %}<option value="{{ option }}" {% if (income_form and income_form.get('category') == option) or (not income_form and editing_income and editing_income.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field required"><label for="income_category">Category <span class="info-icon" id="income_category_info" tabindex="0">ⓘ<div class="popover category-tooltip"></div></span></label><select id="income_category" name="category"><option value="">Select category</option>{% for option in income_categories %}<option value="{{ option }}" {% if (income_form and income_form.get('category') == option) or (not income_form and editing_income and editing_income.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+              <div class="compliance-panel" id="income_category_panel" style="display:none;"></div>
+            </div>
             <div class="field required {% if validation_errors.get('amount') %}has-error{% endif %}"><label for="income_amount">Amount</label><input id="income_amount" type="number" step="0.01" name="amount" value="{{ income_form.get('amount') if income_form else (editing_income.get('Amount (€)') if editing_income else '') }}" placeholder="Amount">{% if validation_errors.get('amount') %}<span class="field-error">{{ validation_errors.get('amount') }}</span>{% endif %}</div>
             {% if vat_registered %}
             <div class="field optional"><label for="income_vat_rate">VAT rate</label><select id="income_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (income_form and income_form.get('vat_rate') == option) or (not income_form and editing_income and editing_income.get('VAT Rate') == option) or (not income_form and not editing_income and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
@@ -684,6 +877,9 @@
             <div class="field required"><label for="income_payment_method">Payment method</label><select id="income_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in income_payment_methods %}<option value="{{ option }}" {% if (income_form and income_form.get('payment_method') == option) or (not income_form and editing_income and editing_income.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field optional" style="grid-column: 1 / -1;"><label for="income_notes">Notes</label><input id="income_notes" type="text" name="notes" value="{{ income_form.get('notes') if income_form else (editing_income.get('Notes') if editing_income else '') }}" placeholder="Notes"></div>
           </div>
+          <input type="hidden" name="compliance_flags_json" id="income_compliance_flags_json" value="[]">
+          <input type="hidden" name="flags_acknowledged" id="income_flags_acknowledged" value="0">
+          <input type="hidden" name="flags_acknowledged_at" id="income_flags_acknowledged_at" value="">
           <div class="form-actions"><button type="submit">{% if editing_income %}Update income{% else %}Save income{% endif %}</button></div>
         </form>
       </div>
@@ -746,7 +942,9 @@
             <div class="field optional"><label for="expense_supplier">Supplier / payee</label><select id="expense_supplier" name="supplier"><option value="">Select supplier / payee</option>{% for option in expense_suppliers %}<option value="{{ option }}" {% if (expense_form and expense_form.get('supplier') == option) or (not expense_form and editing_expense and editing_expense.get('Supplier / Payee') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field optional {% if validation_errors.get('supplier_vat_number') %}has-error{% endif %}"><label for="expense_supplier_vat">Supplier VAT number</label><input id="expense_supplier_vat" type="text" name="supplier_vat_number" value="{{ expense_form.get('supplier_vat_number') if expense_form else (editing_expense.get('Supplier VAT Number') if editing_expense else '') }}" placeholder="IE1234567A">{% if validation_errors.get('supplier_vat_number') %}<span class="field-error">{{ validation_errors.get('supplier_vat_number') }}</span>{% endif %}</div>
             <div class="field optional"><label for="expense_receipt_reference">Receipt / invoice ref</label><input id="expense_receipt_reference" type="text" name="receipt_reference" value="{{ expense_form.get('receipt_reference') if expense_form else (editing_expense.get('Receipt / Invoice Ref') if editing_expense else '') }}" placeholder="INV-12345"></div>
-            <div class="field required"><label for="expense_category">Category</label><select id="expense_category" name="category"><option value="">Select category</option>{% for option in expense_categories %}<option value="{{ option }}" {% if (expense_form and expense_form.get('category') == option) or (not expense_form and editing_expense and editing_expense.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field required"><label for="expense_category">Category <span class="info-icon" id="expense_category_info" tabindex="0">ⓘ<div class="popover category-tooltip"></div></span></label><select id="expense_category" name="category"><option value="">Select category</option>{% for option in expense_categories %}<option value="{{ option }}" {% if (expense_form and expense_form.get('category') == option) or (not expense_form and editing_expense and editing_expense.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+              <div class="compliance-panel" id="expense_category_panel" style="display:none;"></div>
+            </div>
             <div class="field optional {% if validation_errors.get('base_net_amount') %}has-error{% endif %}"><label for="expense_base_net">Base net amount</label><input id="expense_base_net" type="number" step="0.01" name="base_net_amount" value="{{ expense_form.get('base_net_amount') if expense_form else (editing_expense.get('Base Net Amount (€)') if editing_expense and editing_expense.get('Base Net Amount (€)') else (editing_expense.get('Net Amount (€)') if editing_expense else '')) }}" placeholder="Base net amount">{% if validation_errors.get('base_net_amount') %}<span class="field-error">{{ validation_errors.get('base_net_amount') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('delivery_amount') %}has-error{% endif %}"><label for="expense_delivery">Delivery</label><input id="expense_delivery" type="number" step="0.01" name="delivery_amount" value="{{ expense_form.get('delivery_amount') if expense_form else (editing_expense.get('Delivery (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('delivery_amount') %}<span class="field-error">{{ validation_errors.get('delivery_amount') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('fees_amount') %}has-error{% endif %}"><label for="expense_fees">Fees</label><input id="expense_fees" type="number" step="0.01" name="fees_amount" value="{{ expense_form.get('fees_amount') if expense_form else (editing_expense.get('Fees (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('fees_amount') %}<span class="field-error">{{ validation_errors.get('fees_amount') }}</span>{% endif %}</div>
@@ -764,25 +962,40 @@
               </div>
               {% if validation_errors.get('discount_amount') %}<span class="field-error">{{ validation_errors.get('discount_amount') }}</span>{% endif %}
             </div>
-            <div class="field required {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="expense_net">Taxable net (calculated)</label><input id="expense_net" type="number" step="0.01" name="net_amount" value="{{ expense_form.get('net_amount') if expense_form else (editing_expense.get('Net Amount (€)') if editing_expense else '') }}" placeholder="Taxable net" readonly>{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
+            <div class="field required {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="expense_net">Taxable net (calculated)</label><input id="expense_net" type="number" step="0.01" name="net_amount" value="{{ expense_form.get('net_amount') if expense_form else (editing_expense.get('Net Amount (€)') if editing_expense else '') }}" placeholder="Taxable net" readonly>{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}
+              <div class="compliance-panel" id="expense_amount_panel" style="display:none;"></div>
+            </div>
             <div class="field optional field-total {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="expense_total">Total amount (calculated)</label><input id="expense_total" type="number" step="0.01" name="total_amount" value="{{ expense_form.get('total_amount') if expense_form else (editing_expense.get('Total (€)') if editing_expense else '') }}" placeholder="Total amount" readonly>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
             {% if vat_registered %}
-            <div class="field optional"><label for="expense_vat_rate">VAT rate</label><select id="expense_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('vat_rate') == option) or (not expense_form and editing_expense and editing_expense.get('VAT Rate') == option) or (not expense_form and not editing_expense and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field optional"><label for="expense_vat_rate">VAT rate</label><select id="expense_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('vat_rate') == option) or (not expense_form and editing_expense and editing_expense.get('VAT Rate') == option) or (not expense_form and not editing_expense and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+              <div class="compliance-panel" id="expense_vat_panel" style="display:none;"></div>
+            </div>
             <div class="field optional"><label for="expense_vat_amount">VAT amount (calculated)</label><input id="expense_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ expense_form.get('vat_amount') if expense_form else (editing_expense.get('VAT Amount (€)') if editing_expense else '') }}" placeholder="VAT amount" readonly></div>
             <div class="field optional"><label for="expense_vat_treatment">VAT treatment</label><select id="expense_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (expense_form and expense_form.get('vat_treatment') == option.value) or (not expense_form and editing_expense and editing_expense.get('VAT Treatment') == option.value) or (not expense_form and not editing_expense and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
             <div class="field optional"><label for="expense_supply_type">Supply type</label><select id="expense_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (expense_form and expense_form.get('supply_type') == option.value) or (not expense_form and editing_expense and editing_expense.get('Supply Type') == option.value) or (not expense_form and not editing_expense and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
             {% endif %}
-            <div class="field optional"><label for="expense_input_vat_reclaimable">Input VAT reclaimable</label><select id="expense_input_vat_reclaimable" name="input_vat_reclaimable">{% for option in expense_input_vat_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('input_vat_reclaimable') == option) or (not expense_form and editing_expense and editing_expense.get('Input VAT Reclaimable') == option) or (not expense_form and not editing_expense and option == 'Yes') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
-            <div class="field optional"><label for="expense_deductibility_status">Deductibility status</label><select id="expense_deductibility_status" name="deductibility_status">{% for option in expense_deductibility_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('deductibility_status') == option) or (not expense_form and editing_expense and editing_expense.get('Deductibility Status') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field optional"><label for="expense_input_vat_reclaimable">Input VAT reclaimable</label><select id="expense_input_vat_reclaimable" name="input_vat_reclaimable">{% for option in expense_input_vat_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('input_vat_reclaimable') == option) or (not expense_form and editing_expense and editing_expense.get('Input VAT Reclaimable') == option) or (not expense_form and not editing_expense and option == 'Yes') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+              <span class="mini field-lock-hint" id="expense_input_vat_lock_hint" style="display:none;">Locked to No for Entertainment.</span>
+            </div>
+            <div class="field optional"><label for="expense_deductibility_status">Deductibility status</label><select id="expense_deductibility_status" name="deductibility_status">{% for option in expense_deductibility_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('deductibility_status') == option) or (not expense_form and editing_expense and editing_expense.get('Deductibility Status') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+              <span class="mini field-lock-hint" id="expense_deductibility_lock_hint" style="display:none;">Set automatically by category.</span>
+            </div>
             <div class="field optional"><label for="expense_capital_flag">Capital expenditure flag</label><select id="expense_capital_flag" name="capital_expenditure_flag">{% for option in yes_no_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('capital_expenditure_flag') == option) or (not expense_form and editing_expense and editing_expense.get('Capital Expenditure Flag') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
-            <div class="field optional {% if validation_errors.get('receipt_attached') %}has-error{% endif %}"><label for="expense_receipt_attached">Receipt attached</label><select id="expense_receipt_attached" name="receipt_attached">{% for option in yes_no_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('receipt_attached') == option) or (not expense_form and editing_expense and editing_expense.get('Receipt Attached') == option) or (not expense_form and not editing_expense and option == 'No') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('receipt_attached') %}<span class="field-error">{{ validation_errors.get('receipt_attached') }}</span>{% endif %}</div>
+            <div class="field optional {% if validation_errors.get('receipt_attached') %}has-error{% endif %}"><label for="expense_receipt_attached">Receipt attached</label><select id="expense_receipt_attached" name="receipt_attached">{% for option in yes_no_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('receipt_attached') == option) or (not expense_form and editing_expense and editing_expense.get('Receipt Attached') == option) or (not expense_form and not editing_expense and option == 'No') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('receipt_attached') %}<span class="field-error">{{ validation_errors.get('receipt_attached') }}</span>{% endif %}
+              <div class="compliance-panel" id="expense_receipt_panel" style="display:none;"></div>
+            </div>
             <div class="field optional {% if validation_errors.get('bank_reconciliation') %}has-error{% endif %}"><label for="expense_bank_reconciliation">Bank reconciliation</label><select id="expense_bank_reconciliation" name="bank_reconciliation">{% for option in reconciliation_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('bank_reconciliation') == option) or (not expense_form and editing_expense and editing_expense.get('Bank Reconciliation') == option) or (not expense_form and not editing_expense and option == 'Unreconciled') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('bank_reconciliation') %}<span class="field-error">{{ validation_errors.get('bank_reconciliation') }}</span>{% endif %}</div>
             {% set expense_status_value = expense_form.get('status') if expense_form else (editing_expense.get('Status') if editing_expense else 'Pending') %}
             <div class="field required {% if validation_errors.get('status') %}has-error{% endif %}"><label for="expense_status">Status</label><select id="expense_status" name="status">{% for option in expense_status_options %}<option value="{{ option }}" {% if expense_status_value == option %}selected{% endif %}>{{ option }}</option>{% endfor %}{% if expense_status_value and expense_status_value not in expense_status_options %}<option value="{{ expense_status_value }}" selected>{{ expense_status_value }} (legacy)</option>{% endif %}</select>{% if validation_errors.get('status') %}<span class="field-error">{{ validation_errors.get('status') }}</span>{% endif %}</div>
-            <div class="field required"><label for="expense_payment_method">Payment method</label><select id="expense_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in expense_payment_methods %}<option value="{{ option }}" {% if (expense_form and expense_form.get('payment_method') == option) or (not expense_form and editing_expense and editing_expense.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field required"><label for="expense_payment_method">Payment method</label><select id="expense_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in expense_payment_methods %}<option value="{{ option }}" {% if (expense_form and expense_form.get('payment_method') == option) or (not expense_form and editing_expense and editing_expense.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+              <div class="compliance-panel" id="expense_cash_panel" style="display:none;"></div>
+            </div>
             <div class="field optional" style="grid-column: 1 / -1;"><label for="expense_notes">Notes</label><input id="expense_notes" type="text" name="notes" value="{{ expense_form.get('notes') if expense_form else (editing_expense.get('Notes') if editing_expense else '') }}" placeholder="Compliance or audit notes"></div>
           </div>
           <div class="calc-summary" id="expense_calc_summary">Net <span class="calc-summary-value" id="expense_summary_net">€0.00</span> + VAT <span class="calc-summary-value" id="expense_summary_vat">€0.00</span> = Total <span class="calc-summary-value calc-summary-total" id="expense_summary_total">€0.00</span></div>
+          <input type="hidden" name="compliance_flags_json" id="expense_compliance_flags_json" value="[]">
+          <input type="hidden" name="flags_acknowledged" id="expense_flags_acknowledged" value="0">
+          <input type="hidden" name="flags_acknowledged_at" id="expense_flags_acknowledged_at" value="">
           <div class="form-actions"><button type="submit">{% if editing_expense %}Update expense{% else %}Save expense{% endif %}</button></div>
         </form>
       </div>
@@ -1821,11 +2034,23 @@
       {% endif %}
       {% endif %}
       {% endif %}
+
+      <div class="modal-overlay" id="compliance_modal_overlay">
+        <div class="modal-box compliance-modal-box">
+          <h3>This transaction has compliance flags that need your attention</h3>
+          <div class="compliance-modal-list" id="compliance_modal_list"></div>
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" id="compliance_modal_fix">Fix Now</button>
+            <button type="button" class="btn-mark-paid" id="compliance_modal_save">Save Anyway with Acknowledgement</button>
+          </div>
+        </div>
+      </div>
     </div>
     <script id="services_catalog_data" type="application/json">{{ services_catalog_json|safe }}</script>
     <script id="clients_catalog_data" type="application/json">{{ clients_catalog_json|safe }}</script>
     <script id="invoice_editing_line_items_data" type="application/json">{{ (editing_invoice.get('line_items') if editing_invoice else [])|tojson }}</script>
     <script id="vat_rate_options_data" type="application/json">{{ vat_rate_options|tojson }}</script>
+    <script id="tax_rules_data" type="application/json">{{ tax_rules_json|safe }}</script>
     <script>
       (function () {
         function parseAmount(value) {
@@ -2293,6 +2518,331 @@
             }
           });
         });
+      })();
+    </script>
+    <script>
+      (function () {
+        var taxRulesEl = document.getElementById("tax_rules_data");
+        var taxRules = taxRulesEl ? JSON.parse(taxRulesEl.textContent || "{}") : {};
+        var expenseCategoryRules = taxRules.expense_categories || {};
+        var incomeCategoryRules = taxRules.income_categories || {};
+        var fieldRules = taxRules.field_rules || {};
+        var complianceState = { expense: {}, income: {} };
+
+        function parseAmountLocal(value) {
+          var numeric = Number.parseFloat(String(value || "").replace(/,/g, ""));
+          return Number.isFinite(numeric) ? numeric : 0;
+        }
+
+        function escapeHtml(value) {
+          var div = document.createElement("div");
+          div.textContent = String(value == null ? "" : value);
+          return div.innerHTML;
+        }
+
+        function setPanel(panelId, severity, message, learnMore) {
+          var panel = document.getElementById(panelId);
+          if (!panel) {
+            return;
+          }
+          if (!severity || !message) {
+            panel.style.display = "none";
+            panel.innerHTML = "";
+            return;
+          }
+          var icon = severity === "danger" ? "⛔" : severity === "warning" ? "⚠" : "ℹ";
+          var html = '<span class="compliance-icon">' + icon + '</span><span class="compliance-text">' + escapeHtml(message) + '</span>';
+          if (learnMore && learnMore !== message) {
+            html += ' <button type="button" class="learn-more-link" data-full="' + escapeHtml(learnMore) + '">Learn more</button>';
+          }
+          panel.className = "compliance-panel severity-" + severity;
+          panel.innerHTML = html;
+          panel.style.display = "flex";
+        }
+
+        document.addEventListener("click", function (event) {
+          if (event.target.classList && event.target.classList.contains("learn-more-link")) {
+            var panel = event.target.closest(".compliance-panel");
+            var textEl = panel && panel.querySelector(".compliance-text");
+            if (textEl) {
+              textEl.textContent = event.target.getAttribute("data-full") || textEl.textContent;
+            }
+            event.target.remove();
+          }
+        });
+
+        function setComplianceFlag(formKey, flagKey, severity, message) {
+          if (!severity || severity === "info" || !message) {
+            delete complianceState[formKey][flagKey];
+          } else {
+            complianceState[formKey][flagKey] = { key: flagKey, severity: severity, message: message };
+          }
+          var field = document.getElementById(formKey + "_compliance_flags_json");
+          if (field) {
+            var flags = Object.keys(complianceState[formKey]).map(function (key) { return complianceState[formKey][key]; });
+            field.value = JSON.stringify(flags);
+          }
+        }
+
+        function updateCategoryTooltip(iconId, rule) {
+          var icon = document.getElementById(iconId);
+          if (!icon) {
+            return;
+          }
+          var tooltip = icon.querySelector(".category-tooltip");
+          if (!tooltip) {
+            return;
+          }
+          if (!rule) {
+            tooltip.innerHTML = "Select a category to see what belongs there.";
+            return;
+          }
+          var html = "";
+          if (rule.description) { html += "<div><strong>Belongs here:</strong> " + escapeHtml(rule.description) + "</div>"; }
+          if (rule.not_included) { html += "<div style=\"margin-top:6px;\"><strong>Does not belong:</strong> " + escapeHtml(rule.not_included) + "</div>"; }
+          if (rule.deductibility) { html += "<div style=\"margin-top:6px;\"><strong>Deductibility:</strong> " + escapeHtml(rule.deductibility) + "</div>"; }
+          html += "<div style=\"margin-top:6px;\"><strong>VAT reclaimable:</strong> " + (rule.vat_reclaimable ? "Yes" : "No") + "</div>";
+          tooltip.innerHTML = html;
+        }
+
+        document.querySelectorAll(".info-icon").forEach(function (icon) {
+          icon.addEventListener("click", function (event) {
+            event.stopPropagation();
+            var wasOpen = icon.classList.contains("open");
+            document.querySelectorAll(".info-icon.open").forEach(function (el) { el.classList.remove("open"); });
+            if (!wasOpen) {
+              icon.classList.add("open");
+            }
+          });
+        });
+        document.addEventListener("click", function () {
+          document.querySelectorAll(".info-icon.open").forEach(function (el) { el.classList.remove("open"); });
+        });
+
+        // --- Expense form: Layer 1 field-level warnings ---
+        var expenseCategoryField = document.getElementById("expense_category");
+        var expenseNetField = document.getElementById("expense_net");
+        var expenseReceiptField = document.getElementById("expense_receipt_attached");
+        var expensePaymentField = document.getElementById("expense_payment_method");
+        var expenseVatRateField = document.getElementById("expense_vat_rate");
+
+        function updateExpenseCategoryPanel() {
+          if (!expenseCategoryField) { return; }
+          var rule = expenseCategoryRules[expenseCategoryField.value];
+          updateCategoryTooltip("expense_category_info", rule);
+          if (!rule) {
+            setPanel("expense_category_panel", null);
+            setComplianceFlag("expense", "category", null);
+            return;
+          }
+          setPanel("expense_category_panel", rule.severity, rule.message, rule.description);
+          setComplianceFlag("expense", "category", rule.severity, rule.message);
+        }
+
+        function updateExpenseAmountPanel() {
+          if (!expenseCategoryField || !expenseNetField) { return; }
+          var amount = parseAmountLocal(expenseNetField.value);
+          var threshold = fieldRules.capital_amount_threshold || 1000;
+          var capitalCategories = fieldRules.capital_amount_categories || [];
+          var rule = expenseCategoryRules[expenseCategoryField.value];
+          if (capitalCategories.indexOf(expenseCategoryField.value) !== -1 && amount > threshold) {
+            var message = (rule && rule.amount_threshold_message) || ("Amounts over €" + threshold + " may require capital allowances treatment — confirm with your accountant before saving.");
+            setPanel("expense_amount_panel", "warning", message);
+            setComplianceFlag("expense", "amount", "warning", message);
+          } else {
+            setPanel("expense_amount_panel", null);
+            setComplianceFlag("expense", "amount", null);
+          }
+        }
+
+        function updateExpenseReceiptPanel() {
+          if (!expenseReceiptField || !expenseNetField) { return; }
+          var amount = parseAmountLocal(expenseNetField.value);
+          var threshold = fieldRules.receipt_required_threshold || 50;
+          if (expenseReceiptField.value === "No" && amount > threshold) {
+            var message = fieldRules.receipt_required_message || "Revenue requires documentary evidence for expenses over €50. Ensure you have the receipt.";
+            setPanel("expense_receipt_panel", "warning", message);
+            setComplianceFlag("expense", "receipt", "warning", message);
+            expenseReceiptField.classList.add("field-amber-border");
+          } else {
+            setPanel("expense_receipt_panel", null);
+            setComplianceFlag("expense", "receipt", null);
+            expenseReceiptField.classList.remove("field-amber-border");
+          }
+        }
+
+        function updateExpenseCashPanel() {
+          if (!expensePaymentField || !expenseNetField) { return; }
+          var amount = parseAmountLocal(expenseNetField.value);
+          var threshold = fieldRules.cash_amount_threshold || 1000;
+          if (expensePaymentField.value === "Cash" && amount > threshold) {
+            var message = fieldRules.cash_amount_message || "Large cash transactions require supporting documentation.";
+            setPanel("expense_cash_panel", "warning", message);
+            setComplianceFlag("expense", "cash", "warning", message);
+          } else {
+            setPanel("expense_cash_panel", null);
+            setComplianceFlag("expense", "cash", null);
+          }
+        }
+
+        function updateExpenseVatPanel() {
+          if (!expenseCategoryField || !expenseVatRateField) { return; }
+          var entertainmentCategories = fieldRules.entertainment_categories || [];
+          var rateText = String(expenseVatRateField.value || "").trim().toLowerCase();
+          var rateIsPositive = rateText && rateText !== "0%" && rateText !== "exempt";
+          if (entertainmentCategories.indexOf(expenseCategoryField.value) !== -1 && rateIsPositive) {
+            var message = fieldRules.entertainment_vat_message || "VAT cannot be reclaimed on entertainment expenses.";
+            setPanel("expense_vat_panel", "danger", message);
+            setComplianceFlag("expense", "vat", "danger", message);
+          } else {
+            setPanel("expense_vat_panel", null);
+            setComplianceFlag("expense", "vat", null);
+          }
+        }
+
+        function updateExpenseLockedFields() {
+          if (!expenseCategoryField) { return; }
+          var rule = expenseCategoryRules[expenseCategoryField.value];
+
+          var deductibilitySelect = document.getElementById("expense_deductibility_status");
+          var deductibilityHint = document.getElementById("expense_deductibility_lock_hint");
+          var deductibilityLocked = !!(rule && rule.deductibility && rule.deductibility !== "Fully Deductible");
+          if (deductibilitySelect) {
+            deductibilitySelect.disabled = deductibilityLocked;
+            if (deductibilityLocked) { deductibilitySelect.value = rule.deductibility; }
+          }
+          if (deductibilityHint) { deductibilityHint.style.display = deductibilityLocked ? "inline" : "none"; }
+
+          var vatReclaimSelect = document.getElementById("expense_input_vat_reclaimable");
+          var vatReclaimHint = document.getElementById("expense_input_vat_lock_hint");
+          var vatReclaimLocked = expenseCategoryField.value === "Entertainment";
+          if (vatReclaimSelect) {
+            vatReclaimSelect.disabled = vatReclaimLocked;
+            if (vatReclaimLocked) { vatReclaimSelect.value = "No"; }
+          }
+          if (vatReclaimHint) { vatReclaimHint.style.display = vatReclaimLocked ? "inline" : "none"; }
+        }
+
+        function refreshAllExpensePanels() {
+          updateExpenseCategoryPanel();
+          updateExpenseAmountPanel();
+          updateExpenseReceiptPanel();
+          updateExpenseCashPanel();
+          updateExpenseVatPanel();
+          updateExpenseLockedFields();
+        }
+
+        [
+          "expense_base_net", "expense_delivery", "expense_fees", "expense_other_charges",
+          "expense_discount_value", "expense_discount_type",
+        ].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (!el) { return; }
+          el.addEventListener("input", function () { updateExpenseAmountPanel(); updateExpenseReceiptPanel(); updateExpenseCashPanel(); });
+          el.addEventListener("change", function () { updateExpenseAmountPanel(); updateExpenseReceiptPanel(); updateExpenseCashPanel(); });
+        });
+        if (expenseCategoryField) {
+          expenseCategoryField.addEventListener("change", function () { updateExpenseCategoryPanel(); updateExpenseAmountPanel(); updateExpenseVatPanel(); updateExpenseLockedFields(); });
+        }
+        if (expenseReceiptField) {
+          expenseReceiptField.addEventListener("change", updateExpenseReceiptPanel);
+        }
+        if (expensePaymentField) {
+          expensePaymentField.addEventListener("change", updateExpenseCashPanel);
+        }
+        if (expenseVatRateField) {
+          expenseVatRateField.addEventListener("change", updateExpenseVatPanel);
+        }
+        refreshAllExpensePanels();
+
+        // --- Income form: Layer 1 field-level warnings ---
+        var incomeCategoryField = document.getElementById("income_category");
+        function updateIncomeCategoryPanel() {
+          if (!incomeCategoryField) { return; }
+          var rule = incomeCategoryRules[incomeCategoryField.value];
+          updateCategoryTooltip("income_category_info", rule);
+          if (!rule) {
+            setPanel("income_category_panel", null);
+            setComplianceFlag("income", "category", null);
+            return;
+          }
+          setPanel("income_category_panel", rule.severity, rule.message, rule.description);
+          setComplianceFlag("income", "category", rule.severity, rule.message);
+        }
+        if (incomeCategoryField) {
+          incomeCategoryField.addEventListener("change", updateIncomeCategoryPanel);
+          updateIncomeCategoryPanel();
+        }
+
+        // --- Layer 2: red-flag save confirmation ---
+        var pendingSubmitForm = null;
+        var pendingSubmitFormKey = null;
+
+        function collectRedFlags(formKey) {
+          return Object.keys(complianceState[formKey])
+            .map(function (key) { return complianceState[formKey][key]; })
+            .filter(function (flag) { return flag.severity === "danger"; });
+        }
+
+        function openComplianceModal(flags) {
+          var list = document.getElementById("compliance_modal_list");
+          if (list) {
+            list.innerHTML = flags.map(function (flag) {
+              return '<div class="compliance-flag-item">' + escapeHtml(flag.message) + '</div>';
+            }).join("");
+          }
+          var overlay = document.getElementById("compliance_modal_overlay");
+          if (overlay) {
+            overlay.classList.add("open");
+          }
+        }
+
+        function attachComplianceGuard(formEl, formKey) {
+          if (!formEl) { return; }
+          formEl.addEventListener("submit", function (event) {
+            var acknowledgedField = document.getElementById(formKey + "_flags_acknowledged");
+            if (acknowledgedField && acknowledgedField.value === "1") {
+              return;
+            }
+            var redFlags = collectRedFlags(formKey);
+            if (redFlags.length === 0) {
+              return;
+            }
+            event.preventDefault();
+            pendingSubmitForm = formEl;
+            pendingSubmitFormKey = formKey;
+            openComplianceModal(redFlags);
+          });
+        }
+
+        attachComplianceGuard(expenseCategoryField ? expenseCategoryField.closest("form") : null, "expense");
+        attachComplianceGuard(incomeCategoryField ? incomeCategoryField.closest("form") : null, "income");
+
+        var complianceFixBtn = document.getElementById("compliance_modal_fix");
+        if (complianceFixBtn) {
+          complianceFixBtn.addEventListener("click", function () {
+            var overlay = document.getElementById("compliance_modal_overlay");
+            if (overlay) { overlay.classList.remove("open"); }
+            pendingSubmitForm = null;
+            pendingSubmitFormKey = null;
+          });
+        }
+        var complianceSaveBtn = document.getElementById("compliance_modal_save");
+        if (complianceSaveBtn) {
+          complianceSaveBtn.addEventListener("click", function () {
+            if (!pendingSubmitForm || !pendingSubmitFormKey) { return; }
+            var acknowledgedField = document.getElementById(pendingSubmitFormKey + "_flags_acknowledged");
+            var acknowledgedAtField = document.getElementById(pendingSubmitFormKey + "_flags_acknowledged_at");
+            if (acknowledgedField) { acknowledgedField.value = "1"; }
+            if (acknowledgedAtField) { acknowledgedAtField.value = new Date().toISOString(); }
+            var overlay = document.getElementById("compliance_modal_overlay");
+            if (overlay) { overlay.classList.remove("open"); }
+            var formToSubmit = pendingSubmitForm;
+            pendingSubmitForm = null;
+            pendingSubmitFormKey = null;
+            formToSubmit.submit();
+          });
+        }
       })();
     </script>
   </body>

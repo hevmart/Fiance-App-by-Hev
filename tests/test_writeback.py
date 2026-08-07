@@ -2,7 +2,7 @@ import os
 import tempfile
 import json
 from io import BytesIO
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -60,6 +60,12 @@ def isolated_subscription_file(tmp_path):
     original_clients_path = app.CLIENTS_PATH
     original_suppliers_path = app.SUPPLIERS_PATH
     original_sheet_json_paths = dict(app.SHEET_JSON_PATHS)
+    original_backups_dir = app.BACKUPS_DIR
+    original_gdrive_backup_dir = app.GDRIVE_BACKUP_DIR
+    original_backup_status_path = app.BACKUP_STATUS_PATH
+    app.BACKUPS_DIR = tmp_path / "backups"
+    app.GDRIVE_BACKUP_DIR = tmp_path / "gdrive-backups"
+    app.BACKUP_STATUS_PATH = tmp_path / "backup-status.json"
     app.SUBSCRIPTIONS_PATH = tmp_path / "subscriptions.json"
     app.ARCHIVE_PATH = tmp_path / "archives.json"
     app.AUDIT_LOG_PATH = tmp_path / "audit-log.json"
@@ -98,6 +104,9 @@ def isolated_subscription_file(tmp_path):
     app.CLIENTS_PATH = original_clients_path
     app.SUPPLIERS_PATH = original_suppliers_path
     app.SHEET_JSON_PATHS = original_sheet_json_paths
+    app.BACKUPS_DIR = original_backups_dir
+    app.GDRIVE_BACKUP_DIR = original_gdrive_backup_dir
+    app.BACKUP_STATUS_PATH = original_backup_status_path
     app.load_finance_data.cache_clear()
 
 
@@ -276,7 +285,7 @@ def test_business_structure_toggle_changes_dashboard_mode(workbook_copy):
     )
 
     assert update_response.status_code == 200
-    assert b'Phase 2 - Private Limited Company' in update_response.data
+    assert 'Phase 2 — Limited Company'.encode('utf-8') in update_response.data
     assert b'Corporation Tax (CT1)' in update_response.data
     assert b'CT1 outputs' in update_response.data
     assert b'Director Loan Account' in update_response.data
@@ -2303,3 +2312,370 @@ def test_legacy_invoice_without_line_items_gets_migrated(workbook_copy):
     assert line_item["total"] == 492.0
     # The flat Service/Product field is preserved untouched for backwards compatibility.
     assert migrated["Service / Product"] == "Legacy consulting work"
+
+
+def _expense_add_payload(**overrides):
+    payload = {
+        "date": "2026-08-07",
+        "title": "Client dinner",
+        "category": "Entertainment",
+        "supplier_vat_number": "IE1234567A",
+        "base_net_amount": "100.00",
+        "net_amount": "100.00",
+        "total_amount": "123.00",
+        "vat_rate": "23%",
+        "vat_amount": "23.00",
+        "input_vat_reclaimable": "Yes",
+        "receipt_attached": "Yes",
+        "bank_reconciliation": "Unreconciled",
+        "status": "Pending",
+        "payment_method": "Cash",
+    }
+    payload.update(overrides)
+    return payload
+
+
+def test_expense_with_unacknowledged_red_flag_is_rejected(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    flags = json.dumps([{"key": "vat", "severity": "danger", "message": "VAT cannot be reclaimed on entertainment expenses."}])
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(compliance_flags_json=flags),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'compliance flags that need your attention' in response.data
+
+    app.load_finance_data.cache_clear()
+    saved = [row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Client dinner"]
+    assert saved == []
+
+
+def test_expense_with_acknowledged_red_flag_saves_and_records_acknowledgement(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    flags = json.dumps([{"key": "vat", "severity": "danger", "message": "VAT cannot be reclaimed on entertainment expenses."}])
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            compliance_flags_json=flags,
+            flags_acknowledged="1",
+            flags_acknowledged_at="2026-08-07T12:00:00.000Z",
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'Expense entry added' in response.data
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Client dinner")
+    stored_flags = json.loads(saved["Compliance Flags"])
+    assert stored_flags == [{"key": "vat", "severity": "danger", "message": "VAT cannot be reclaimed on entertainment expenses."}]
+    assert saved["Flags Acknowledged"] == "Yes"
+    assert saved["Flags Acknowledged At"] == "2026-08-07T12:00:00.000Z"
+
+
+def test_expense_with_only_amber_flag_saves_without_acknowledgement(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    flags = json.dumps([{"key": "amount", "severity": "warning", "message": "Amounts over €1,000 may require capital allowances treatment."}])
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            title="New laptop",
+            category="Equipment and Hardware",
+            base_net_amount="1500.00",
+            net_amount="1500.00",
+            total_amount="1845.00",
+            vat_amount="345.00",
+            compliance_flags_json=flags,
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'Expense entry added' in response.data
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "New laptop")
+    stored_flags = json.loads(saved["Compliance Flags"])
+    assert stored_flags == [{"key": "amount", "severity": "warning", "message": "Amounts over €1,000 may require capital allowances treatment."}]
+    assert saved["Flags Acknowledged"] == "No"
+    assert saved["Flags Acknowledged At"] == ""
+
+
+def test_expense_with_no_flags_saves_with_empty_flags_list(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(title="Ordinary software cost", category="Software and Subscriptions"),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'Expense entry added' in response.data
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Ordinary software cost")
+    assert json.loads(saved["Compliance Flags"]) == []
+    assert saved["Flags Acknowledged"] == "No"
+
+
+def test_income_btwea_category_flag_requires_acknowledgement(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    flags = json.dumps([{"key": "category", "severity": "danger", "message": "BTWEA/welfare payments are non-trading income."}])
+    response = client.post(
+        '/income/add',
+        data={
+            "date": "2026-08-07",
+            "description": "Weekly BTWEA payment",
+            "category": "BTWEA / Welfare Support",
+            "amount": "250.00",
+            "status": "Received",
+            "payment_method": "Business Bank Account",
+            "compliance_flags_json": flags,
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'compliance flags that need your attention' in response.data
+
+    app.load_finance_data.cache_clear()
+    saved = [row for row in app.load_finance_data()["sheets"]["Income"] if row.get("Description") == "Weekly BTWEA payment"]
+    assert saved == []
+
+    ack_response = client.post(
+        '/income/add',
+        data={
+            "date": "2026-08-07",
+            "description": "Weekly BTWEA payment",
+            "category": "BTWEA / Welfare Support",
+            "amount": "250.00",
+            "status": "Received",
+            "payment_method": "Business Bank Account",
+            "compliance_flags_json": flags,
+            "flags_acknowledged": "1",
+            "flags_acknowledged_at": "2026-08-07T12:00:00.000Z",
+        },
+        follow_redirects=True,
+    )
+    assert b'Income entry added' in ack_response.data
+    app.load_finance_data.cache_clear()
+    saved_ack = next(row for row in app.load_finance_data()["sheets"]["Income"] if row.get("Description") == "Weekly BTWEA payment")
+    assert saved_ack["Flags Acknowledged"] == "Yes"
+    assert json.loads(saved_ack["Compliance Flags"])[0]["severity"] == "danger"
+
+
+def test_tax_rules_json_loads_expected_categories():
+    rules = app._load_tax_rules()
+    assert "Entertainment" in rules["expense_categories"]
+    assert rules["expense_categories"]["Entertainment"]["severity"] == "danger"
+    assert rules["expense_categories"]["Equipment and Hardware"]["amount_threshold"] == 1000
+    assert "BTWEA / Welfare Support" in rules["income_categories"]
+    assert rules["field_rules"]["receipt_required_threshold"] == 50
+
+
+def test_entertainment_expense_locks_deductibility_and_vat_reclaimable(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            title="Client dinner - locked fields",
+            category="Entertainment",
+            deductibility_status="Fully Deductible",  # attempt to override — must be ignored
+            input_vat_reclaimable="Yes",  # attempt to override — must be ignored
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'Expense entry added' in response.data
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Client dinner - locked fields")
+    assert saved["Deductibility Status"] == "Non-Deductible"
+    assert saved["Input VAT Reclaimable"] == "No"
+
+
+def test_home_office_expense_locks_partially_deductible(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            title="Broadband share",
+            category="Home Office Expenses",
+            deductibility_status="Fully Deductible",
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Broadband share")
+    assert saved["Deductibility Status"] == "Partially Deductible"
+
+
+def test_other_category_deductibility_is_editable(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            title="Consulting invoice",
+            category="Professional Fees",
+            deductibility_status="Partially Deductible",
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Consulting invoice")
+    assert saved["Deductibility Status"] == "Partially Deductible"
+
+
+def test_non_deductible_items_category_retired_from_chart_of_accounts():
+    accounts = app._ensure_chart_of_accounts()
+    retired = next(account for account in accounts if account["code"] == "5900")
+    assert retired["active"] is False
+    fines = next(account for account in accounts if account["name"] == "Fines and Penalties")
+    assert fines["active"] is True
+    assert "Non-Deductible Items" not in app._chart_of_accounts_category_options("Expense")
+    assert "Fines and Penalties" in app._chart_of_accounts_category_options("Expense")
+
+
+def test_existing_non_deductible_items_expense_gets_flagged_amber(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+
+    records = app._load_sheet_records_raw("Expenses")
+    records.append({
+        "Date (Registered)": "2026-01-01",
+        "Title": "Legacy non-deductible item",
+        "Category": "Non-Deductible Items",
+        "Net Amount (€)": 50.0,
+        "Total (€)": 50.0,
+        "Status": "Paid",
+    })
+    app._save_sheet_records_raw("Expenses", records)
+    app.load_finance_data.cache_clear()
+
+    app._migrate_flag_retired_non_deductible_category()
+
+    app.load_finance_data.cache_clear()
+    flagged = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Legacy non-deductible item")
+    flags = json.loads(flagged["Compliance Flags"])
+    assert any(flag["key"] == "retired_category" and flag["severity"] == "warning" for flag in flags)
+
+
+def test_saving_json_record_creates_local_backup(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    client.post(
+        '/expenses/add',
+        data=_expense_add_payload(title="Backup trigger expense", category="Software and Subscriptions"),
+        follow_redirects=True,
+    )
+
+    today_dir = app.BACKUPS_DIR / date.today().isoformat()
+    backed_up_file = today_dir / app.EXPENSES_PATH.name
+    assert backed_up_file.exists()
+    backed_up_records = json.loads(backed_up_file.read_text(encoding="utf-8"))
+    assert any(row.get("Title") == "Backup trigger expense" for row in backed_up_records)
+
+    status = app._load_backup_status()
+    assert status["local_ok"] is True
+    assert status["timestamp"]
+
+
+def test_prune_old_backups_removes_dates_past_retention(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+
+    old_dir = app.BACKUPS_DIR / (date.today() - timedelta(days=45)).isoformat()
+    recent_dir = app.BACKUPS_DIR / (date.today() - timedelta(days=1)).isoformat()
+    old_dir.mkdir(parents=True)
+    recent_dir.mkdir(parents=True)
+    (old_dir / "expenses.json").write_text("[]", encoding="utf-8")
+    (recent_dir / "expenses.json").write_text("[]", encoding="utf-8")
+
+    app._prune_old_backups()
+
+    assert not old_dir.exists()
+    assert recent_dir.exists()
+
+
+def test_restore_backup_restores_file_and_rejects_invalid_filename(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    original_expenses = json.loads(app.EXPENSES_PATH.read_text(encoding="utf-8"))
+
+    client.post(
+        '/expenses/add',
+        data=_expense_add_payload(title="Will be restored away", category="Software and Subscriptions"),
+        follow_redirects=True,
+    )
+    app.load_finance_data.cache_clear()
+    assert any(row.get("Title") == "Will be restored away" for row in app.load_finance_data()["sheets"]["Expenses"])
+
+    today_str = date.today().isoformat()
+    backup_file = app.BACKUPS_DIR / today_str / app.EXPENSES_PATH.name
+    assert backup_file.exists()
+    # Overwrite the day's backup with the pre-addition snapshot to restore to.
+    backup_file.write_text(json.dumps(original_expenses, indent=2), encoding="utf-8")
+
+    traversal_response = client.post(
+        '/settings/backups/restore',
+        data={"backup_date": today_str, "filename": "../app.py"},
+        follow_redirects=True,
+    )
+    assert traversal_response.status_code == 200
+    assert b'Invalid backup file' in traversal_response.data
+
+    restore_response = client.post(
+        '/settings/backups/restore',
+        data={"backup_date": today_str, "filename": app.EXPENSES_PATH.name},
+        follow_redirects=True,
+    )
+    assert restore_response.status_code == 200
+
+    app.load_finance_data.cache_clear()
+    restored = app.load_finance_data()["sheets"]["Expenses"]
+    assert not any(row.get("Title") == "Will be restored away" for row in restored)
+
+
+def test_backups_view_lists_available_backup_dates(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    client.post(
+        '/expenses/add',
+        data=_expense_add_payload(title="Listing check expense", category="Software and Subscriptions"),
+        follow_redirects=True,
+    )
+
+    response = client.get('/settings/backups')
+    assert response.status_code == 200
+    assert date.today().isoformat().encode() in response.data
+    assert app.EXPENSES_PATH.name.encode() in response.data

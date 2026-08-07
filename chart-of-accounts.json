@@ -130,6 +130,76 @@
     "name": "Non-Deductible Items",
     "type": "Expense",
     "tax_treatment": "non-deductible",
+    "active": false
+  },
+  {
+    "code": "2200",
+    "name": "PAYE / USC / PRSI Control",
+    "type": "Liability",
+    "tax_treatment": "payroll",
+    "active": true
+  },
+  {
+    "code": "5210",
+    "name": "Home Office Expenses",
+    "type": "Expense",
+    "tax_treatment": "partial",
+    "active": true
+  },
+  {
+    "code": "5220",
+    "name": "Motor Expenses",
+    "type": "Expense",
+    "tax_treatment": "partial",
+    "active": true
+  },
+  {
+    "code": "5230",
+    "name": "Phone and Communications",
+    "type": "Expense",
+    "tax_treatment": "partial",
+    "active": true
+  },
+  {
+    "code": "5240",
+    "name": "Travel and Subsistence",
+    "type": "Expense",
+    "tax_treatment": "partial",
+    "active": true
+  },
+  {
+    "code": "5300",
+    "name": "Salaries and Wages",
+    "type": "Expense",
+    "tax_treatment": "deductible",
+    "active": true
+  },
+  {
+    "code": "5310",
+    "name": "Employer PRSI",
+    "type": "Expense",
+    "tax_treatment": "deductible",
+    "active": true
+  },
+  {
+    "code": "5800",
+    "name": "Entertainment",
+    "type": "Expense",
+    "tax_treatment": "non-deductible",
+    "active": true
+  },
+  {
+    "code": "5810",
+    "name": "Personal Expenses",
+    "type": "Expense",
+    "tax_treatment": "non-deductible",
+    "active": true
+  },
+  {
+    "code": "5820",
+    "name": "Fines and Penalties",
+    "type": "Expense",
+    "tax_treatment": "non-deductible",
     "active": true
   }
 ]

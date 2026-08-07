@@ -1,0 +1,172 @@
+{
+  "expense_categories": {
+    "Software and Subscriptions": {
+      "description": "Software licences, SaaS tools and subscriptions used for the business.",
+      "not_included": "Personal apps or subscriptions unrelated to the business.",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": true,
+      "severity": "info",
+      "message": "Fully deductible business software cost."
+    },
+    "Domain / Hosting / Website": {
+      "description": "Domain registration, hosting, and website build/maintenance costs.",
+      "not_included": "Personal websites or domains unrelated to the business.",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": true,
+      "severity": "info",
+      "message": "Fully deductible business running cost."
+    },
+    "Professional Fees": {
+      "description": "Accountancy, legal, consultancy and other professional service fees.",
+      "not_included": "Personal legal or professional advice unrelated to the business.",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": true,
+      "severity": "info",
+      "message": "Fully deductible business running cost."
+    },
+    "Marketing and Advertising": {
+      "description": "Advertising, promotion, sponsored content and marketing spend.",
+      "not_included": "Client entertainment or gifts (see Entertainment).",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": true,
+      "severity": "info",
+      "message": "Fully deductible business running cost."
+    },
+    "Bank and Transaction Fees": {
+      "description": "Business bank account, card processing and transaction fees.",
+      "not_included": "Personal banking fees.",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": false,
+      "severity": "info",
+      "message": "Fully deductible; most bank fees carry no reclaimable VAT."
+    },
+    "Insurance": {
+      "description": "Professional indemnity, public liability and business insurance premiums.",
+      "not_included": "Personal or life insurance.",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": false,
+      "severity": "info",
+      "message": "Fully deductible; insurance premiums are VAT exempt."
+    },
+    "Office Supplies and Stationery": {
+      "description": "Stationery, consumables and small office supplies.",
+      "not_included": "Capital equipment (see Equipment and Hardware).",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": true,
+      "severity": "info",
+      "message": "Fully deductible business running cost."
+    },
+    "Training and Professional Development": {
+      "description": "Courses, certifications and professional development directly relevant to the business.",
+      "not_included": "General education unrelated to the business.",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": true,
+      "severity": "info",
+      "message": "Fully deductible where directly relevant to the business."
+    },
+    "Subcontractor Fees": {
+      "description": "Payments to subcontractors for work carried out for the business.",
+      "not_included": "Payments to employees (see Salaries and Wages).",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": true,
+      "severity": "info",
+      "message": "Fully deductible; confirm RCT/PSWT obligations if applicable."
+    },
+    "Salaries and Wages": {
+      "description": "Gross pay and employer costs for employees.",
+      "not_included": "Owner drawings (sole trader) or director remuneration treated separately.",
+      "deductibility": "Fully Deductible",
+      "vat_reclaimable": false,
+      "severity": "info",
+      "message": "Fully deductible; payroll taxes apply separately."
+    },
+    "Equipment and Hardware": {
+      "description": "Computers, equipment and hardware used for the business.",
+      "not_included": "Consumables or low-value supplies (see Office Supplies).",
+      "deductibility": "Partially Deductible",
+      "vat_reclaimable": true,
+      "severity": "warning",
+      "message": "May be a capital item — large purchases can require capital allowances treatment rather than a single-year deduction.",
+      "amount_threshold": 1000,
+      "amount_threshold_message": "Amounts over €1,000 may require capital allowances treatment — confirm with your accountant before saving."
+    },
+    "Home Office Expenses": {
+      "description": "Business-use portion of home costs — heat, light, broadband.",
+      "not_included": "Rent, mortgage capital repayments, or the personal-use portion of any home cost.",
+      "deductibility": "Partially Deductible",
+      "vat_reclaimable": false,
+      "severity": "warning",
+      "message": "Only the business-use portion is deductible — apportion carefully and keep a record of the basis used."
+    },
+    "Motor Expenses": {
+      "description": "Business-use portion of motor running costs — fuel, servicing, insurance.",
+      "not_included": "Private mileage or personal motoring costs.",
+      "deductibility": "Partially Deductible",
+      "vat_reclaimable": false,
+      "severity": "warning",
+      "message": "Only the business-use portion is deductible — keep a mileage log to support the split."
+    },
+    "Phone and Communications": {
+      "description": "Business-use portion of phone and communications costs.",
+      "not_included": "Personal calls/data unrelated to the business.",
+      "deductibility": "Partially Deductible",
+      "vat_reclaimable": true,
+      "severity": "warning",
+      "message": "Only the business-use portion is deductible if the plan is also used personally."
+    },
+    "Travel and Subsistence": {
+      "description": "Business travel, accommodation and subsistence while away from the normal place of work.",
+      "not_included": "Commuting to your normal place of work, or personal travel.",
+      "deductibility": "Partially Deductible",
+      "vat_reclaimable": false,
+      "severity": "warning",
+      "message": "Only genuine business travel qualifies — commuting costs are not deductible."
+    },
+    "Entertainment": {
+      "description": "Client entertainment, meals and hospitality.",
+      "not_included": "Nothing — client entertainment is never deductible and VAT is never reclaimable on it.",
+      "deductibility": "Non-Deductible",
+      "vat_reclaimable": false,
+      "severity": "danger",
+      "message": "Entertainment expenses are non-deductible for tax and VAT cannot be reclaimed on them."
+    },
+    "Personal Expenses": {
+      "description": "Nothing business-related belongs here.",
+      "not_included": "Any expense with a business purpose — reclassify it to the correct category instead.",
+      "deductibility": "Non-Deductible",
+      "vat_reclaimable": false,
+      "severity": "danger",
+      "message": "Personal expenses are not deductible and should not be posted through the business."
+    },
+    "Fines and Penalties": {
+      "description": "Nothing — fines and penalties are never deductible.",
+      "not_included": "Any genuine business cost — this category exists only to record fines/penalties for audit purposes.",
+      "deductibility": "Non-Deductible",
+      "vat_reclaimable": false,
+      "severity": "danger",
+      "message": "Fines and penalties are never deductible for tax and VAT cannot be reclaimed on them."
+    }
+  },
+  "income_categories": {
+    "BTWEA / Welfare Support": {
+      "description": "Back to Work Enterprise Allowance and similar welfare supports.",
+      "severity": "danger",
+      "message": "BTWEA/welfare payments are non-trading income — keep them separate from taxable trading income and do not include them in turnover calculations."
+    },
+    "Grant Income": {
+      "description": "Grants received from state bodies, local enterprise offices or other schemes.",
+      "severity": "warning",
+      "message": "Grants may be taxable or exempt depending on the scheme — confirm the correct tax treatment with your accountant or Revenue guidance before relying on this figure."
+    }
+  },
+  "field_rules": {
+    "capital_amount_threshold": 1000,
+    "capital_amount_categories": ["Equipment and Hardware"],
+    "receipt_required_threshold": 50,
+    "receipt_required_message": "Revenue requires documentary evidence for expenses over €50. Ensure you have the receipt.",
+    "cash_amount_threshold": 1000,
+    "cash_amount_message": "Large cash transactions require supporting documentation.",
+    "entertainment_categories": ["Entertainment"],
+    "entertainment_vat_message": "VAT cannot be reclaimed on entertainment expenses."
+  }
+}

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import csv
 import json
+import shutil
 import time
 import threading
 from calendar import monthrange
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from functools import lru_cache
 from io import StringIO
 from pathlib import Path
@@ -50,6 +51,11 @@ INVOICES_PATH = BASE_DIR / "invoices.json"
 CLIENTS_PATH = BASE_DIR / "clients.json"
 SUPPLIERS_PATH = BASE_DIR / "suppliers.json"
 SERVICES_PATH = BASE_DIR / "services.json"
+TAX_RULES_PATH = BASE_DIR / "tax-rules.json"
+BACKUPS_DIR = BASE_DIR / "backups"
+GDRIVE_BACKUP_DIR = Path("G:/My Drive/H-Queex — Working Documents/H-Queex Control/Backups")
+BACKUP_STATUS_PATH = BASE_DIR / "backup-status.json"
+BACKUP_RETENTION_DAYS = 30
 SHEET_JSON_PATHS = {
     "Income": INCOME_PATH,
     "Expenses": EXPENSES_PATH,
@@ -149,9 +155,16 @@ DEFAULT_CHART_OF_ACCOUNTS = [
     {"code": "5030", "name": "Marketing and Advertising", "type": "Expense", "tax_treatment": "deductible", "active": True},
     {"code": "5040", "name": "Bank and Transaction Fees", "type": "Expense", "tax_treatment": "deductible", "active": True},
     {"code": "5200", "name": "Equipment and Hardware", "type": "Expense", "tax_treatment": "capital-check", "active": True},
+    {"code": "5210", "name": "Home Office Expenses", "type": "Expense", "tax_treatment": "partial", "active": True},
+    {"code": "5220", "name": "Motor Expenses", "type": "Expense", "tax_treatment": "partial", "active": True},
+    {"code": "5230", "name": "Phone and Communications", "type": "Expense", "tax_treatment": "partial", "active": True},
+    {"code": "5240", "name": "Travel and Subsistence", "type": "Expense", "tax_treatment": "partial", "active": True},
     {"code": "5300", "name": "Salaries and Wages", "type": "Expense", "tax_treatment": "deductible", "active": True},
     {"code": "5310", "name": "Employer PRSI", "type": "Expense", "tax_treatment": "deductible", "active": True},
-    {"code": "5900", "name": "Non-Deductible Items", "type": "Expense", "tax_treatment": "non-deductible", "active": True},
+    {"code": "5800", "name": "Entertainment", "type": "Expense", "tax_treatment": "non-deductible", "active": True},
+    {"code": "5810", "name": "Personal Expenses", "type": "Expense", "tax_treatment": "non-deductible", "active": True},
+    {"code": "5820", "name": "Fines and Penalties", "type": "Expense", "tax_treatment": "non-deductible", "active": True},
+    {"code": "5900", "name": "Non-Deductible Items", "type": "Expense", "tax_treatment": "non-deductible", "active": False},
 ]
 INCOME_CATEGORY_ACCOUNT_MAP = {
     "consulting / project fees": "4000",
@@ -168,23 +181,14 @@ EXPENSE_CATEGORY_ACCOUNT_MAP = {
     "marketing and advertising": "5030",
     "bank and transaction fees": "5040",
     "equipment and hardware": "5200",
+    "home office expenses": "5210",
+    "motor expenses": "5220",
+    "phone and communications": "5230",
+    "travel and subsistence": "5240",
+    "entertainment": "5800",
+    "personal expenses": "5810",
+    "fines and penalties": "5820",
     "non-deductible items": "5900",
-}
-EXPENSE_CATEGORY_DEDUCTIBILITY_MAP = {
-    "software and subscriptions": "Fully Deductible",
-    "domain / hosting / website": "Fully Deductible",
-    "professional fees": "Fully Deductible",
-    "insurance": "Fully Deductible",
-    "marketing and advertising": "Fully Deductible",
-    "office supplies and stationery": "Fully Deductible",
-    "equipment and hardware": "Partially Deductible",
-    "home office expenses": "Partially Deductible",
-    "travel and subsistence": "Partially Deductible",
-    "bank and transaction fees": "Fully Deductible",
-    "training and professional development": "Fully Deductible",
-    "salaries and wages": "Fully Deductible",
-    "subcontractor fees": "Fully Deductible",
-    "non-deductible items": "Non-Deductible",
 }
 ENTITY_ROUTE_MAP = {
     "income": "income_view",
@@ -559,11 +563,27 @@ def _normalize_input_vat_reclaimable(value: Any) -> str:
     return "Yes"
 
 
+NON_DEDUCTIBLE_CATEGORIES = {"entertainment", "personal expenses", "fines and penalties"}
+PARTIALLY_DEDUCTIBLE_CATEGORIES = {"home office expenses", "motor expenses", "phone and communications"}
+
+
+def _deductibility_locked_for_category(category: Any) -> str | None:
+    """Return the forced Deductibility Status for a category, or None if the field is user-editable."""
+    category_key = _normalize_category_key(category)
+    if category_key in NON_DEDUCTIBLE_CATEGORIES:
+        return "Non-Deductible"
+    if category_key in PARTIALLY_DEDUCTIBLE_CATEGORIES:
+        return "Partially Deductible"
+    return None
+
+
 def _normalize_deductibility_status(value: Any, category: Any) -> str:
+    locked = _deductibility_locked_for_category(category)
+    if locked is not None:
+        return locked
     if str(value or "").strip() in EXPENSE_DEDUCTIBILITY_OPTIONS:
         return str(value).strip()
-    category_key = _normalize_category_key(category)
-    return EXPENSE_CATEGORY_DEDUCTIBILITY_MAP.get(category_key, "Fully Deductible")
+    return "Fully Deductible"
 
 
 def _normalize_yes_no(value: Any, *, default_yes: bool = False) -> str:
@@ -1178,8 +1198,37 @@ def _is_capital_expense(payload: dict[str, Any]) -> bool:
     return total_amount > 1000.0
 
 
+def _process_compliance_flags(form) -> tuple[list[dict[str, Any]], bool, str]:
+    """Parse the Layer 1/2 compliance flags a form submitted. Returns (flags, acknowledged, acknowledged_at)."""
+    try:
+        flags = json.loads(form.get("compliance_flags_json") or "[]")
+        if not isinstance(flags, list):
+            flags = []
+    except (TypeError, ValueError):
+        flags = []
+    flags = [flag for flag in flags if isinstance(flag, dict) and flag.get("message")]
+    acknowledged = form.get("flags_acknowledged") == "1"
+    acknowledged_at = str(form.get("flags_acknowledged_at") or "").strip()
+    return flags, acknowledged, acknowledged_at
+
+
+def _apply_compliance_flags_to_payload(payload: dict[str, Any], flags: list[dict[str, Any]], acknowledged: bool, acknowledged_at: str) -> dict[str, str]:
+    """Stamp compliance flag fields onto a payload. Returns validation errors if a red flag wasn't acknowledged."""
+    errors: dict[str, str] = {}
+    has_red_flag = any(str(flag.get("severity")) == "danger" for flag in flags)
+    if has_red_flag and not acknowledged:
+        errors["compliance_flags"] = "This transaction has compliance flags that need your attention — acknowledge them or fix the flagged fields before saving"
+    payload["Compliance Flags"] = json.dumps(flags)
+    payload["Flags Acknowledged"] = "Yes" if (has_red_flag and acknowledged) else "No"
+    payload["Flags Acknowledged At"] = acknowledged_at if (has_red_flag and acknowledged) else ""
+    return errors
+
+
 def _apply_expense_compliance_fields(payload: dict[str, Any]) -> None:
-    payload["Input VAT Reclaimable"] = _normalize_input_vat_reclaimable(payload.get("Input VAT Reclaimable"))
+    if _normalize_category_key(payload.get("Category")) == "entertainment":
+        payload["Input VAT Reclaimable"] = "No"
+    else:
+        payload["Input VAT Reclaimable"] = _normalize_input_vat_reclaimable(payload.get("Input VAT Reclaimable"))
     payload["Deductibility Status"] = _normalize_deductibility_status(payload.get("Deductibility Status"), payload.get("Category"))
     payload["Receipt Attached"] = _normalize_yes_no(payload.get("Receipt Attached"), default_yes=False)
     payload["Bank Reconciliation"] = _normalize_reconciliation(payload.get("Bank Reconciliation"))
@@ -1813,8 +1862,79 @@ def _load_json_records(path: Path) -> list[dict[str, Any]]:
     return records if isinstance(records, list) else []
 
 
+def _load_backup_status() -> dict[str, Any]:
+    if not BACKUP_STATUS_PATH.exists():
+        return {}
+    try:
+        status = json.loads(BACKUP_STATUS_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return status if isinstance(status, dict) else {}
+
+
+def _save_backup_status(status: dict[str, Any]) -> None:
+    try:
+        BACKUP_STATUS_PATH.write_text(json.dumps(status, indent=2), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _backup_json_file(path: Path) -> None:
+    """Immediately mirror a just-written JSON data file into today's local and Google Drive
+    backup folders. Never raises — a backup failure must not break the save it's backing up."""
+    if not path.exists():
+        return
+    today_str = date.today().isoformat()
+    status = {
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "local_ok": False,
+        "gdrive_ok": False,
+        "error": "",
+        "last_file": path.name,
+    }
+    try:
+        local_dir = BACKUPS_DIR / today_str
+        local_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, local_dir / path.name)
+        status["local_ok"] = True
+    except OSError as exc:
+        status["error"] = f"Local backup failed: {exc}"
+
+    try:
+        gdrive_dir = GDRIVE_BACKUP_DIR / today_str
+        gdrive_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, gdrive_dir / path.name)
+        status["gdrive_ok"] = True
+    except OSError as exc:
+        status["error"] = (status["error"] + "; " if status["error"] else "") + f"Google Drive backup failed: {exc}"
+
+    _save_backup_status(status)
+
+
+def _prune_old_backups() -> None:
+    """Keep only the last BACKUP_RETENTION_DAYS days of dated backup folders. Best-effort —
+    a pruning failure (e.g. Google Drive not mounted) is silently skipped."""
+    cutoff = date.today() - timedelta(days=BACKUP_RETENTION_DAYS)
+    for root in (BACKUPS_DIR, GDRIVE_BACKUP_DIR):
+        try:
+            if not root.exists():
+                continue
+            for entry in root.iterdir():
+                if not entry.is_dir():
+                    continue
+                try:
+                    entry_date = date.fromisoformat(entry.name)
+                except ValueError:
+                    continue
+                if entry_date < cutoff:
+                    shutil.rmtree(entry, ignore_errors=True)
+        except OSError:
+            continue
+
+
 def _save_json_records(path: Path, records: list[dict[str, Any]]) -> None:
     path.write_text(json.dumps(records, indent=2), encoding="utf-8")
+    _backup_json_file(path)
 
 
 def _append_json_record(path: Path, record: dict[str, Any]) -> None:
@@ -1853,6 +1973,65 @@ def _load_chart_of_accounts() -> list[dict[str, Any]]:
 
 def _save_chart_of_accounts(accounts: list[dict[str, Any]]) -> None:
     _save_json_records(CHART_OF_ACCOUNTS_PATH, accounts)
+
+
+def _load_tax_rules() -> dict[str, Any]:
+    if not TAX_RULES_PATH.exists():
+        return {"expense_categories": {}, "income_categories": {}, "field_rules": {}}
+    try:
+        rules = json.loads(TAX_RULES_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"expense_categories": {}, "income_categories": {}, "field_rules": {}}
+    return rules if isinstance(rules, dict) else {"expense_categories": {}, "income_categories": {}, "field_rules": {}}
+
+
+def _migrate_chart_of_accounts_categories() -> None:
+    """Backfill any DEFAULT_CHART_OF_ACCOUNTS entries missing from the persisted file
+    (e.g. newly added compliance-flagged categories) without disturbing existing ones, and
+    retire "Non-Deductible Items" (5900) now that Entertainment / Personal Expenses / Fines
+    and Penalties cover that ground individually."""
+    accounts = _load_json_records(CHART_OF_ACCOUNTS_PATH)
+    if not accounts:
+        return
+    existing_codes = {str(account.get("code") or "") for account in accounts}
+    changed = False
+    for default_account in DEFAULT_CHART_OF_ACCOUNTS:
+        if default_account["code"] not in existing_codes:
+            accounts.append(dict(default_account))
+            changed = True
+    for account in accounts:
+        if str(account.get("code") or "") == "5900" and account.get("active", True):
+            account["active"] = False
+            changed = True
+    if changed:
+        _save_json_records(CHART_OF_ACCOUNTS_PATH, accounts)
+
+
+def _migrate_flag_retired_non_deductible_category() -> None:
+    """Amber-flag any existing expense still posted to the retired 'Non-Deductible Items'
+    category so it surfaces for re-categorisation, without touching anything else about it."""
+    records = _load_sheet_records_raw("Expenses")
+    changed = False
+    for record in records:
+        if _normalize_category_key(record.get("Category")) != "non-deductible items":
+            continue
+        try:
+            existing_flags = json.loads(record.get("Compliance Flags") or "[]")
+            if not isinstance(existing_flags, list):
+                existing_flags = []
+        except (TypeError, ValueError):
+            existing_flags = []
+        if any(flag.get("key") == "retired_category" for flag in existing_flags if isinstance(flag, dict)):
+            continue
+        existing_flags.append({
+            "key": "retired_category",
+            "severity": "warning",
+            "message": "\"Non-Deductible Items\" has been retired — please recategorise this expense as Entertainment, Personal Expenses, Fines and Penalties, or another appropriate category.",
+        })
+        record["Compliance Flags"] = json.dumps(existing_flags)
+        changed = True
+    if changed:
+        _save_sheet_records_raw("Expenses", records)
 
 
 def _ensure_chart_of_accounts() -> list[dict[str, Any]]:
@@ -2744,7 +2923,7 @@ def _collect_select_options(data: dict[str, Any], sheet_name: str, field_name: s
 
 
 def _chart_of_accounts_category_options(account_type: str) -> list[str]:
-    return [account["name"] for account in DEFAULT_CHART_OF_ACCOUNTS if account.get("type") == account_type]
+    return [account["name"] for account in DEFAULT_CHART_OF_ACCOUNTS if account.get("type") == account_type and account.get("active", True)]
 
 
 def _parse_iso_date(value: Any) -> date | None:
@@ -3086,6 +3265,136 @@ def _build_chart_data(summary: dict[str, Any]) -> dict[str, float]:
     }
 
 
+def _next_vat_return_due_date(today: date) -> date:
+    """Irish VAT is filed bi-monthly, due the 19th of the month after each period ends
+    (Jan-Feb -> 19 Mar, Mar-Apr -> 19 May, ... Nov-Dec -> 19 Jan). Return whichever
+    fixed due date is soonest on/after `today`."""
+    candidates = []
+    for year in (today.year, today.year + 1):
+        for month in (3, 5, 7, 9, 11):
+            candidates.append(date(year, month, 19))
+        candidates.append(date(year, 1, 19))
+    candidates = sorted(set(candidates))
+    for candidate in candidates:
+        if candidate >= today:
+            return candidate
+    return candidates[-1]
+
+
+def _build_upcoming_actions(
+    data: dict[str, Any],
+    business_structure: str,
+    clients_catalog: list[dict[str, Any]],
+    *,
+    today: date | None = None,
+) -> list[dict[str, Any]]:
+    current_day = today or date.today()
+    actions: list[dict[str, Any]] = []
+    invoices = data.get("sheets", {}).get("Invoices", [])
+
+    overdue = [row for row in invoices if _normalize_invoice_status(row.get("Status")) == "Overdue"]
+    if overdue:
+        total = round(sum(_coerce_number(row.get("Balance Due (€)")) for row in overdue), 2)
+        actions.append({
+            "severity": "danger",
+            "label": f"{len(overdue)} invoice{'s' if len(overdue) != 1 else ''} overdue",
+            "detail": f"{_format_currency(total)} outstanding",
+            "link": "/invoices",
+        })
+
+    due_soon = []
+    for row in invoices:
+        if _normalize_invoice_status(row.get("Status")) != "Issued":
+            continue
+        due_date = _parse_iso_date(row.get("Due Date"))
+        if due_date and current_day <= due_date <= current_day + timedelta(days=14):
+            due_soon.append(row)
+    if due_soon:
+        total = round(sum(_coerce_number(row.get("Balance Due (€)")) for row in due_soon), 2)
+        actions.append({
+            "severity": "warning",
+            "label": f"{len(due_soon)} invoice{'s' if len(due_soon) != 1 else ''} due within 14 days",
+            "detail": f"{_format_currency(total)} expected",
+            "link": "/invoices",
+        })
+
+    vat_due = _next_vat_return_due_date(current_day)
+    actions.append({
+        "severity": "info",
+        "label": "Next VAT return due",
+        "detail": vat_due.strftime("%d %B %Y"),
+        "link": "/ledger",
+    })
+
+    if _normalize_business_structure(business_structure) == "sole_trader":
+        form11_deadline = date(current_day.year, 10, 31)
+        if form11_deadline < current_day:
+            form11_deadline = date(current_day.year + 1, 10, 31)
+        actions.append({
+            "severity": "info",
+            "label": "Form 11 deadline",
+            "detail": form11_deadline.strftime("%d %B %Y"),
+            "link": "/settings",
+        })
+
+    monthly_partners = [client for client in clients_catalog if client.get("tier") == "Clarity Partner" and client.get("retainer_frequency") == "monthly"]
+    if monthly_partners:
+        total = round(sum(_coerce_number(client.get("retainer_amount")) for client in monthly_partners), 2)
+        actions.append({
+            "severity": "info",
+            "label": f"{len(monthly_partners)} Clarity Partner client{'s' if len(monthly_partners) != 1 else ''} billing this month",
+            "detail": f"{_format_currency(total)} expected",
+            "link": "/clients",
+        })
+
+    return actions
+
+
+def _build_monthly_net_trend(data: dict[str, Any], *, today: date | None = None, months: int = 6) -> list[dict[str, Any]]:
+    current_day = today or date.today()
+    period_keys = []
+    year, month = current_day.year, current_day.month
+    for _ in range(months):
+        period_keys.append((year, month))
+        month -= 1
+        if month == 0:
+            month = 12
+            year -= 1
+    period_keys.reverse()
+
+    income_by_period = {key: 0.0 for key in period_keys}
+    expense_by_period = {key: 0.0 for key in period_keys}
+
+    for row in data.get("sheets", {}).get("Income", []):
+        if str(row.get("Status") or "").strip().lower() != "received":
+            continue
+        parsed = _parse_iso_date(row.get("Date"))
+        if not parsed:
+            continue
+        key = (parsed.year, parsed.month)
+        if key in income_by_period:
+            income_by_period[key] += _coerce_number(row.get("Amount (€)"))
+
+    for row in data.get("sheets", {}).get("Expenses", []):
+        parsed = _parse_iso_date(row.get("Date (Registered)"))
+        if not parsed:
+            continue
+        key = (parsed.year, parsed.month)
+        if key in expense_by_period:
+            expense_by_period[key] += _coerce_number(row.get("Total (€)"))
+
+    trend = []
+    for key in period_keys:
+        net = round(income_by_period[key] - expense_by_period[key], 2)
+        trend.append({"label": date(key[0], key[1], 1).strftime("%b"), "net": net})
+
+    max_abs = max([abs(item["net"]) for item in trend] + [1.0])
+    for item in trend:
+        item["height_pct"] = round(min(100, abs(item["net"]) / max_abs * 100), 1)
+        item["positive"] = item["net"] >= 0
+    return trend
+
+
 def _parse_row_number(value: Any) -> int | None:
     try:
         row_number = int(str(value).strip())
@@ -3307,6 +3616,9 @@ def _build_page_context(
         for row in data.get("sheets", {}).get("Clients", [])
         if row.get("Client Name")
     ]
+    active_clients_count = sum(1 for client in clients_catalog if client["tier"] and client["tier"] != "None")
+    upcoming_actions = _build_upcoming_actions(data, structure, clients_catalog)
+    monthly_net_trend = _build_monthly_net_trend(data)
     return {
         "page_title": page_title,
         "summary": summary,
@@ -3343,6 +3655,7 @@ def _build_page_context(
         "archive_summary": archive_summary or {},
         "audit_entries": audit_entries or [],
         "today_iso": date.today().isoformat(),
+        "current_month_label": date.today().strftime("%B %Y"),
         "message": message,
         "sync_message": sync_message,
         "error": error,
@@ -3408,7 +3721,12 @@ def _build_page_context(
         "service_price_types": list(SERVICE_PRICE_TYPES),
         "service_billing_frequencies": list(SERVICE_BILLING_FREQUENCIES),
         "services_catalog_json": json.dumps(active_services).replace("</", "<\\/"),
+        "tax_rules_json": json.dumps(_load_tax_rules()).replace("</", "<\\/"),
         "clients_catalog_json": json.dumps(clients_catalog).replace("</", "<\\/"),
+        "active_clients_count": active_clients_count,
+        "upcoming_actions": upcoming_actions,
+        "backup_status": _load_backup_status(),
+        "monthly_net_trend": monthly_net_trend,
         "client_service_tiers": list(CLIENT_SERVICE_TIERS),
         "client_retainer_frequencies": list(CLIENT_RETAINER_FREQUENCIES),
     }
@@ -3552,6 +3870,91 @@ def index():
             sync_message=_build_sync_message(sync_result),
         ),
     )
+
+
+@app.route("/settings")
+def settings_view():
+    data = load_finance_data()
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Settings",
+            "settings",
+            data,
+            message=request.args.get("message"),
+        ),
+    )
+
+
+def _backup_eligible_files() -> list[Path]:
+    return list(SHEET_JSON_PATHS.values()) + [
+        SUBSCRIPTIONS_PATH,
+        ARCHIVE_PATH,
+        AUDIT_LOG_PATH,
+        BUSINESS_PROFILE_PATH,
+        CHART_OF_ACCOUNTS_PATH,
+        LEDGER_JOURNAL_PATH,
+        CAPITAL_ASSETS_PATH,
+        PAYROLL_PATH,
+        BANK_STATEMENTS_PATH,
+        SERVICES_PATH,
+    ]
+
+
+def _list_available_backups() -> list[dict[str, Any]]:
+    if not BACKUPS_DIR.exists():
+        return []
+    entries = []
+    for date_dir in sorted(BACKUPS_DIR.iterdir(), key=lambda entry: entry.name, reverse=True):
+        if not date_dir.is_dir():
+            continue
+        try:
+            date.fromisoformat(date_dir.name)
+        except ValueError:
+            continue
+        files = sorted(f.name for f in date_dir.iterdir() if f.is_file())
+        if files:
+            entries.append({"date": date_dir.name, "files": files})
+    return entries
+
+
+@app.route("/settings/backups")
+def backups_view():
+    data = load_finance_data()
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Restore Backups",
+            "settings",
+            data,
+            message=request.args.get("message"),
+        ),
+        available_backups=_list_available_backups(),
+    )
+
+
+@app.route("/settings/backups/restore", methods=["POST"])
+def restore_backup():
+    backup_date = str(request.form.get("backup_date") or "").strip()
+    filename = str(request.form.get("filename") or "").strip()
+    destination_by_name = {path.name: path for path in _backup_eligible_files()}
+    if filename not in destination_by_name:
+        return redirect(url_for("backups_view", message="Invalid backup file"))
+    try:
+        date.fromisoformat(backup_date)
+    except ValueError:
+        return redirect(url_for("backups_view", message="Invalid backup date"))
+    source = BACKUPS_DIR / backup_date / filename
+    if not source.exists():
+        return redirect(url_for("backups_view", message="Backup not found"))
+    destination = destination_by_name[filename]
+    try:
+        shutil.copy2(source, destination)
+    except OSError as exc:
+        return redirect(url_for("backups_view", message=f"Restore failed: {exc}"))
+    load_finance_data.cache_clear()
+    _record_audit("restore_backup", "system", {"filename": filename, "backup_date": backup_date})
+    return redirect(url_for("backups_view", message=f"Restored {filename} from {backup_date}"))
 
 
 @app.route("/healthz")
@@ -4310,7 +4713,9 @@ def add_income():
         vat_registered=_is_vat_registered(),
     )
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
+    compliance_flags, flags_acknowledged, flags_acknowledged_at = _process_compliance_flags(request.form)
     validation_errors = _validate_income_payload(payload)
+    validation_errors.update(_apply_compliance_flags_to_payload(payload, compliance_flags, flags_acknowledged, flags_acknowledged_at))
     if validation_errors:
         return _redirect_with_form_errors(
             "income_view",
@@ -4382,7 +4787,9 @@ def update_income():
         vat_registered=_is_vat_registered(),
     )
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
+    compliance_flags, flags_acknowledged, flags_acknowledged_at = _process_compliance_flags(request.form)
     validation_errors = _validate_income_payload(payload)
+    validation_errors.update(_apply_compliance_flags_to_payload(payload, compliance_flags, flags_acknowledged, flags_acknowledged_at))
     if validation_errors:
         return _redirect_with_form_errors(
             "income_view",
@@ -4476,7 +4883,9 @@ def add_expense():
     )
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
     _apply_expense_compliance_fields(payload)
+    compliance_flags, flags_acknowledged, flags_acknowledged_at = _process_compliance_flags(request.form)
     validation_errors = _validate_expense_payload(payload)
+    validation_errors.update(_apply_compliance_flags_to_payload(payload, compliance_flags, flags_acknowledged, flags_acknowledged_at))
     if validation_errors:
         return _redirect_with_form_errors(
             "expenses_view",
@@ -4571,7 +4980,9 @@ def update_expense():
     )
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
     _apply_expense_compliance_fields(payload)
+    compliance_flags, flags_acknowledged, flags_acknowledged_at = _process_compliance_flags(request.form)
     validation_errors = _validate_expense_payload(payload)
+    validation_errors.update(_apply_compliance_flags_to_payload(payload, compliance_flags, flags_acknowledged, flags_acknowledged_at))
     if validation_errors:
         return _redirect_with_form_errors(
             "expenses_view",
@@ -5328,6 +5739,9 @@ _migrate_transaction_sheets_from_workbook()
 _ensure_default_services()
 _migrate_invoice_line_items()
 _migrate_income_invoice_linkage()
+_migrate_chart_of_accounts_categories()
+_migrate_flag_retired_non_deductible_category()
+_prune_old_backups()
 
 
 if __name__ == "__main__":
