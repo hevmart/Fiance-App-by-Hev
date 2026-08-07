@@ -1411,5 +1411,173 @@
         "Country": "Ireland"
       }
     }
+  },
+  {
+    "id": "f9d64b93-2ca7-4a09-8753-87caaef6a079",
+    "timestamp": "2026-08-07T00:35:41",
+    "action": "create",
+    "entity_type": "invoice",
+    "details": {
+      "row_number": 1,
+      "record": {
+        "Invoice #": "HQ-2026-001",
+        "Issue Date": "2026-07-30",
+        "Due Date": "2026-08-05",
+        "Client Name": "TiciLey",
+        "Client VAT Number": "",
+        "Client Address": "",
+        "Service / Product": "Improvements",
+        "Net (\u20ac)": "600.00",
+        "Total (\u20ac)": "600.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Balance Due (\u20ac)": "75",
+        "Status": "Partially Paid",
+        "Payment Method": "Cash",
+        "Payment Date": "2026-08-03",
+        "Bank Reconciliation": "Unreconciled",
+        "Notes": "",
+        "Phase Tag": "Phase 1"
+      }
+    }
+  },
+  {
+    "id": "df072d82-16a8-4c85-ad13-696d4b4ef354",
+    "timestamp": "2026-08-07T00:59:45",
+    "action": "create",
+    "entity_type": "expense",
+    "details": {
+      "row_number": 10,
+      "record": {
+        "Date (Registered)": "2026-08-07",
+        "Title": "Discount Test %",
+        "Description": "",
+        "Supplier / Payee": "",
+        "Supplier VAT Number": "",
+        "Receipt / Invoice Ref": "",
+        "Category": "IT/Tech",
+        "Base Net Amount (\u20ac)": "1000.00",
+        "Delivery (\u20ac)": "0.00",
+        "Fees (\u20ac)": "0.00",
+        "Other Charges (\u20ac)": "0.00",
+        "Discount Type": "%",
+        "Discount Value": "10.00",
+        "Net Amount (\u20ac)": "900.00",
+        "Total (\u20ac)": "900.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Input VAT Reclaimable": "Yes",
+        "Deductibility Status": "Fully Deductible",
+        "Capital Expenditure Flag": "No",
+        "Receipt Attached": "No",
+        "Bank Reconciliation": "Unreconciled",
+        "Status": "Pending",
+        "Payment Method": "Credit Card",
+        "Notes": "",
+        "Phase Tag": "Phase 1",
+        "Discount (\u20ac)": "100.00"
+      }
+    }
+  },
+  {
+    "id": "f35a5741-b25e-4ea1-b11c-4a657131d164",
+    "timestamp": "2026-08-07T01:36:41",
+    "action": "create",
+    "entity_type": "service",
+    "details": {
+      "service_id": "6f37efe7-d754-4ef3-abdf-46c93cf4a6e1",
+      "record": {
+        "id": "6f37efe7-d754-4ef3-abdf-46c93cf4a6e1",
+        "name": "Test Add-on",
+        "tier": "addon",
+        "group": "Data and Reporting Tools",
+        "description": "Test description",
+        "price": "99",
+        "price_type": "fixed",
+        "billing_frequency": "one-off",
+        "quarterly_price": "",
+        "annual_price": "",
+        "status": "active",
+        "website_display_price": true,
+        "website_display_label": "\u20ac99",
+        "date_added": "2026-08-07T01:36:41",
+        "date_updated": "2026-08-07T01:36:41"
+      }
+    }
+  },
+  {
+    "id": "568098b8-c83c-403f-945a-d09a2573c00b",
+    "timestamp": "2026-08-07T01:36:57",
+    "action": "archive",
+    "entity_type": "service",
+    "details": {
+      "service_id": "6f37efe7-d754-4ef3-abdf-46c93cf4a6e1",
+      "record": {
+        "id": "6f37efe7-d754-4ef3-abdf-46c93cf4a6e1",
+        "name": "Test Add-on",
+        "tier": "addon",
+        "group": "Data and Reporting Tools",
+        "description": "Test description",
+        "price": 99.0,
+        "price_type": "fixed",
+        "billing_frequency": "one-off",
+        "quarterly_price": null,
+        "annual_price": null,
+        "status": "archived",
+        "website_display_price": true,
+        "website_display_label": "\u20ac99",
+        "date_added": "2026-08-07T01:36:41",
+        "date_updated": "2026-08-07T01:36:57"
+      }
+    }
+  },
+  {
+    "id": "cadd9a43-427c-46bf-89e2-604807418fa0",
+    "timestamp": "2026-08-07T01:36:57",
+    "action": "restore",
+    "entity_type": "service",
+    "details": {
+      "service_id": "6f37efe7-d754-4ef3-abdf-46c93cf4a6e1",
+      "record": {
+        "id": "6f37efe7-d754-4ef3-abdf-46c93cf4a6e1",
+        "name": "Test Add-on",
+        "tier": "addon",
+        "group": "Data and Reporting Tools",
+        "description": "Test description",
+        "price": 99.0,
+        "price_type": "fixed",
+        "billing_frequency": "one-off",
+        "quarterly_price": null,
+        "annual_price": null,
+        "status": "active",
+        "website_display_price": true,
+        "website_display_label": "\u20ac99",
+        "date_added": "2026-08-07T01:36:41",
+        "date_updated": "2026-08-07T01:36:57"
+      }
+    }
+  },
+  {
+    "id": "c72c4c06-9db2-4c9c-bb7b-c5c2fcdd1dd6",
+    "timestamp": "2026-08-07T01:37:06",
+    "action": "create",
+    "entity_type": "client",
+    "details": {
+      "row_number": 3,
+      "record": {
+        "Client Name": "Test Retainer Client",
+        "Contact Person": "Jane",
+        "Email": "jane@test.com",
+        "Phone": "",
+        "Country": "Ireland",
+        "Service Tier": "Clarity Partner",
+        "Retainer Frequency": "quarterly",
+        "Retainer Amount (\u20ac)": "1800"
+      }
+    }
   }
 ]

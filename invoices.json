@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "Invoice #": "HQ-2026-001",
+    "Issue Date": "2026-07-30",
+    "Due Date": "2026-08-05",
+    "Client Name": "TiciLey",
+    "Client VAT Number": "",
+    "Client Address": "",
+    "Service / Product": "Improvements",
+    "Net (€)": "600.00",
+    "Total (€)": "600.00",
+    "VAT Rate": "0%",
+    "VAT Amount (€)": "0.00",
+    "VAT Treatment": "standard",
+    "Supply Type": "services",
+    "Balance Due (€)": "75",
+    "Status": "Partially Paid",
+    "Payment Method": "Cash",
+    "Payment Date": "2026-08-03",
+    "Bank Reconciliation": "Unreconciled",
+    "Notes": "",
+    "Phase Tag": "Phase 1"
+  }
+]

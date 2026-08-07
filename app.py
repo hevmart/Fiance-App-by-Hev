@@ -13,7 +13,7 @@ from typing import Any
 from urllib.parse import quote
 from uuid import uuid4
 
-from flask import Flask, Response, redirect, render_template, request, url_for
+from flask import Flask, Response, jsonify, redirect, render_template, request, url_for
 from openpyxl import load_workbook
 
 app = Flask(__name__)
@@ -49,6 +49,7 @@ EXPENSES_PATH = BASE_DIR / "expenses.json"
 INVOICES_PATH = BASE_DIR / "invoices.json"
 CLIENTS_PATH = BASE_DIR / "clients.json"
 SUPPLIERS_PATH = BASE_DIR / "suppliers.json"
+SERVICES_PATH = BASE_DIR / "services.json"
 SHEET_JSON_PATHS = {
     "Income": INCOME_PATH,
     "Expenses": EXPENSES_PATH,
@@ -60,9 +61,23 @@ SHEET_JSON_PATHS = {
 if not SUBSCRIPTIONS_PATH.exists():
     SUBSCRIPTIONS_PATH.write_text("[]", encoding="utf-8")
 
+if not SERVICES_PATH.exists():
+    SERVICES_PATH.write_text("[]", encoding="utf-8")
+
 _sheet_write_lock = threading.Lock()
 SUBSCRIPTION_FREQUENCIES = {"monthly": 1, "quarterly": 3, "yearly": 12}
 SUBSCRIPTION_STATUSES = ("active", "paused", "cancelled")
+SERVICE_TIERS = ("core", "addon")
+SERVICE_GROUPS = (
+    "Documentation and Knowledge Assets",
+    "Data and Reporting Tools",
+    "Communication and Strategic Assets",
+)
+SERVICE_PRICE_TYPES = ("fixed", "from", "hourly", "retainer")
+SERVICE_BILLING_FREQUENCIES = ("one-off", "monthly", "quarterly", "annual")
+SERVICE_STATUSES = ("active", "archived")
+CLIENT_SERVICE_TIERS = ("None", "Clarity Base", "Clarity Plus", "Clarity Partner")
+CLIENT_RETAINER_FREQUENCIES = ("monthly", "quarterly", "annual")
 BUSINESS_STRUCTURES = ("sole_trader", "limited_company")
 INCOME_PAYMENT_METHODS = {
     "sole_trader": ["Business Bank Account", "Stripe", "PayPal", "Cash", "Proprietor Capital"],
@@ -363,6 +378,8 @@ SHEET_HEADERS = {
         "Delivery (€)",
         "Fees (€)",
         "Other Charges (€)",
+        "Discount Type",
+        "Discount Value",
         "Discount (€)",
         "Net Amount (€)",
         "VAT Rate",
@@ -385,6 +402,13 @@ SHEET_HEADERS = {
         "Client VAT Number",
         "Client Address",
         "Service / Product",
+        "Base Net Amount (€)",
+        "Delivery (€)",
+        "Fees (€)",
+        "Other Charges (€)",
+        "Discount Type",
+        "Discount Value",
+        "Discount (€)",
         "Net (€)",
         "VAT Rate",
         "VAT Amount (€)",
@@ -399,7 +423,7 @@ SHEET_HEADERS = {
     "AR": ["Client", "Invoice #", "Issue Date", "Due Date", "Total (€)", "Paid (€)", "Balance (€)", "Status"],
     "AP": ["Ref #", "Supplier Name", "Description", "Invoice Date", "Due Date", "Net (€)", "Total (€)", "Paid (€)", "Balance Due (€)", "Status"],
     "VAT": ["Period", "Output VAT — Sales (€)", "Input VAT — Purchases (€)", "Net VAT Due (€)", "VAT Paid (€)", "Balance (€)", "Due Date", "Status"],
-    "Clients": ["Client Name", "Contact Person", "Email", "Phone", "Country"],
+    "Clients": ["Client Name", "Contact Person", "Email", "Phone", "Country", "Service Tier", "Retainer Frequency", "Retainer Amount (€)"],
     "Suppliers": ["Supplier Name", "Contact Person", "Email", "Phone", "Country", "Default VAT Treatment"],
 }
 
@@ -1420,12 +1444,20 @@ def _normalize_vat_fields(payload: dict[str, Any], *, net_key: str, total_key: s
     payload[vat_amount_key] = f"{round(vat_amount, 2):.2f}"
 
 
+def _resolve_discount_amount(payload: dict[str, Any], base_net: float) -> float:
+    discount_type = str(payload.get("Discount Type") or "€").strip()
+    discount_value = _coerce_number(payload.get("Discount Value"))
+    if discount_type == "%":
+        return max(base_net * (discount_value / 100.0), 0.0)
+    return max(discount_value, 0.0)
+
+
 def _apply_expense_amount_breakdown(payload: dict[str, Any]) -> None:
     base_net = _coerce_number(payload.get("Base Net Amount (€)"))
     delivery = _coerce_number(payload.get("Delivery (€)"))
     fees = _coerce_number(payload.get("Fees (€)"))
     other_charges = _coerce_number(payload.get("Other Charges (€)"))
-    discount = _coerce_number(payload.get("Discount (€)"))
+    discount = _resolve_discount_amount(payload, base_net)
 
     subtotal_before_discount = base_net + delivery + fees + other_charges
     taxable_net = max(subtotal_before_discount - discount, 0.0)
@@ -1434,8 +1466,30 @@ def _apply_expense_amount_breakdown(payload: dict[str, Any]) -> None:
     payload["Delivery (€)"] = f"{round(delivery, 2):.2f}"
     payload["Fees (€)"] = f"{round(fees, 2):.2f}"
     payload["Other Charges (€)"] = f"{round(other_charges, 2):.2f}"
+    payload["Discount Type"] = "%" if str(payload.get("Discount Type") or "€").strip() == "%" else "€"
+    payload["Discount Value"] = f"{round(_coerce_number(payload.get('Discount Value')), 2):.2f}"
     payload["Discount (€)"] = f"{round(discount, 2):.2f}"
     payload["Net Amount (€)"] = f"{round(taxable_net, 2):.2f}"
+
+
+def _apply_invoice_amount_breakdown(payload: dict[str, Any]) -> None:
+    base_net = _coerce_number(payload.get("Base Net Amount (€)"))
+    delivery = _coerce_number(payload.get("Delivery (€)"))
+    fees = _coerce_number(payload.get("Fees (€)"))
+    other_charges = _coerce_number(payload.get("Other Charges (€)"))
+    discount = _resolve_discount_amount(payload, base_net)
+
+    subtotal_before_discount = base_net + delivery + fees + other_charges
+    taxable_net = max(subtotal_before_discount - discount, 0.0)
+
+    payload["Base Net Amount (€)"] = f"{round(base_net, 2):.2f}"
+    payload["Delivery (€)"] = f"{round(delivery, 2):.2f}"
+    payload["Fees (€)"] = f"{round(fees, 2):.2f}"
+    payload["Other Charges (€)"] = f"{round(other_charges, 2):.2f}"
+    payload["Discount Type"] = "%" if str(payload.get("Discount Type") or "€").strip() == "%" else "€"
+    payload["Discount Value"] = f"{round(_coerce_number(payload.get('Discount Value')), 2):.2f}"
+    payload["Discount (€)"] = f"{round(discount, 2):.2f}"
+    payload["Net (€)"] = f"{round(taxable_net, 2):.2f}"
 
 
 def _format_currency(value: float) -> str:
@@ -1655,7 +1709,7 @@ def _extract_transaction_amount(entity_type: str, record: dict[str, Any]) -> flo
 def _extract_amount_components(entity_type: str, record: dict[str, Any]) -> dict[str, float]:
     if entity_type == "income":
         net_amount = _coerce_number(record.get("Amount (€)", 0))
-        total_amount = _coerce_number(record.get("Total incl. VAT (€)", net_amount))
+        total_amount = _coerce_number(record.get("Total incl. VAT (€)") or net_amount)
         if total_amount <= 0:
             total_amount = net_amount
         explicit_vat_amount = _coerce_number(record.get("VAT Amount (€)", 0))
@@ -1668,7 +1722,7 @@ def _extract_amount_components(entity_type: str, record: dict[str, Any]) -> dict
 
     if entity_type == "expense":
         net_amount = _coerce_number(record.get("Net Amount (€)", 0))
-        total_amount = _coerce_number(record.get("Total (€)", net_amount))
+        total_amount = _coerce_number(record.get("Total (€)") or net_amount)
         if total_amount <= 0:
             total_amount = net_amount
         explicit_vat_amount = _coerce_number(record.get("VAT Amount (€)", 0))
@@ -1680,7 +1734,7 @@ def _extract_amount_components(entity_type: str, record: dict[str, Any]) -> dict
         }
     if entity_type == "invoice":
         net_amount = _coerce_number(record.get("Net (€)", 0))
-        total_amount = _coerce_number(record.get("Total (€)", net_amount))
+        total_amount = _coerce_number(record.get("Total (€)") or net_amount)
         if total_amount <= 0:
             total_amount = net_amount
         explicit_vat_amount = _coerce_number(record.get("VAT Amount (€)", 0))
@@ -2368,6 +2422,8 @@ def _validate_invoice_payload(payload: dict[str, Any]) -> dict[str, str]:
 def _validate_client_payload(payload: dict[str, Any]) -> dict[str, str]:
     errors: dict[str, str] = {}
     _validate_required_text(payload.get("Client Name"), "client_name", "Client name", errors)
+    if str(payload.get("Service Tier") or "None") == "Clarity Partner":
+        _validate_positive_amount(payload.get("Retainer Amount (€)"), "retainer_amount", "Retainer amount", errors, allow_zero=True)
     return errors
 
 
@@ -2587,7 +2643,133 @@ def _save_subscriptions(subscriptions: list[dict[str, Any]]) -> None:
             }
         )
 
-    SUBSCRIPTIONS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    _save_json_records(SUBSCRIPTIONS_PATH, payload)
+
+
+def _normalize_service(record: dict[str, Any]) -> dict[str, Any]:
+    now = datetime.now().isoformat(timespec="seconds")
+    tier = str(record.get("tier") or "addon").strip().lower()
+    if tier not in SERVICE_TIERS:
+        tier = "addon"
+    price_type = str(record.get("price_type") or "fixed").strip().lower()
+    if price_type not in SERVICE_PRICE_TYPES:
+        price_type = "fixed"
+    billing_frequency = str(record.get("billing_frequency") or "").strip().lower() or None
+    if billing_frequency not in SERVICE_BILLING_FREQUENCIES:
+        billing_frequency = "monthly" if price_type == "retainer" else "one-off"
+    status = str(record.get("status") or "active").strip().lower()
+    if status not in SERVICE_STATUSES:
+        status = "active"
+    group = str(record.get("group") or "").strip() or None
+    if tier == "core":
+        group = None
+    elif group not in SERVICE_GROUPS:
+        group = group or SERVICE_GROUPS[0]
+    quarterly_price = record.get("quarterly_price")
+    annual_price = record.get("annual_price")
+    return {
+        "id": str(record.get("id") or uuid4()),
+        "name": str(record.get("name") or "").strip(),
+        "tier": tier,
+        "group": group,
+        "description": str(record.get("description") or "").strip(),
+        "price": round(_coerce_number(record.get("price")), 2),
+        "price_type": price_type,
+        "billing_frequency": billing_frequency,
+        "quarterly_price": round(_coerce_number(quarterly_price), 2) if quarterly_price not in (None, "") else None,
+        "annual_price": round(_coerce_number(annual_price), 2) if annual_price not in (None, "") else None,
+        "status": status,
+        "website_display_price": bool(record.get("website_display_price", True)),
+        "website_display_label": str(record.get("website_display_label") or "").strip(),
+        "date_added": str(record.get("date_added") or now),
+        "date_updated": str(record.get("date_updated") or now),
+    }
+
+
+def _load_services() -> list[dict[str, Any]]:
+    records = _load_json_records(SERVICES_PATH)
+    services = [_normalize_service(record) for record in records if isinstance(record, dict)]
+    services.sort(key=lambda item: (item.get("tier") != "core", item.get("group") or "", item.get("name") or ""))
+    return services
+
+
+def _save_services(services: list[dict[str, Any]]) -> None:
+    _save_json_records(SERVICES_PATH, [_normalize_service(service) for service in services])
+
+
+def _find_service_by_id(services: list[dict[str, Any]], service_id: Any) -> dict[str, Any] | None:
+    target_id = str(service_id or "").strip()
+    if not target_id:
+        return None
+    for service in services:
+        if str(service.get("id") or "") == target_id:
+            return service
+    return None
+
+
+def _validate_service_payload(payload: dict[str, Any]) -> dict[str, str]:
+    errors: dict[str, str] = {}
+    _validate_required_text(payload.get("name"), "name", "Service name", errors)
+    if str(payload.get("tier")) not in SERVICE_TIERS:
+        errors["tier"] = "Service tier is invalid"
+    if str(payload.get("tier")) == "addon" and not str(payload.get("group") or "").strip():
+        errors["group"] = "Add-on services require a group"
+    _validate_positive_amount(payload.get("price"), "price", "Service price", errors, allow_zero=True)
+    return errors
+
+
+def _ensure_default_services() -> None:
+    if _load_json_records(SERVICES_PATH):
+        return
+
+    now = datetime.now().isoformat(timespec="seconds")
+
+    def _service(
+        name: str,
+        tier: str,
+        price: float,
+        price_type: str,
+        billing_frequency: str,
+        description: str,
+        website_display_label: str,
+        *,
+        group: str | None = None,
+        quarterly_price: float | None = None,
+        annual_price: float | None = None,
+    ) -> dict[str, Any]:
+        return {
+            "id": str(uuid4()),
+            "name": name,
+            "tier": tier,
+            "group": group,
+            "description": description,
+            "price": price,
+            "price_type": price_type,
+            "billing_frequency": billing_frequency,
+            "quarterly_price": quarterly_price,
+            "annual_price": annual_price,
+            "status": "active",
+            "website_display_price": True,
+            "website_display_label": website_display_label,
+            "date_added": now,
+            "date_updated": now,
+        }
+
+    defaults = [
+        _service("Clarity Base", "core", 950.0, "fixed", "one-off", "Foundation process audit, documentation and knowledge mapping", "From €950"),
+        _service("Clarity Plus", "core", 2500.0, "from", "one-off", "Workflow design, digital systems integration and implementation", "Scoped per engagement — from €2,500"),
+        _service("Clarity Partner", "core", 650.0, "retainer", "monthly", "Ongoing advisory retainer with performance monitoring", "From €650/month", quarterly_price=1800.0, annual_price=6500.0),
+        _service("SOP Creation (per procedure)", "addon", 150.0, "fixed", "one-off", "Documented standard operating procedure for a single process", "€150 per procedure", group="Documentation and Knowledge Assets"),
+        _service("Knowledge Base Setup", "addon", 450.0, "fixed", "one-off", "Structured knowledge base configured for the business", "€450", group="Documentation and Knowledge Assets"),
+        _service("Process Manual", "addon", 750.0, "fixed", "one-off", "Full process manual covering end-to-end operations", "€750", group="Documentation and Knowledge Assets"),
+        _service("KPI Dashboard Design", "addon", 550.0, "fixed", "one-off", "Custom KPI dashboard design for performance tracking", "€550", group="Data and Reporting Tools"),
+        _service("Reporting Template Pack", "addon", 350.0, "fixed", "one-off", "Set of reusable reporting templates", "€350", group="Data and Reporting Tools"),
+        _service("Data Audit and Cleanup", "addon", 400.0, "fixed", "one-off", "Audit and cleanup of existing operational data", "€400", group="Data and Reporting Tools"),
+        _service("Process Communication Pack", "addon", 300.0, "fixed", "one-off", "Materials to communicate new processes internally", "€300", group="Communication and Strategic Assets"),
+        _service("Stakeholder Report Template", "addon", 250.0, "fixed", "one-off", "Template for structured stakeholder reporting", "€250", group="Communication and Strategic Assets"),
+        _service("Implementation Roadmap Document", "addon", 350.0, "fixed", "one-off", "Roadmap document outlining implementation phases", "€350", group="Communication and Strategic Assets"),
+    ]
+    _save_json_records(SERVICES_PATH, defaults)
 
 
 def _build_subscription_expense_payload(subscription: dict[str, Any], charge_date: date) -> dict[str, Any]:
@@ -2862,6 +3044,10 @@ def _build_page_context(
     suppliers: list[dict[str, Any]] | None = None,
     subscriptions: list[dict[str, Any]] | None = None,
     payroll: list[dict[str, Any]] | None = None,
+    services: list[dict[str, Any]] | None = None,
+    editing_service: dict[str, Any] | None = None,
+    service_form: dict[str, Any] | None = None,
+    show_archived_services: bool = False,
     subscription_summary: dict[str, Any] | None = None,
     payroll_summary: dict[str, Any] | None = None,
     chart_data: dict[str, float] | None = None,
@@ -2917,6 +3103,18 @@ def _build_page_context(
     reconciliation_summary["statement_line_count"] = len(matched_statement_lines)
     reconciliation_summary["unmatched_statement_count"] = len(unmatched_statement_lines)
     reconciliation_exceptions = [row for row in reconciliation_rows if row.get("exception_reasons")]
+    all_services = services if services is not None else _load_services()
+    active_services = [service for service in all_services if service.get("status") == "active"]
+    clients_catalog = [
+        {
+            "name": row.get("Client Name") or "",
+            "tier": row.get("Service Tier") or "None",
+            "retainer_frequency": row.get("Retainer Frequency") or "",
+            "retainer_amount": _coerce_number(row.get("Retainer Amount (€)")),
+        }
+        for row in data.get("sheets", {}).get("Clients", [])
+        if row.get("Client Name")
+    ]
     return {
         "page_title": page_title,
         "summary": summary,
@@ -3008,6 +3206,18 @@ def _build_page_context(
         },
         "trial_balance": trial_balance,
         "vat_control_summary": vat_control_summary,
+        "services": all_services,
+        "active_services": active_services,
+        "editing_service": editing_service,
+        "service_form": service_form or {},
+        "show_archived_services": show_archived_services,
+        "service_groups": list(SERVICE_GROUPS),
+        "service_price_types": list(SERVICE_PRICE_TYPES),
+        "service_billing_frequencies": list(SERVICE_BILLING_FREQUENCIES),
+        "services_catalog_json": json.dumps(active_services).replace("</", "<\\/"),
+        "clients_catalog_json": json.dumps(clients_catalog).replace("</", "<\\/"),
+        "client_service_tiers": list(CLIENT_SERVICE_TIERS),
+        "client_retainer_frequencies": list(CLIENT_RETAINER_FREQUENCIES),
     }
 
 
@@ -3017,8 +3227,15 @@ def load_finance_data() -> dict[str, Any]:
     for sheet_name in ["Income", "Expenses", "Invoices", "Clients", "Suppliers"]:
         sheets[sheet_name] = _load_sheet_rows_with_row_numbers(sheet_name)
 
+    for row in sheets["Expenses"]:
+        if not row.get("Total (€)"):
+            row["Total (€)"] = round(_coerce_number(row.get("Net Amount (€)", 0)) + _coerce_number(row.get("VAT (€)", 0)) + _coerce_number(row.get("Fees (€)", 0)), 2)
+    for row in sheets["Invoices"]:
+        if not row.get("Total (€)"):
+            row["Total (€)"] = round(_coerce_number(row.get("Net (€)", 0)) + _coerce_number(row.get("VAT (€)", 0)), 2)
+
     income_total = sum(_coerce_number(row.get("Amount (€)", row.get("Total incl. VAT (€)", 0))) for row in sheets["Income"])
-    expense_total = sum(_coerce_number(row.get("Total (€)", row.get("Net Amount (€)", 0))) for row in sheets["Expenses"])
+    expense_total = sum(_coerce_number(row.get("Total (€)")) for row in sheets["Expenses"])
     invoice_balance = sum(_coerce_number(row.get("Balance Due (€)", row.get("Balance (€)", 0))) for row in sheets["Invoices"])
     ap_balance = sum(
         _coerce_number(row.get("Total (€)", 0))
@@ -3105,7 +3322,7 @@ def index():
     subscription_rows = _build_subscription_rows(_load_subscriptions())
     subscription_summary = _summarize_subscriptions(subscription_rows)
     if "error" in data:
-        return render_template("index.html", **_build_page_context("Finance App", "dashboard", {}, error=data["error"], subscriptions=subscription_rows, subscription_summary=subscription_summary, sync_message=_build_sync_message(sync_result)))
+        return render_template("index.html", **_build_page_context("H-Queex Control", "dashboard", {}, error=data["error"], subscriptions=subscription_rows, subscription_summary=subscription_summary, sync_message=_build_sync_message(sync_result)))
 
     summary = data["summary"]
     income = data["sheets"].get("Income", [])[:8]
@@ -3116,7 +3333,7 @@ def index():
     return render_template(
         "index.html",
         **_build_page_context(
-            "Financial Control Centre",
+            "H-Queex Control",
             "dashboard",
             data,
             income=income,
@@ -3167,6 +3384,29 @@ def invoices_view():
     validation_errors, invoice_form = _build_validation_state("invoices")
     editing_invoice = _find_row_by_number(rows, request.args.get("edit_row"))
     return render_template("index.html", **_build_page_context("Invoices", "invoices", data, invoices=rows, editing_invoice=editing_invoice, invoice_form=invoice_form, validation_errors=validation_errors, message=request.args.get("message")))
+
+
+@app.route("/services")
+def services_view():
+    data = load_finance_data()
+    services = _load_services()
+    validation_errors, service_form = _build_validation_state("services")
+    editing_service = _find_service_by_id(services, request.args.get("edit_id"))
+    show_archived_services = request.args.get("show_archived") == "1"
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Services",
+            "services",
+            data,
+            services=services,
+            editing_service=editing_service,
+            service_form=service_form,
+            show_archived_services=show_archived_services,
+            validation_errors=validation_errors,
+            message=request.args.get("message"),
+        ),
+    )
 
 
 @app.route("/clients")
@@ -3961,7 +4201,8 @@ def add_expense():
         "Delivery (€)": request.form.get("delivery_amount", ""),
         "Fees (€)": request.form.get("fees_amount", ""),
         "Other Charges (€)": request.form.get("other_charges_amount", ""),
-        "Discount (€)": request.form.get("discount_amount", ""),
+        "Discount Type": request.form.get("discount_type", "€"),
+        "Discount Value": request.form.get("discount_value", ""),
         "Net Amount (€)": request.form.get("net_amount", ""),
         "Total (€)": request.form.get("total_amount", ""),
         "VAT Rate": request.form.get("vat_rate", "0%"),
@@ -4009,7 +4250,8 @@ def add_expense():
                 "delivery_amount": "Delivery (€)",
                 "fees_amount": "Fees (€)",
                 "other_charges_amount": "Other Charges (€)",
-                "discount_amount": "Discount (€)",
+                "discount_type": "Discount Type",
+                "discount_value": "Discount Value",
                 "net_amount": "Net Amount (€)",
                 "total_amount": "Total (€)",
                 "vat_rate": "VAT Rate",
@@ -4054,7 +4296,8 @@ def update_expense():
         "Delivery (€)": request.form.get("delivery_amount", ""),
         "Fees (€)": request.form.get("fees_amount", ""),
         "Other Charges (€)": request.form.get("other_charges_amount", ""),
-        "Discount (€)": request.form.get("discount_amount", ""),
+        "Discount Type": request.form.get("discount_type", "€"),
+        "Discount Value": request.form.get("discount_value", ""),
         "Net Amount (€)": request.form.get("net_amount", ""),
         "Total (€)": request.form.get("total_amount", ""),
         "VAT Rate": request.form.get("vat_rate", "0%"),
@@ -4102,7 +4345,8 @@ def update_expense():
                 "delivery_amount": "Delivery (€)",
                 "fees_amount": "Fees (€)",
                 "other_charges_amount": "Other Charges (€)",
-                "discount_amount": "Discount (€)",
+                "discount_type": "Discount Type",
+                "discount_value": "Discount Value",
                 "net_amount": "Net Amount (€)",
                 "total_amount": "Total (€)",
                 "vat_rate": "VAT Rate",
@@ -4183,6 +4427,12 @@ def add_invoice():
         "Client VAT Number": request.form.get("client_vat_number", ""),
         "Client Address": request.form.get("client_address", ""),
         "Service / Product": request.form.get("service_product", ""),
+        "Base Net Amount (€)": request.form.get("base_net_amount", request.form.get("net_amount", "")),
+        "Delivery (€)": request.form.get("delivery_amount", ""),
+        "Fees (€)": request.form.get("fees_amount", ""),
+        "Other Charges (€)": request.form.get("other_charges_amount", ""),
+        "Discount Type": request.form.get("discount_type", "€"),
+        "Discount Value": request.form.get("discount_value", ""),
         "Net (€)": request.form.get("net_amount", ""),
         "Total (€)": request.form.get("total_amount", ""),
         "VAT Rate": request.form.get("vat_rate", "0%"),
@@ -4197,6 +4447,11 @@ def add_invoice():
         "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("issue_date", "")),
     }
+    _form_total = payload.get("Total (€)", "")
+    _form_vat = payload.get("VAT Amount (€)", "")
+    _apply_invoice_amount_breakdown(payload)
+    payload["Total (€)"] = _form_total
+    payload["VAT Amount (€)"] = _form_vat
     _normalize_vat_fields(
         payload,
         net_key="Net (€)",
@@ -4219,6 +4474,12 @@ def add_invoice():
                 "client_vat_number": request.form.get("client_vat_number", ""),
                 "client_address": request.form.get("client_address", ""),
                 "service_product": request.form.get("service_product", ""),
+                "base_net_amount": request.form.get("base_net_amount", ""),
+                "delivery_amount": request.form.get("delivery_amount", ""),
+                "fees_amount": request.form.get("fees_amount", ""),
+                "other_charges_amount": request.form.get("other_charges_amount", ""),
+                "discount_type": request.form.get("discount_type", "€"),
+                "discount_value": request.form.get("discount_value", ""),
                 "net_amount": request.form.get("net_amount", ""),
                 "total_amount": request.form.get("total_amount", ""),
                 "vat_rate": request.form.get("vat_rate", "0%"),
@@ -4260,6 +4521,12 @@ def update_invoice():
         "Client VAT Number": request.form.get("client_vat_number", ""),
         "Client Address": request.form.get("client_address", ""),
         "Service / Product": request.form.get("service_product", ""),
+        "Base Net Amount (€)": request.form.get("base_net_amount", request.form.get("net_amount", "")),
+        "Delivery (€)": request.form.get("delivery_amount", ""),
+        "Fees (€)": request.form.get("fees_amount", ""),
+        "Other Charges (€)": request.form.get("other_charges_amount", ""),
+        "Discount Type": request.form.get("discount_type", "€"),
+        "Discount Value": request.form.get("discount_value", ""),
         "Net (€)": request.form.get("net_amount", ""),
         "Total (€)": request.form.get("total_amount", ""),
         "VAT Rate": request.form.get("vat_rate", "0%"),
@@ -4274,6 +4541,11 @@ def update_invoice():
         "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("issue_date", "")),
     }
+    _form_total = payload.get("Total (€)", "")
+    _form_vat = payload.get("VAT Amount (€)", "")
+    _apply_invoice_amount_breakdown(payload)
+    payload["Total (€)"] = _form_total
+    payload["VAT Amount (€)"] = _form_vat
     _normalize_vat_fields(
         payload,
         net_key="Net (€)",
@@ -4296,6 +4568,12 @@ def update_invoice():
                 "client_vat_number": request.form.get("client_vat_number", ""),
                 "client_address": request.form.get("client_address", ""),
                 "service_product": request.form.get("service_product", ""),
+                "base_net_amount": request.form.get("base_net_amount", ""),
+                "delivery_amount": request.form.get("delivery_amount", ""),
+                "fees_amount": request.form.get("fees_amount", ""),
+                "other_charges_amount": request.form.get("other_charges_amount", ""),
+                "discount_type": request.form.get("discount_type", "€"),
+                "discount_value": request.form.get("discount_value", ""),
                 "net_amount": request.form.get("net_amount", ""),
                 "total_amount": request.form.get("total_amount", ""),
                 "vat_rate": request.form.get("vat_rate", "0%"),
@@ -4472,6 +4750,9 @@ def add_client():
         "Email": request.form.get("email", ""),
         "Phone": request.form.get("phone", ""),
         "Country": request.form.get("country", ""),
+        "Service Tier": request.form.get("service_tier", "None"),
+        "Retainer Frequency": request.form.get("retainer_frequency", ""),
+        "Retainer Amount (€)": request.form.get("retainer_amount", ""),
     }
     validation_errors = _validate_client_payload(payload)
     if validation_errors:
@@ -4483,6 +4764,9 @@ def add_client():
                 "email": request.form.get("email", ""),
                 "phone": request.form.get("phone", ""),
                 "country": request.form.get("country", ""),
+                "service_tier": request.form.get("service_tier", "None"),
+                "retainer_frequency": request.form.get("retainer_frequency", ""),
+                "retainer_amount": request.form.get("retainer_amount", ""),
             },
             validation_errors,
             validation_tab="clients",
@@ -4505,6 +4789,9 @@ def update_client():
         "Email": request.form.get("email", ""),
         "Phone": request.form.get("phone", ""),
         "Country": request.form.get("country", ""),
+        "Service Tier": request.form.get("service_tier", "None"),
+        "Retainer Frequency": request.form.get("retainer_frequency", ""),
+        "Retainer Amount (€)": request.form.get("retainer_amount", ""),
     }
     validation_errors = _validate_client_payload(payload)
     if validation_errors:
@@ -4516,6 +4803,9 @@ def update_client():
                 "email": request.form.get("email", ""),
                 "phone": request.form.get("phone", ""),
                 "country": request.form.get("country", ""),
+                "service_tier": request.form.get("service_tier", "None"),
+                "retainer_frequency": request.form.get("retainer_frequency", ""),
+                "retainer_amount": request.form.get("retainer_amount", ""),
             },
             validation_errors,
             validation_tab="clients",
@@ -4538,6 +4828,150 @@ def delete_client():
     _delete_row_from_sheet("Clients", row_number)
     load_finance_data.cache_clear()
     return redirect(url_for("clients_view", message="Client archived"))
+
+
+def _service_form_fields(form_source) -> dict[str, str]:
+    return {
+        "name": form_source.get("name", ""),
+        "tier": form_source.get("tier", "addon"),
+        "group": form_source.get("group", ""),
+        "description": form_source.get("description", ""),
+        "price": form_source.get("price", ""),
+        "price_type": form_source.get("price_type", "fixed"),
+        "billing_frequency": form_source.get("billing_frequency", ""),
+        "quarterly_price": form_source.get("quarterly_price", ""),
+        "annual_price": form_source.get("annual_price", ""),
+        "status": form_source.get("status", "active"),
+        "website_display_price": form_source.get("website_display_price", ""),
+        "website_display_label": form_source.get("website_display_label", ""),
+    }
+
+
+@app.route("/services/add", methods=["POST"])
+def add_service():
+    now = datetime.now().isoformat(timespec="seconds")
+    payload = {
+        "id": str(uuid4()),
+        "name": request.form.get("name", ""),
+        "tier": request.form.get("tier", "addon"),
+        "group": request.form.get("group", ""),
+        "description": request.form.get("description", ""),
+        "price": request.form.get("price", "0"),
+        "price_type": request.form.get("price_type", "fixed"),
+        "billing_frequency": request.form.get("billing_frequency", ""),
+        "quarterly_price": request.form.get("quarterly_price", ""),
+        "annual_price": request.form.get("annual_price", ""),
+        "status": request.form.get("status", "active"),
+        "website_display_price": request.form.get("website_display_price") == "on",
+        "website_display_label": request.form.get("website_display_label", ""),
+        "date_added": now,
+        "date_updated": now,
+    }
+    validation_errors = _validate_service_payload(payload)
+    if validation_errors:
+        return _redirect_with_form_errors(
+            "services_view",
+            _service_form_fields(request.form),
+            validation_errors,
+            validation_tab="services",
+        )
+    services = _load_services()
+    services.append(payload)
+    _save_services(services)
+    _record_audit("create", "service", {"service_id": payload["id"], "record": payload})
+    return redirect(url_for("services_view", message="Service added"))
+
+
+@app.route("/services/update", methods=["POST"])
+def update_service():
+    service_id = str(request.form.get("service_id") or "").strip()
+    services = _load_services()
+    existing = _find_service_by_id(services, service_id)
+    if existing is None:
+        return redirect(url_for("services_view", message="Service could not be updated"))
+
+    payload = {
+        "id": existing.get("id"),
+        "name": request.form.get("name", existing.get("name", "")),
+        "tier": request.form.get("tier", existing.get("tier", "addon")),
+        "group": request.form.get("group", existing.get("group") or ""),
+        "description": request.form.get("description", existing.get("description", "")),
+        "price": request.form.get("price", existing.get("price", "0")),
+        "price_type": request.form.get("price_type", existing.get("price_type", "fixed")),
+        "billing_frequency": request.form.get("billing_frequency", existing.get("billing_frequency") or ""),
+        "quarterly_price": request.form.get("quarterly_price", existing.get("quarterly_price") or ""),
+        "annual_price": request.form.get("annual_price", existing.get("annual_price") or ""),
+        "status": request.form.get("status", existing.get("status", "active")),
+        "website_display_price": request.form.get("website_display_price") == "on",
+        "website_display_label": request.form.get("website_display_label", existing.get("website_display_label", "")),
+        "date_added": existing.get("date_added"),
+        "date_updated": datetime.now().isoformat(timespec="seconds"),
+    }
+    validation_errors = _validate_service_payload(payload)
+    if validation_errors:
+        return _redirect_with_form_errors(
+            "services_view",
+            _service_form_fields(request.form),
+            validation_errors,
+            validation_tab="services",
+            edit_id=service_id,
+        )
+    existing.update(payload)
+    _save_services(services)
+    _record_audit("update", "service", {"service_id": service_id, "record": existing})
+    return redirect(url_for("services_view", message="Service updated"))
+
+
+@app.route("/services/archive", methods=["POST"])
+def archive_service():
+    service_id = str(request.form.get("service_id") or "").strip()
+    services = _load_services()
+    existing = _find_service_by_id(services, service_id)
+    if existing is None:
+        return redirect(url_for("services_view", message="Service not found"))
+    existing["status"] = "archived"
+    existing["date_updated"] = datetime.now().isoformat(timespec="seconds")
+    _save_services(services)
+    _record_audit("archive", "service", {"service_id": service_id, "record": existing})
+    return redirect(url_for("services_view", message="Service archived", show_archived="1"))
+
+
+@app.route("/services/restore", methods=["POST"])
+def restore_service():
+    service_id = str(request.form.get("service_id") or "").strip()
+    services = _load_services()
+    existing = _find_service_by_id(services, service_id)
+    if existing is None:
+        return redirect(url_for("services_view", message="Service not found"))
+    existing["status"] = "active"
+    existing["date_updated"] = datetime.now().isoformat(timespec="seconds")
+    _save_services(services)
+    _record_audit("restore", "service", {"service_id": service_id, "record": existing})
+    return redirect(url_for("services_view", message="Service restored", show_archived="1"))
+
+
+@app.route("/api/services")
+def api_services():
+    services = _load_services()
+    payload = [
+        {
+            "id": service["id"],
+            "name": service["name"],
+            "tier": service["tier"],
+            "group": service["group"],
+            "description": service["description"],
+            "price": service["price"],
+            "price_type": service["price_type"],
+            "billing_frequency": service["billing_frequency"],
+            "website_display_price": service["website_display_price"],
+            "website_display_label": service["website_display_label"],
+        }
+        for service in services
+        if service["status"] == "active"
+    ]
+    response = jsonify(payload)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    return response
 
 
 @app.route("/suppliers/add", methods=["POST"])
@@ -4663,6 +5097,7 @@ def export_xlsm():
 
 
 _migrate_transaction_sheets_from_workbook()
+_ensure_default_services()
 
 
 if __name__ == "__main__":

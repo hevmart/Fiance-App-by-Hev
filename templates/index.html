@@ -179,6 +179,39 @@
         background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
       }
       .field input[type="number"] { font-variant-numeric: tabular-nums; }
+      .field input[readonly] { background: var(--brand-bg-deep); color: var(--brand-dark-grey); cursor: not-allowed; }
+      .field.field-total input[readonly] { color: var(--brand-gold); font-weight: 700; font-size: 16px; background: var(--brand-bg-light); border: 1px solid var(--brand-gold); }
+      .discount-input-group { display: flex; gap: 6px; align-items: center; }
+      .discount-input-group input { min-height: 44px; }
+      .discount-input-group .discount-type-select { flex: 0 0 62px; min-height: 44px; padding: 8px 22px 8px 8px; background-position: calc(100% - 12px) calc(50% - 2px), calc(100% - 8px) calc(50% - 2px); }
+      .discount-input-group .discount-computed { flex: 1 1 90px; min-width: 0; background: var(--brand-bg-deep); color: var(--brand-dark-grey); cursor: not-allowed; font-size: 13px; }
+      .tier-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+      .tier-card { background: var(--brand-navy); color: var(--brand-white); border-radius: 12px; padding: 22px 20px; border-top: 3px solid var(--brand-gold); display: flex; flex-direction: column; }
+      .tier-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; font-family: 'Segoe UI', sans-serif; }
+      .tier-card-description { margin: 0 0 14px; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.85); flex-grow: 1; }
+      .tier-card-price { font-size: 26px; font-weight: 700; color: var(--brand-gold); font-family: 'Segoe UI', sans-serif; }
+      .tier-card-price-unit { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75); }
+      .tier-card-billing-options { margin-top: 10px; font-size: 12px; color: rgba(255,255,255,0.8); display: flex; flex-direction: column; gap: 3px; }
+      .tier-card-label { margin-top: 12px; font-size: 12px; color: var(--brand-steel); font-weight: 600; }
+      .tier-card .table-actions button { background: transparent; border: 1px solid var(--brand-gold); border-bottom: 1px solid var(--brand-gold); color: var(--brand-gold); }
+      .tier-card .table-actions button:hover { background: var(--brand-gold); color: var(--brand-navy); }
+      .calc-block { border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold); border-radius: 8px; padding: 14px 16px; background: var(--brand-bg-light); }
+      .calc-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+      .calc-block-header h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--brand-navy); text-transform: uppercase; letter-spacing: 0.06em; }
+      .calc-toggle-btn { padding: 8px 12px; font-size: 12px; }
+      .calc-extra-charges { display: contents; }
+      .calc-summary { margin-top: 12px; padding: 12px 16px; background: var(--brand-navy); color: var(--brand-white); border-radius: 8px; font-weight: 600; font-family: 'Segoe UI', sans-serif; }
+      .calc-summary-value { font-variant-numeric: tabular-nums; font-weight: 700; }
+      .calc-summary-total { color: var(--brand-gold); }
+      .info-trigger { position: relative; cursor: help; border-bottom: 1px dotted var(--brand-steel); }
+      .info-trigger .popover {
+        display: none; position: absolute; z-index: 30; top: 100%; left: 0; margin-top: 6px; min-width: 200px;
+        background: var(--brand-navy); color: var(--brand-white); border-radius: 8px; padding: 10px 12px;
+        box-shadow: 0 8px 20px rgba(22, 41, 74, 0.35); font-size: 12px; font-weight: 500;
+      }
+      .info-trigger:hover .popover, .info-trigger:focus .popover { display: block; }
+      .popover-row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+      .popover-total { border-top: 1px solid rgba(255,255,255,0.25); margin-top: 4px; padding-top: 6px; font-weight: 700; color: var(--brand-gold); }
       .form-actions { display: flex; justify-content: flex-start; }
       .form-actions button, .btn-primary {
         border: 0; border-bottom: 2px solid var(--brand-gold); border-radius: 8px; background: var(--brand-navy); color: var(--brand-white); padding: 12px 18px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif;
@@ -271,6 +304,7 @@
         <a href="/subscriptions" class="{% if active_tab == 'subscriptions' %}active{% endif %}">Subscriptions</a>
         <a href="/payroll" class="{% if active_tab == 'payroll' %}active{% endif %}">Payroll</a>
         <a href="/invoices" class="{% if active_tab == 'invoices' %}active{% endif %}">Invoices</a>
+        <a href="/services" class="{% if active_tab == 'services' %}active{% endif %}">Services</a>
         <a href="/clients" class="{% if active_tab == 'clients' %}active{% endif %}">Clients</a>
         <a href="/suppliers" class="{% if active_tab == 'suppliers' %}active{% endif %}">Suppliers</a>
         <a href="/ledger" class="{% if active_tab == 'ledger' %}active{% endif %}">Ledger</a>
@@ -648,9 +682,21 @@
             <div class="field optional {% if validation_errors.get('delivery_amount') %}has-error{% endif %}"><label for="expense_delivery">Delivery</label><input id="expense_delivery" type="number" step="0.01" name="delivery_amount" value="{{ expense_form.get('delivery_amount') if expense_form else (editing_expense.get('Delivery (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('delivery_amount') %}<span class="field-error">{{ validation_errors.get('delivery_amount') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('fees_amount') %}has-error{% endif %}"><label for="expense_fees">Fees</label><input id="expense_fees" type="number" step="0.01" name="fees_amount" value="{{ expense_form.get('fees_amount') if expense_form else (editing_expense.get('Fees (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('fees_amount') %}<span class="field-error">{{ validation_errors.get('fees_amount') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('other_charges_amount') %}has-error{% endif %}"><label for="expense_other_charges">Other charges</label><input id="expense_other_charges" type="number" step="0.01" name="other_charges_amount" value="{{ expense_form.get('other_charges_amount') if expense_form else (editing_expense.get('Other Charges (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('other_charges_amount') %}<span class="field-error">{{ validation_errors.get('other_charges_amount') }}</span>{% endif %}</div>
-            <div class="field optional {% if validation_errors.get('discount_amount') %}has-error{% endif %}"><label for="expense_discount">Discount</label><input id="expense_discount" type="number" step="0.01" name="discount_amount" value="{{ expense_form.get('discount_amount') if expense_form else (editing_expense.get('Discount (€)') if editing_expense else '') }}" placeholder="0.00">{% if validation_errors.get('discount_amount') %}<span class="field-error">{{ validation_errors.get('discount_amount') }}</span>{% endif %}</div>
+            {% set expense_discount_type_value = expense_form.get('discount_type') if expense_form else (editing_expense.get('Discount Type') if editing_expense else '€') %}
+            <div class="field optional discount-field {% if validation_errors.get('discount_amount') %}has-error{% endif %}">
+              <label for="expense_discount_value">Discount</label>
+              <div class="discount-input-group">
+                <input id="expense_discount_value" type="number" step="0.01" name="discount_value" value="{{ expense_form.get('discount_value') if expense_form else (editing_expense.get('Discount Value') if editing_expense else '') }}" placeholder="0.00">
+                <select id="expense_discount_type" name="discount_type" class="discount-type-select">
+                  <option value="€" {% if expense_discount_type_value != '%' %}selected{% endif %}>€</option>
+                  <option value="%" {% if expense_discount_type_value == '%' %}selected{% endif %}>%</option>
+                </select>
+                <input id="expense_discount" type="text" readonly class="discount-computed" value="{{ editing_expense.get('Discount (€)') if editing_expense else '' }}" placeholder="€0.00">
+              </div>
+              {% if validation_errors.get('discount_amount') %}<span class="field-error">{{ validation_errors.get('discount_amount') }}</span>{% endif %}
+            </div>
             <div class="field required {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="expense_net">Taxable net (calculated)</label><input id="expense_net" type="number" step="0.01" name="net_amount" value="{{ expense_form.get('net_amount') if expense_form else (editing_expense.get('Net Amount (€)') if editing_expense else '') }}" placeholder="Taxable net" readonly>{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
-            <div class="field optional {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="expense_total">Total amount (calculated)</label><input id="expense_total" type="number" step="0.01" name="total_amount" value="{{ expense_form.get('total_amount') if expense_form else (editing_expense.get('Total (€)') if editing_expense else '') }}" placeholder="Total amount" readonly>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
+            <div class="field optional field-total {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="expense_total">Total amount (calculated)</label><input id="expense_total" type="number" step="0.01" name="total_amount" value="{{ expense_form.get('total_amount') if expense_form else (editing_expense.get('Total (€)') if editing_expense else '') }}" placeholder="Total amount" readonly>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
             {% if vat_registered %}
             <div class="field optional"><label for="expense_vat_rate">VAT rate</label><select id="expense_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('vat_rate') == option) or (not expense_form and editing_expense and editing_expense.get('VAT Rate') == option) or (not expense_form and not editing_expense and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field optional"><label for="expense_vat_amount">VAT amount (calculated)</label><input id="expense_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ expense_form.get('vat_amount') if expense_form else (editing_expense.get('VAT Amount (€)') if editing_expense else '') }}" placeholder="VAT amount" readonly></div>
@@ -667,6 +713,7 @@
             <div class="field required"><label for="expense_payment_method">Payment method</label><select id="expense_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in expense_payment_methods %}<option value="{{ option }}" {% if (expense_form and expense_form.get('payment_method') == option) or (not expense_form and editing_expense and editing_expense.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field optional" style="grid-column: 1 / -1;"><label for="expense_notes">Notes</label><input id="expense_notes" type="text" name="notes" value="{{ expense_form.get('notes') if expense_form else (editing_expense.get('Notes') if editing_expense else '') }}" placeholder="Compliance or audit notes"></div>
           </div>
+          <div class="calc-summary" id="expense_calc_summary">Net <span class="calc-summary-value" id="expense_summary_net">€0.00</span> + VAT <span class="calc-summary-value" id="expense_summary_vat">€0.00</span> = Total <span class="calc-summary-value calc-summary-total" id="expense_summary_total">€0.00</span></div>
           <div class="form-actions"><button type="submit">{% if editing_expense %}Update expense{% else %}Save expense{% endif %}</button></div>
         </form>
       </div>
@@ -680,7 +727,18 @@
             <td>{{ row.get('Date (Registered)') or '' }}</td>
             <td>{{ row.get('Supplier / Payee') or '' }}</td>
             <td>{{ row.get('Description') or '' }}</td>
-            <td>{{ format_currency(row.get('Total (€)', 0) or 0) }}</td>
+            <td>
+              <span class="info-trigger" tabindex="0">{{ format_currency(row.get('Total (€)', 0) or 0) }}
+                <div class="popover">
+                  <div class="popover-row"><span>Net</span><span>{{ format_currency(row.get('Base Net Amount (€)', row.get('Net Amount (€)', 0)) or 0) }}</span></div>
+                  <div class="popover-row"><span>Discount</span><span>-{{ format_currency(row.get('Discount (€)', 0) or 0) }}</span></div>
+                  <div class="popover-row"><span>Subtotal</span><span>{{ format_currency(row.get('Net Amount (€)', 0) or 0) }}</span></div>
+                  <div class="popover-row"><span>VAT rate</span><span>{{ row.get('VAT Rate') or '0%' }}</span></div>
+                  <div class="popover-row"><span>VAT amount</span><span>{{ format_currency(row.get('VAT Amount (€)', 0) or 0) }}</span></div>
+                  <div class="popover-row popover-total"><span>Total</span><span>{{ format_currency(row.get('Total (€)', 0) or 0) }}</span></div>
+                </div>
+              </span>
+            </td>
             {% set expense_status_label = row.get('Status') or '' %}
             {% set expense_status_key = (expense_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
             <td><span class="status-pill {% if expense_status_key in ['pending', 'approved', 'paid', 'auto-posted', 'cancelled'] %}{{ expense_status_key }}{% else %}legacy{% endif %}">{{ expense_status_label or 'Pending' }}</span></td>
@@ -905,15 +963,46 @@
             <div class="field required {% if validation_errors.get('client_name') %}has-error{% endif %}"><label for="invoice_client_name">Client</label><select id="invoice_client_name" name="client_name"><option value="">Select client</option>{% for option in client_names %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('client_name') == option) or (not invoice_form and editing_invoice and editing_invoice.get('Client Name') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('client_name') %}<span class="field-error">{{ validation_errors.get('client_name') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('client_vat_number') %}has-error{% endif %}"><label for="invoice_client_vat_number">Client VAT number</label><input id="invoice_client_vat_number" type="text" name="client_vat_number" value="{{ invoice_form.get('client_vat_number') if invoice_form else (editing_invoice.get('Client VAT Number') if editing_invoice else '') }}" placeholder="IE1234567A">{% if validation_errors.get('client_vat_number') %}<span class="field-error">{{ validation_errors.get('client_vat_number') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('client_address') %}has-error{% endif %}"><label for="invoice_client_address">Client address</label><input id="invoice_client_address" type="text" name="client_address" value="{{ invoice_form.get('client_address') if invoice_form else (editing_invoice.get('Client Address') if editing_invoice else '') }}" placeholder="Client legal address">{% if validation_errors.get('client_address') %}<span class="field-error">{{ validation_errors.get('client_address') }}</span>{% endif %}</div>
+            <div class="field optional"><label for="invoice_service_catalog">Service catalog</label><select id="invoice_service_catalog"><option value="">Select from catalogue…</option>{% for service in active_services %}<option value="{{ service.id }}">{{ service.name }} — {{ format_currency(service.price) }}{% if service.price_type == 'retainer' %}/mo{% endif %}</option>{% endfor %}</select></div>
             <div class="field required"><label for="invoice_service_product">Service / product</label><input id="invoice_service_product" type="text" name="service_product" value="{{ invoice_form.get('service_product') if invoice_form else (editing_invoice.get('Service / Product') if editing_invoice else '') }}" placeholder="Service or product"></div>
-            <div class="field required {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="invoice_net_amount">Net amount</label><input id="invoice_net_amount" type="number" step="0.01" name="net_amount" value="{{ invoice_form.get('net_amount') if invoice_form else (editing_invoice.get('Net (€)') if editing_invoice else '') }}" placeholder="0.00">{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
-            <div class="field optional {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="invoice_total_amount">Total amount</label><input id="invoice_total_amount" type="number" step="0.01" name="total_amount" value="{{ invoice_form.get('total_amount') if invoice_form else (editing_invoice.get('Total (€)') if editing_invoice else '') }}" placeholder="0.00">{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
-            {% if vat_registered %}
-            <div class="field optional"><label for="invoice_vat_rate">VAT rate</label><select id="invoice_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('vat_rate') == option) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Rate') == option) or (not invoice_form and not editing_invoice and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
-            <div class="field optional"><label for="invoice_vat_amount">VAT amount</label><input id="invoice_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ invoice_form.get('vat_amount') if invoice_form else (editing_invoice.get('VAT Amount (€)') if editing_invoice else '') }}" placeholder="VAT amount"></div>
-            <div class="field optional"><label for="invoice_vat_treatment">VAT treatment</label><select id="invoice_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('vat_treatment') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Treatment') == option.value) or (not invoice_form and not editing_invoice and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
-            <div class="field optional"><label for="invoice_supply_type">Supply type</label><select id="invoice_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('supply_type') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('Supply Type') == option.value) or (not invoice_form and not editing_invoice and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
-            {% endif %}
+          </div>
+          <div class="calc-block">
+            <div class="calc-block-header">
+              <h3>Invoice total</h3>
+              <button type="button" id="invoice_charges_toggle" class="btn-secondary calc-toggle-btn">+ Add charges</button>
+            </div>
+            <div class="form-grid">
+              <div class="field required {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="invoice_base_net">Net amount</label><input id="invoice_base_net" type="number" step="0.01" name="base_net_amount" value="{{ invoice_form.get('base_net_amount') if invoice_form else (editing_invoice.get('Base Net Amount (€)') if editing_invoice and editing_invoice.get('Base Net Amount (€)') else (editing_invoice.get('Net (€)') if editing_invoice else '')) }}" placeholder="0.00">{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
+              {% set invoice_discount_type_value = invoice_form.get('discount_type') if invoice_form else (editing_invoice.get('Discount Type') if editing_invoice else '€') %}
+              <div class="field optional discount-field {% if validation_errors.get('discount_amount') %}has-error{% endif %}">
+                <label for="invoice_discount_value">Discount</label>
+                <div class="discount-input-group">
+                  <input id="invoice_discount_value" type="number" step="0.01" name="discount_value" value="{{ invoice_form.get('discount_value') if invoice_form else (editing_invoice.get('Discount Value') if editing_invoice else '') }}" placeholder="0.00">
+                  <select id="invoice_discount_type" name="discount_type" class="discount-type-select">
+                    <option value="€" {% if invoice_discount_type_value != '%' %}selected{% endif %}>€</option>
+                    <option value="%" {% if invoice_discount_type_value == '%' %}selected{% endif %}>%</option>
+                  </select>
+                  <input id="invoice_discount" type="text" readonly class="discount-computed" value="{{ editing_invoice.get('Discount (€)') if editing_invoice else '' }}" placeholder="€0.00">
+                </div>
+                {% if validation_errors.get('discount_amount') %}<span class="field-error">{{ validation_errors.get('discount_amount') }}</span>{% endif %}
+              </div>
+              <div id="invoice_charges_section" class="calc-extra-charges" style="display:none;">
+                <div class="field optional"><label for="invoice_delivery">Delivery</label><input id="invoice_delivery" type="number" step="0.01" name="delivery_amount" value="{{ invoice_form.get('delivery_amount') if invoice_form else (editing_invoice.get('Delivery (€)') if editing_invoice else '') }}" placeholder="0.00"></div>
+                <div class="field optional"><label for="invoice_fees">Fees</label><input id="invoice_fees" type="number" step="0.01" name="fees_amount" value="{{ invoice_form.get('fees_amount') if invoice_form else (editing_invoice.get('Fees (€)') if editing_invoice else '') }}" placeholder="0.00"></div>
+                <div class="field optional"><label for="invoice_other_charges">Other charges</label><input id="invoice_other_charges" type="number" step="0.01" name="other_charges_amount" value="{{ invoice_form.get('other_charges_amount') if invoice_form else (editing_invoice.get('Other Charges (€)') if editing_invoice else '') }}" placeholder="0.00"></div>
+              </div>
+              <div class="field optional"><label for="invoice_subtotal">Subtotal (calculated)</label><input id="invoice_subtotal" type="number" step="0.01" readonly placeholder="0.00"></div>
+              {% if vat_registered %}
+              <div class="field optional"><label for="invoice_vat_rate">VAT rate</label><select id="invoice_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('vat_rate') == option) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Rate') == option) or (not invoice_form and not editing_invoice and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+              <div class="field optional"><label for="invoice_vat_amount">VAT amount (calculated)</label><input id="invoice_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ invoice_form.get('vat_amount') if invoice_form else (editing_invoice.get('VAT Amount (€)') if editing_invoice else '') }}" placeholder="VAT amount" readonly></div>
+              <div class="field optional"><label for="invoice_vat_treatment">VAT treatment</label><select id="invoice_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('vat_treatment') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Treatment') == option.value) or (not invoice_form and not editing_invoice and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+              <div class="field optional"><label for="invoice_supply_type">Supply type</label><select id="invoice_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('supply_type') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('Supply Type') == option.value) or (not invoice_form and not editing_invoice and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+              {% endif %}
+              <div class="field required field-total {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="invoice_total_amount">Total incl. VAT (calculated)</label><input id="invoice_total_amount" type="number" step="0.01" name="total_amount" value="{{ invoice_form.get('total_amount') if invoice_form else (editing_invoice.get('Total (€)') if editing_invoice else '') }}" placeholder="0.00" readonly>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
+            </div>
+            <div class="calc-summary" id="invoice_calc_summary">Net <span class="calc-summary-value" id="invoice_summary_net">€0.00</span> + VAT <span class="calc-summary-value" id="invoice_summary_vat">€0.00</span> = Total <span class="calc-summary-value calc-summary-total" id="invoice_summary_total">€0.00</span></div>
+          </div>
+          <div class="form-grid">
             <div class="field optional {% if validation_errors.get('balance_due') %}has-error{% endif %}"><label for="invoice_balance_due">Balance due</label><input id="invoice_balance_due" type="number" step="0.01" name="balance_due" value="{{ invoice_form.get('balance_due') if invoice_form else (editing_invoice.get('Balance Due (€)') if editing_invoice else '') }}" placeholder="0.00">{% if validation_errors.get('balance_due') %}<span class="field-error">{{ validation_errors.get('balance_due') }}</span>{% endif %}</div>
             <div class="field optional"><label for="invoice_status">Status</label><select id="invoice_status" name="status">{% for option in invoice_status_options %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('status') == option) or (not invoice_form and editing_invoice and editing_invoice.get('Status') == option) or (not invoice_form and not editing_invoice and option == 'Draft') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field optional {% if validation_errors.get('payment_method') %}has-error{% endif %}"><label for="invoice_payment_method">Payment method</label><select id="invoice_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in expense_payment_methods %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('payment_method') == option) or (not invoice_form and editing_invoice and editing_invoice.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('payment_method') %}<span class="field-error">{{ validation_errors.get('payment_method') }}</span>{% endif %}</div>
@@ -933,7 +1022,18 @@
           <tr>
             <td>{{ row.get('Invoice #') or '' }}</td>
             <td>{{ row.get('Client Name') or '' }}</td>
-            <td>{{ format_currency(row.get('Total (€)', 0) or 0) }}</td>
+            <td>
+              <span class="info-trigger" tabindex="0">{{ format_currency(row.get('Total (€)', 0) or 0) }}
+                <div class="popover">
+                  <div class="popover-row"><span>Net</span><span>{{ format_currency(row.get('Base Net Amount (€)', row.get('Net (€)', 0)) or 0) }}</span></div>
+                  <div class="popover-row"><span>Discount</span><span>-{{ format_currency(row.get('Discount (€)', 0) or 0) }}</span></div>
+                  <div class="popover-row"><span>Subtotal</span><span>{{ format_currency(row.get('Net (€)', 0) or 0) }}</span></div>
+                  <div class="popover-row"><span>VAT rate</span><span>{{ row.get('VAT Rate') or '0%' }}</span></div>
+                  <div class="popover-row"><span>VAT amount</span><span>{{ format_currency(row.get('VAT Amount (€)', 0) or 0) }}</span></div>
+                  <div class="popover-row popover-total"><span>Total</span><span>{{ format_currency(row.get('Total (€)', 0) or 0) }}</span></div>
+                </div>
+              </span>
+            </td>
             <td>{{ format_currency(row.get('Balance Due (€)', 0) or 0) }}</td>
             {% set invoice_status_label = row.get('Status') or '' %}
             {% set invoice_status_key = (invoice_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
@@ -952,6 +1052,166 @@
         </table>
       </div>
       {% endif %}
+      {% endif %}
+
+      {% if active_tab == 'services' %}
+      <div class="section">
+        <h2>Core service tiers</h2>
+        <div class="tier-card-grid">
+          {% for service in services if service.tier == 'core' and service.status == 'active' %}
+          <div class="tier-card">
+            <h3>{{ service.name }}</h3>
+            <p class="tier-card-description">{{ service.description }}</p>
+            <div class="tier-card-price">
+              {% if service.price_type == 'retainer' %}€{{ '%.0f'|format(service.price) }}<span class="tier-card-price-unit">/month</span>
+              {% elif service.price_type == 'from' %}From €{{ '%.0f'|format(service.price) }}
+              {% else %}€{{ '%.0f'|format(service.price) }}
+              {% endif %}
+            </div>
+            {% if service.price_type == 'retainer' %}
+            <div class="tier-card-billing-options">
+              <div>Monthly — €{{ '%.0f'|format(service.price) }}</div>
+              {% if service.quarterly_price %}<div>Quarterly — €{{ '%.0f'|format(service.quarterly_price) }}</div>{% endif %}
+              {% if service.annual_price %}<div>Annual — €{{ '%.0f'|format(service.annual_price) }}</div>{% endif %}
+            </div>
+            {% endif %}
+            <div class="tier-card-label">Website: {{ service.website_display_label or '—' }}</div>
+            <div class="table-action-stack" style="margin-top:14px;">
+              <a href="/services?edit_id={{ service.id }}" class="edit-link">Edit</a>
+              <form method="post" action="/services/archive" class="table-actions" onsubmit="return confirm('Archive this service?');">
+                <input type="hidden" name="service_id" value="{{ service.id }}">
+                <button type="submit">Archive</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_service %}Edit service{% else %}Add service{% endif %}</h2>
+          {% if editing_service %}<a href="/services" class="cancel-link">Cancel edit</a>{% endif %}
+        </div>
+        <form method="post" action="{% if editing_service %}/services/update{% else %}/services/add{% endif %}" class="form-shell" novalidate>
+          {% if editing_service %}<input type="hidden" name="service_id" value="{{ editing_service.id }}">{% endif %}
+          <div class="form-grid">
+            <div class="field required {% if validation_errors.get('name') %}has-error{% endif %}">
+              <label for="service_name">Service name</label>
+              <input id="service_name" type="text" name="name" value="{{ service_form.get('name') if service_form else (editing_service.name if editing_service else '') }}" placeholder="Service name">
+              {% if validation_errors.get('name') %}<span class="field-error">{{ validation_errors.get('name') }}</span>{% endif %}
+            </div>
+            <div class="field required {% if validation_errors.get('tier') %}has-error{% endif %}">
+              <label for="service_tier_field">Tier</label>
+              <select id="service_tier_field" name="tier">
+                <option value="core" {% if (service_form and service_form.get('tier') == 'core') or (not service_form and editing_service and editing_service.tier == 'core') %}selected{% endif %}>Core</option>
+                <option value="addon" {% if (service_form and service_form.get('tier') == 'addon') or (not service_form and editing_service and editing_service.tier == 'addon') or (not service_form and not editing_service) %}selected{% endif %}>Add-on</option>
+              </select>
+            </div>
+            <div class="field optional {% if validation_errors.get('group') %}has-error{% endif %}" id="service_group_field_wrapper">
+              <label for="service_group_field">Add-on group</label>
+              <select id="service_group_field" name="group">
+                <option value="">Select group</option>
+                {% for group in service_groups %}
+                <option value="{{ group }}" {% if (service_form and service_form.get('group') == group) or (not service_form and editing_service and editing_service.group == group) %}selected{% endif %}>{{ group }}</option>
+                {% endfor %}
+              </select>
+              {% if validation_errors.get('group') %}<span class="field-error">{{ validation_errors.get('group') }}</span>{% endif %}
+            </div>
+            <div class="field optional" style="grid-column: 1 / -1;">
+              <label for="service_description">Description</label>
+              <input id="service_description" type="text" name="description" value="{{ service_form.get('description') if service_form else (editing_service.description if editing_service else '') }}" placeholder="Description">
+            </div>
+            <div class="field required {% if validation_errors.get('price') %}has-error{% endif %}">
+              <label for="service_price">Price (€)</label>
+              <input id="service_price" type="number" step="0.01" name="price" value="{{ service_form.get('price') if service_form else (editing_service.price if editing_service else '') }}" placeholder="0.00">
+              {% if validation_errors.get('price') %}<span class="field-error">{{ validation_errors.get('price') }}</span>{% endif %}
+            </div>
+            <div class="field optional">
+              <label for="service_price_type">Price type</label>
+              <select id="service_price_type" name="price_type">
+                {% for price_type in service_price_types %}
+                <option value="{{ price_type }}" {% if (service_form and service_form.get('price_type') == price_type) or (not service_form and editing_service and editing_service.price_type == price_type) %}selected{% endif %}>{{ price_type|capitalize }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field optional">
+              <label for="service_billing_frequency">Billing frequency</label>
+              <select id="service_billing_frequency" name="billing_frequency">
+                {% for frequency in service_billing_frequencies %}
+                <option value="{{ frequency }}" {% if (service_form and service_form.get('billing_frequency') == frequency) or (not service_form and editing_service and editing_service.billing_frequency == frequency) %}selected{% endif %}>{{ frequency|capitalize }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field optional">
+              <label for="service_quarterly_price">Quarterly price (€)</label>
+              <input id="service_quarterly_price" type="number" step="0.01" name="quarterly_price" value="{{ service_form.get('quarterly_price') if service_form else (editing_service.quarterly_price if editing_service and editing_service.quarterly_price else '') }}" placeholder="Optional">
+            </div>
+            <div class="field optional">
+              <label for="service_annual_price">Annual price (€)</label>
+              <input id="service_annual_price" type="number" step="0.01" name="annual_price" value="{{ service_form.get('annual_price') if service_form else (editing_service.annual_price if editing_service and editing_service.annual_price else '') }}" placeholder="Optional">
+            </div>
+            <div class="field optional">
+              <label for="service_status">Status</label>
+              <select id="service_status" name="status">
+                <option value="active" {% if (service_form and service_form.get('status') == 'active') or (not service_form and (not editing_service or editing_service.status == 'active')) %}selected{% endif %}>Active</option>
+                <option value="archived" {% if (service_form and service_form.get('status') == 'archived') or (not service_form and editing_service and editing_service.status == 'archived') %}selected{% endif %}>Archived</option>
+              </select>
+            </div>
+            <div class="field optional">
+              <label for="service_website_display_price" style="text-transform:none;letter-spacing:normal;display:flex;align-items:center;gap:8px;min-height:46px;">
+                <input id="service_website_display_price" type="checkbox" name="website_display_price" style="width:auto;min-height:auto;" {% if (service_form and service_form.get('website_display_price')) or (not service_form and (not editing_service or editing_service.website_display_price)) %}checked{% endif %}>
+                Show price on website
+              </label>
+            </div>
+            <div class="field optional" style="grid-column: 1 / -1;">
+              <label for="service_website_display_label">Website display label</label>
+              <input id="service_website_display_label" type="text" name="website_display_label" value="{{ service_form.get('website_display_label') if service_form else (editing_service.website_display_label if editing_service else '') }}" placeholder='e.g. "From €950"'>
+            </div>
+          </div>
+          <div class="form-actions"><button type="submit">{% if editing_service %}Update service{% else %}Save service{% endif %}</button></div>
+        </form>
+      </div>
+
+      <div class="section">
+        <div class="edit-banner">
+          <h2>Add-on services</h2>
+          <a href="/services?show_archived={{ '0' if show_archived_services else '1' }}" class="cancel-link">{% if show_archived_services %}Hide archived{% else %}Show archived{% endif %}</a>
+        </div>
+        {% for group in service_groups %}
+        {% set group_services = services|selectattr('tier', 'equalto', 'addon')|selectattr('group', 'equalto', group)|list %}
+        {% set visible_group_services = group_services if show_archived_services else (group_services|selectattr('status', 'equalto', 'active')|list) %}
+        {% if visible_group_services %}
+        <h3 style="color:var(--brand-navy);font-size:16px;font-weight:700;margin:18px 0 8px;padding-left:10px;border-left:3px solid var(--brand-gold);">{{ group }}</h3>
+        <table>
+          <tr><th>Name</th><th>Price (€)</th><th>Status</th><th></th></tr>
+          {% for service in visible_group_services %}
+          <tr>
+            <td>{{ service.name }}</td>
+            <td>€{{ '%.2f'|format(service.price) }}</td>
+            <td><span class="status-pill {% if service.status == 'active' %}paid{% else %}cancelled{% endif %}">{{ service.status|capitalize }}</span></td>
+            <td>
+              <div class="table-action-stack">
+                <a href="/services?edit_id={{ service.id }}" class="edit-link">Edit</a>
+                {% if service.status == 'active' %}
+                <form method="post" action="/services/archive" class="table-actions" onsubmit="return confirm('Archive this service?');">
+                  <input type="hidden" name="service_id" value="{{ service.id }}">
+                  <button type="submit">Archive</button>
+                </form>
+                {% else %}
+                <form method="post" action="/services/restore" class="table-actions">
+                  <input type="hidden" name="service_id" value="{{ service.id }}">
+                  <button type="submit">Restore</button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+        {% endfor %}
+      </div>
       {% endif %}
 
       {% if active_tab == 'clients' %}
@@ -975,6 +1235,13 @@
             <div class="field optional"><label for="client_email">Email</label><input id="client_email" type="email" name="email" value="{{ client_form.get('email') if client_form else (editing_client.get('Email') if editing_client else '') }}" placeholder="Email"></div>
             <div class="field optional"><label for="client_phone">Phone</label><input id="client_phone" type="text" name="phone" value="{{ client_form.get('phone') if client_form else (editing_client.get('Phone') if editing_client else '') }}" placeholder="Phone"></div>
             <div class="field optional"><label for="client_country">Country</label><input id="client_country" type="text" name="country" value="{{ client_form.get('country') if client_form else (editing_client.get('Country') if editing_client else '') }}" placeholder="Country"></div>
+            {% set client_service_tier_value = client_form.get('service_tier') if client_form else (editing_client.get('Service Tier') if editing_client else 'None') %}
+            <div class="field optional"><label for="client_service_tier">Service tier</label><select id="client_service_tier" name="service_tier">{% for tier in client_service_tiers %}<option value="{{ tier }}" {% if client_service_tier_value == tier %}selected{% endif %}>{{ tier }}</option>{% endfor %}</select></div>
+            <div id="client_retainer_fields" style="display:contents;">
+              {% set client_retainer_frequency_value = client_form.get('retainer_frequency') if client_form else (editing_client.get('Retainer Frequency') if editing_client else 'monthly') %}
+              <div class="field optional"><label for="client_retainer_frequency">Retainer frequency</label><select id="client_retainer_frequency" name="retainer_frequency">{% for frequency in client_retainer_frequencies %}<option value="{{ frequency }}" {% if client_retainer_frequency_value == frequency %}selected{% endif %}>{{ frequency|capitalize }}</option>{% endfor %}</select></div>
+              <div class="field optional {% if validation_errors.get('retainer_amount') %}has-error{% endif %}"><label for="client_retainer_amount">Retainer amount (€)</label><input id="client_retainer_amount" type="number" step="0.01" name="retainer_amount" value="{{ client_form.get('retainer_amount') if client_form else (editing_client.get('Retainer Amount (€)') if editing_client else '') }}" placeholder="0.00">{% if validation_errors.get('retainer_amount') %}<span class="field-error">{{ validation_errors.get('retainer_amount') }}</span>{% endif %}</div>
+            </div>
           </div>
           <div class="form-actions"><button type="submit">{% if editing_client %}Update client{% else %}Save client{% endif %}</button></div>
         </form>
@@ -983,13 +1250,14 @@
       <div class="section">
         <h2>Clients</h2>
         <table>
-          <tr><th>Client Name</th><th>Contact Person</th><th>Email</th><th>Phone</th><th></th></tr>
+          <tr><th>Client Name</th><th>Contact Person</th><th>Email</th><th>Phone</th><th>Service Tier</th><th></th></tr>
           {% for row in clients %}
           <tr>
             <td>{{ row.get('Client Name') or '' }}</td>
             <td>{{ row.get('Contact Person') or '' }}</td>
             <td>{{ row.get('Email') or '' }}</td>
             <td>{{ row.get('Phone') or '' }}</td>
+            <td>{% if row.get('Service Tier') and row.get('Service Tier') != 'None' %}{{ row.get('Service Tier') }}{% if row.get('Service Tier') == 'Clarity Partner' %} ({{ row.get('Retainer Frequency')|capitalize }}, {{ format_currency(row.get('Retainer Amount (€)', 0) or 0) }}){% endif %}{% else %}—{% endif %}</td>
             <td>
               <div class="table-action-stack">
                 <a href="/clients?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
@@ -1448,6 +1716,8 @@
       {% endif %}
       {% endif %}
     </div>
+    <script id="services_catalog_data" type="application/json">{{ services_catalog_json|safe }}</script>
+    <script id="clients_catalog_data" type="application/json">{{ clients_catalog_json|safe }}</script>
     <script>
       (function () {
         function parseAmount(value) {
@@ -1472,6 +1742,16 @@
           return Number.isFinite(direct) ? direct : 0;
         }
 
+        function resolveDiscount(baseNet, valueInput, typeInput, displayInput) {
+          var rawValue = parseAmount(valueInput && valueInput.value);
+          var discountType = (typeInput && typeInput.value) || "€";
+          var discount = discountType === "%" ? Math.max(baseNet * (rawValue / 100), 0) : Math.max(rawValue, 0);
+          if (displayInput) {
+            displayInput.value = formatEuro(discount);
+          }
+          return discount;
+        }
+
         function updateExpenseCalculatedAmounts() {
           var baseInput = document.getElementById("expense_base_net");
           if (!baseInput) {
@@ -1481,7 +1761,9 @@
           var deliveryInput = document.getElementById("expense_delivery");
           var feesInput = document.getElementById("expense_fees");
           var otherChargesInput = document.getElementById("expense_other_charges");
-          var discountInput = document.getElementById("expense_discount");
+          var discountValueInput = document.getElementById("expense_discount_value");
+          var discountTypeInput = document.getElementById("expense_discount_type");
+          var discountDisplayInput = document.getElementById("expense_discount");
           var vatRateInput = document.getElementById("expense_vat_rate");
           var vatTreatmentInput = document.getElementById("expense_vat_treatment");
           var netInput = document.getElementById("expense_net");
@@ -1492,12 +1774,13 @@
             return;
           }
 
+          var baseNet = parseAmount(baseInput.value);
           var subtotal =
-            parseAmount(baseInput.value)
+            baseNet
             + parseAmount(deliveryInput && deliveryInput.value)
             + parseAmount(feesInput && feesInput.value)
             + parseAmount(otherChargesInput && otherChargesInput.value);
-          var discount = parseAmount(discountInput && discountInput.value);
+          var discount = resolveDiscount(baseNet, discountValueInput, discountTypeInput, discountDisplayInput);
           var taxableNet = Math.max(subtotal - discount, 0);
 
           var vatRateRatio = parseVatRateRatio(vatRateInput && vatRateInput.value);
@@ -1515,6 +1798,73 @@
             vatAmountInput.value = round2(vatAmount).toFixed(2);
           }
           totalInput.value = round2(taxableNet + vatAmount).toFixed(2);
+
+          updateCalcSummary("expense", taxableNet, vatAmount, taxableNet + vatAmount);
+        }
+
+        function formatEuro(value) {
+          return "€" + round2(value).toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function updateCalcSummary(prefix, net, vat, total) {
+          var netEl = document.getElementById(prefix + "_summary_net");
+          var vatEl = document.getElementById(prefix + "_summary_vat");
+          var totalEl = document.getElementById(prefix + "_summary_total");
+          if (netEl) { netEl.textContent = formatEuro(net); }
+          if (vatEl) { vatEl.textContent = formatEuro(vat); }
+          if (totalEl) { totalEl.textContent = formatEuro(total); }
+        }
+
+        function updateInvoiceCalculatedAmounts() {
+          var baseInput = document.getElementById("invoice_base_net");
+          if (!baseInput) {
+            return;
+          }
+
+          var discountValueInput = document.getElementById("invoice_discount_value");
+          var discountTypeInput = document.getElementById("invoice_discount_type");
+          var discountDisplayInput = document.getElementById("invoice_discount");
+          var deliveryInput = document.getElementById("invoice_delivery");
+          var feesInput = document.getElementById("invoice_fees");
+          var otherChargesInput = document.getElementById("invoice_other_charges");
+          var vatRateInput = document.getElementById("invoice_vat_rate");
+          var vatTreatmentInput = document.getElementById("invoice_vat_treatment");
+          var subtotalInput = document.getElementById("invoice_subtotal");
+          var vatAmountInput = document.getElementById("invoice_vat_amount");
+          var totalInput = document.getElementById("invoice_total_amount");
+
+          if (!totalInput) {
+            return;
+          }
+
+          var baseNet = parseAmount(baseInput.value);
+          var grossBeforeDiscount =
+            baseNet
+            + parseAmount(deliveryInput && deliveryInput.value)
+            + parseAmount(feesInput && feesInput.value)
+            + parseAmount(otherChargesInput && otherChargesInput.value);
+          var discount = resolveDiscount(baseNet, discountValueInput, discountTypeInput, discountDisplayInput);
+          var subtotal = Math.max(grossBeforeDiscount - discount, 0);
+
+          var vatRateRatio = parseVatRateRatio(vatRateInput && vatRateInput.value);
+          var vatTreatment = String((vatTreatmentInput && vatTreatmentInput.value) || "").toLowerCase();
+          var vatAmount = vatRateRatio > 0 ? subtotal * vatRateRatio : 0;
+          if (vatTreatment === "exempt" || vatTreatment === "zero_rated" || vatTreatment === "reverse_charge") {
+            vatAmount = 0;
+          }
+          if (!vatRateInput) {
+            vatAmount = 0;
+          }
+
+          if (subtotalInput) {
+            subtotalInput.value = round2(subtotal).toFixed(2);
+          }
+          if (vatAmountInput) {
+            vatAmountInput.value = round2(vatAmount).toFixed(2);
+          }
+          totalInput.value = round2(subtotal + vatAmount).toFixed(2);
+
+          updateCalcSummary("invoice", subtotal, vatAmount, subtotal + vatAmount);
         }
 
         var watchedIds = [
@@ -1522,7 +1872,8 @@
           "expense_delivery",
           "expense_fees",
           "expense_other_charges",
-          "expense_discount",
+          "expense_discount_value",
+          "expense_discount_type",
           "expense_vat_rate",
           "expense_vat_treatment",
         ];
@@ -1535,6 +1886,121 @@
           element.addEventListener("input", updateExpenseCalculatedAmounts);
           element.addEventListener("change", updateExpenseCalculatedAmounts);
         });
+
+        var invoiceWatchedIds = [
+          "invoice_base_net",
+          "invoice_discount_value",
+          "invoice_discount_type",
+          "invoice_delivery",
+          "invoice_fees",
+          "invoice_other_charges",
+          "invoice_vat_rate",
+          "invoice_vat_treatment",
+        ];
+
+        invoiceWatchedIds.forEach(function (id) {
+          var element = document.getElementById(id);
+          if (!element) {
+            return;
+          }
+          element.addEventListener("input", updateInvoiceCalculatedAmounts);
+          element.addEventListener("change", updateInvoiceCalculatedAmounts);
+        });
+
+        var invoiceChargesToggle = document.getElementById("invoice_charges_toggle");
+        var invoiceChargesSection = document.getElementById("invoice_charges_section");
+        if (invoiceChargesToggle && invoiceChargesSection) {
+          invoiceChargesToggle.addEventListener("click", function () {
+            var isHidden = invoiceChargesSection.style.display === "none";
+            invoiceChargesSection.style.display = isHidden ? "contents" : "none";
+            invoiceChargesToggle.textContent = isHidden ? "− Hide charges" : "+ Add charges";
+          });
+          var hasChargeValues = ["invoice_delivery", "invoice_fees", "invoice_other_charges"].some(function (id) {
+            var el = document.getElementById(id);
+            return el && parseAmount(el.value) > 0;
+          });
+          if (hasChargeValues) {
+            invoiceChargesSection.style.display = "contents";
+            invoiceChargesToggle.textContent = "− Hide charges";
+          }
+        }
+
+        updateInvoiceCalculatedAmounts();
+
+        var serviceTierField = document.getElementById("service_tier_field");
+        var serviceGroupFieldWrapper = document.getElementById("service_group_field_wrapper");
+        function updateServiceGroupVisibility() {
+          if (!serviceTierField || !serviceGroupFieldWrapper) {
+            return;
+          }
+          serviceGroupFieldWrapper.style.display = serviceTierField.value === "addon" ? "" : "none";
+        }
+        if (serviceTierField) {
+          serviceTierField.addEventListener("change", updateServiceGroupVisibility);
+          updateServiceGroupVisibility();
+        }
+
+        var clientTierField = document.getElementById("client_service_tier");
+        var clientRetainerFieldsWrapper = document.getElementById("client_retainer_fields");
+        function updateClientRetainerVisibility() {
+          if (!clientTierField || !clientRetainerFieldsWrapper) {
+            return;
+          }
+          clientRetainerFieldsWrapper.style.display = clientTierField.value === "Clarity Partner" ? "contents" : "none";
+        }
+        if (clientTierField) {
+          clientTierField.addEventListener("change", updateClientRetainerVisibility);
+          updateClientRetainerVisibility();
+        }
+
+        var servicesCatalogEl = document.getElementById("services_catalog_data");
+        var clientsCatalogEl = document.getElementById("clients_catalog_data");
+        var servicesCatalog = servicesCatalogEl ? JSON.parse(servicesCatalogEl.textContent || "[]") : [];
+        var clientsCatalog = clientsCatalogEl ? JSON.parse(clientsCatalogEl.textContent || "[]") : [];
+
+        var invoiceServiceCatalogField = document.getElementById("invoice_service_catalog");
+        var invoiceServiceProductField = document.getElementById("invoice_service_product");
+        var invoiceClientNameField = document.getElementById("invoice_client_name");
+        var invoiceBaseNetFieldForCatalog = document.getElementById("invoice_base_net");
+
+        if (invoiceServiceCatalogField) {
+          invoiceServiceCatalogField.addEventListener("change", function () {
+            var selectedId = invoiceServiceCatalogField.value;
+            if (!selectedId) {
+              return;
+            }
+            var service = servicesCatalog.filter(function (item) { return item.id === selectedId; })[0];
+            if (!service) {
+              return;
+            }
+            if (invoiceServiceProductField) {
+              invoiceServiceProductField.value = service.name;
+            }
+            if (invoiceBaseNetFieldForCatalog) {
+              invoiceBaseNetFieldForCatalog.value = Number(service.price).toFixed(2);
+              updateInvoiceCalculatedAmounts();
+            }
+          });
+        }
+
+        function applyClarityPartnerRetainer() {
+          if (!invoiceClientNameField || !invoiceBaseNetFieldForCatalog) {
+            return;
+          }
+          var client = clientsCatalog.filter(function (item) { return item.name === invoiceClientNameField.value; })[0];
+          if (!client || client.tier !== "Clarity Partner") {
+            return;
+          }
+          invoiceBaseNetFieldForCatalog.value = Number(client.retainer_amount || 0).toFixed(2);
+          if (invoiceServiceProductField && !invoiceServiceProductField.value) {
+            invoiceServiceProductField.value = "Clarity Partner Retainer (" + (client.retainer_frequency || "monthly") + ")";
+          }
+          updateInvoiceCalculatedAmounts();
+        }
+
+        if (invoiceClientNameField) {
+          invoiceClientNameField.addEventListener("change", applyClarityPartnerRetainer);
+        }
 
         var expenseForm = document.querySelector("form[action='/expenses/update']");
         if (expenseForm) {

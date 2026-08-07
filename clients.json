@@ -19,5 +19,15 @@
     "Email": "heu_tici@hotmail.com",
     "Phone": "0838307555",
     "Country": "Ireland"
+  },
+  {
+    "Client Name": "Test Retainer Client",
+    "Contact Person": "Jane",
+    "Email": "jane@test.com",
+    "Phone": "",
+    "Country": "Ireland",
+    "Service Tier": "Clarity Partner",
+    "Retainer Frequency": "quarterly",
+    "Retainer Amount (\u20ac)": "1800"
   }
 ]
