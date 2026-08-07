@@ -87,6 +87,7 @@
       "vat_reclaimable": true,
       "severity": "warning",
       "message": "May be a capital item — large purchases can require capital allowances treatment rather than a single-year deduction.",
+      "action": "Keep the receipt and check with your accountant before claiming the full amount this year if the purchase is over €1,000.",
       "amount_threshold": 1000,
       "amount_threshold_message": "Amounts over €1,000 may require capital allowances treatment — confirm with your accountant before saving."
     },
@@ -96,7 +97,8 @@
       "deductibility": "Partially Deductible",
       "vat_reclaimable": false,
       "severity": "warning",
-      "message": "Only the business-use portion is deductible — apportion carefully and keep a record of the basis used."
+      "message": "Only the business-use portion is deductible — apportion carefully and keep a record of the basis used.",
+      "action": "Enter only the business-use share of the cost here, and keep a note of how you worked out the split."
     },
     "Motor Expenses": {
       "description": "Business-use portion of motor running costs — fuel, servicing, insurance.",
@@ -104,7 +106,8 @@
       "deductibility": "Partially Deductible",
       "vat_reclaimable": false,
       "severity": "warning",
-      "message": "Only the business-use portion is deductible — keep a mileage log to support the split."
+      "message": "Only the business-use portion is deductible — keep a mileage log to support the split.",
+      "action": "Enter only the business-use share of the cost here, and keep a mileage log to support it."
     },
     "Phone and Communications": {
       "description": "Business-use portion of phone and communications costs.",
@@ -112,7 +115,8 @@
       "deductibility": "Partially Deductible",
       "vat_reclaimable": true,
       "severity": "warning",
-      "message": "Only the business-use portion is deductible if the plan is also used personally."
+      "message": "Only the business-use portion is deductible if the plan is also used personally.",
+      "action": "Enter only the business-use share of the cost here if the plan is also used personally."
     },
     "Travel and Subsistence": {
       "description": "Business travel, accommodation and subsistence while away from the normal place of work.",
@@ -120,7 +124,8 @@
       "deductibility": "Partially Deductible",
       "vat_reclaimable": false,
       "severity": "warning",
-      "message": "Only genuine business travel qualifies — commuting costs are not deductible."
+      "message": "Only genuine business travel qualifies — commuting costs are not deductible.",
+      "action": "Only include genuine business travel here — leave out your normal commute."
     },
     "Entertainment": {
       "description": "Client entertainment, meals and hospitality.",
@@ -128,7 +133,9 @@
       "deductibility": "Non-Deductible",
       "vat_reclaimable": false,
       "severity": "danger",
-      "message": "Entertainment expenses are non-deductible for tax and VAT cannot be reclaimed on them."
+      "message": "Entertainment is Non-Deductible — this expense will be recorded but excluded from your tax calculation.",
+      "action": "You should still record it. Revenue expects to see entertainment expenses in your books even though they cannot be claimed as a deduction.",
+      "modal_message": "This expense will be saved as Non-Deductible and excluded from your tax deduction calculation. It will still appear in your cash flow records as Revenue expects to see entertainment expenses in your books."
     },
     "Personal Expenses": {
       "description": "Nothing business-related belongs here.",
@@ -136,7 +143,8 @@
       "deductibility": "Non-Deductible",
       "vat_reclaimable": false,
       "severity": "danger",
-      "message": "Personal expenses are not deductible and should not be posted through the business."
+      "message": "Personal Expenses is Non-Deductible — this expense will be recorded but excluded from your tax calculation.",
+      "action": "If this cost has a genuine business purpose, reclassify it to the correct category instead. Otherwise it should not be run through the business."
     },
     "Fines and Penalties": {
       "description": "Nothing — fines and penalties are never deductible.",
@@ -144,7 +152,8 @@
       "deductibility": "Non-Deductible",
       "vat_reclaimable": false,
       "severity": "danger",
-      "message": "Fines and penalties are never deductible for tax and VAT cannot be reclaimed on them."
+      "message": "Fines and Penalties is Non-Deductible — this expense will be recorded but excluded from your tax calculation.",
+      "action": "You should still record it for audit purposes. It can never be claimed as a deduction and VAT cannot be reclaimed on it."
     }
   },
   "income_categories": {

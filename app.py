@@ -429,7 +429,7 @@ SHEET_HEADERS = {
     "AP": ["Ref #", "Supplier Name", "Description", "Invoice Date", "Due Date", "Net (€)", "Total (€)", "Paid (€)", "Balance Due (€)", "Status"],
     "VAT": ["Period", "Output VAT — Sales (€)", "Input VAT — Purchases (€)", "Net VAT Due (€)", "VAT Paid (€)", "Balance (€)", "Due Date", "Status"],
     "Clients": ["Client Name", "Contact Person", "Email", "Phone", "Country", "Service Tier", "Retainer Frequency", "Retainer Amount (€)"],
-    "Suppliers": ["Supplier Name", "Contact Person", "Email", "Phone", "Country", "Default VAT Treatment"],
+    "Suppliers": ["Supplier Name", "Contact Person", "Email", "Phone", "Country", "Default VAT Treatment", "Needs Completion"],
 }
 
 HEADER_ALIASES = {
@@ -1230,6 +1230,8 @@ def _apply_expense_compliance_fields(payload: dict[str, Any]) -> None:
     else:
         payload["Input VAT Reclaimable"] = _normalize_input_vat_reclaimable(payload.get("Input VAT Reclaimable"))
     payload["Deductibility Status"] = _normalize_deductibility_status(payload.get("Deductibility Status"), payload.get("Category"))
+    if payload["Deductibility Status"] == "Non-Deductible":
+        payload["Net Amount (€)"] = f"{0.0:.2f}"
     payload["Receipt Attached"] = _normalize_yes_no(payload.get("Receipt Attached"), default_yes=False)
     payload["Bank Reconciliation"] = _normalize_reconciliation(payload.get("Bank Reconciliation"))
     payload["Capital Expenditure Flag"] = "Yes" if _is_capital_expense(payload) else "No"
@@ -4843,6 +4845,7 @@ def add_expense():
         "Title": request.form.get("title", ""),
         "Description": request.form.get("description", ""),
         "Supplier / Payee": request.form.get("supplier", ""),
+        "One-Off Payee": "Yes" if request.form.get("one_off_payee") == "Yes" else "No",
         "Supplier VAT Number": request.form.get("supplier_vat_number", ""),
         "Receipt / Invoice Ref": request.form.get("receipt_reference", ""),
         "Category": request.form.get("category", ""),
@@ -4940,6 +4943,7 @@ def update_expense():
         "Title": request.form.get("title", ""),
         "Description": request.form.get("description", ""),
         "Supplier / Payee": request.form.get("supplier", ""),
+        "One-Off Payee": "Yes" if request.form.get("one_off_payee") == "Yes" else "No",
         "Supplier VAT Number": request.form.get("supplier_vat_number", ""),
         "Receipt / Invoice Ref": request.form.get("receipt_reference", ""),
         "Category": request.form.get("category", ""),
@@ -5613,6 +5617,51 @@ def api_services():
     return response
 
 
+@app.route("/api/suppliers/search")
+def api_suppliers_search():
+    query = str(request.args.get("q") or "").strip().lower()
+    if len(query) < 2:
+        return jsonify([])
+    suppliers = _load_sheet_records_raw("Suppliers")
+    matches = []
+    seen = set()
+    for supplier in suppliers:
+        name = str(supplier.get("Supplier Name") or "").strip()
+        if not name or name.lower() in seen:
+            continue
+        if query in name.lower():
+            matches.append({"name": name, "needs_completion": str(supplier.get("Needs Completion") or "No") == "Yes"})
+            seen.add(name.lower())
+    return jsonify(matches[:20])
+
+
+@app.route("/api/suppliers/quick-add", methods=["POST"])
+def api_suppliers_quick_add():
+    body = request.get_json(silent=True) or {}
+    name = str(body.get("name") or "").strip()
+    if not name:
+        return jsonify({"error": "Supplier name is required"}), 400
+
+    suppliers = _load_sheet_records_raw("Suppliers")
+    for supplier in suppliers:
+        if str(supplier.get("Supplier Name") or "").strip().lower() == name.lower():
+            return jsonify({"name": supplier.get("Supplier Name"), "created": False})
+
+    payload = {
+        "Supplier Name": name,
+        "Contact Person": "",
+        "Email": "",
+        "Phone": "",
+        "Country": "",
+        "Default VAT Treatment": "",
+        "Needs Completion": "Yes",
+    }
+    row_number = _append_row_to_sheet("Suppliers", payload)
+    load_finance_data.cache_clear()
+    _record_audit("create", "supplier", {"row_number": row_number, "record": payload, "source": "quick_add"})
+    return jsonify({"name": name, "created": True})
+
+
 @app.route("/suppliers/add", methods=["POST"])
 def add_supplier():
     payload = {
@@ -5622,6 +5671,7 @@ def add_supplier():
         "Phone": request.form.get("phone", ""),
         "Country": request.form.get("country", ""),
         "Default VAT Treatment": request.form.get("default_vat_treatment", ""),
+        "Needs Completion": "No",
     }
     validation_errors = _validate_supplier_payload(payload)
     if validation_errors:
@@ -5657,6 +5707,7 @@ def update_supplier():
         "Phone": request.form.get("phone", ""),
         "Country": request.form.get("country", ""),
         "Default VAT Treatment": request.form.get("default_vat_treatment", ""),
+        "Needs Completion": "No",
     }
     validation_errors = _validate_supplier_payload(payload)
     if validation_errors:

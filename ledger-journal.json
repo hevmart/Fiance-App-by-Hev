@@ -1525,5 +1525,153 @@
     "credit_total": 10.0,
     "entry_balanced": true,
     "phase_tag": "Phase 1"
+  },
+  {
+    "id": "b957c152-f920-49a5-8f5b-e339ed545f97",
+    "timestamp": "2026-08-07T19:11:20",
+    "action": "create",
+    "entity_type": "income",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-08",
+    "description": "HQ via form",
+    "category": "",
+    "account_code": "4900",
+    "account_name": "Other Income",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 120.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 120.0,
+    "amount_eur": 120.0,
+    "journal_lines": [
+      {
+        "account_code": "1000",
+        "debit": 120.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4900",
+        "debit": 0.0,
+        "credit": 120.0
+      }
+    ],
+    "debit_total": 120.0,
+    "credit_total": 120.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "7b142585-1f3d-4dfe-ae1d-83492a10abaf",
+    "timestamp": "2026-08-07T19:11:20",
+    "action": "create",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-08-08",
+    "description": "HQ expense form",
+    "category": "Software and Subscriptions",
+    "account_code": "5000",
+    "account_name": "Software and Subscriptions",
+    "tax_treatment": "deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 90.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 90.0,
+    "amount_eur": 90.0,
+    "journal_lines": [
+      {
+        "account_code": "5000",
+        "debit": 90.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 90.0
+      }
+    ],
+    "debit_total": 90.0,
+    "credit_total": 90.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "359f40d4-b334-4257-b0e1-93db23b02a6f",
+    "timestamp": "2026-08-07T20:41:47",
+    "action": "create",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 3,
+    "transaction_date": "2026-08-02",
+    "description": "H-Test",
+    "category": "Entertainment",
+    "account_code": "5800",
+    "account_name": "Entertainment",
+    "tax_treatment": "non-deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 496.8,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 496.8,
+    "amount_eur": 496.8,
+    "journal_lines": [
+      {
+        "account_code": "5800",
+        "debit": 496.8,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 496.8
+      }
+    ],
+    "debit_total": 496.8,
+    "credit_total": 496.8,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "7bc0ec0a-42f7-4ce8-86b4-329a7f8ba2e8",
+    "timestamp": "2026-08-07T20:49:36",
+    "action": "create",
+    "entity_type": "expense",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-08-07",
+    "description": "Live entertainment check",
+    "category": "Entertainment",
+    "account_code": "5800",
+    "account_name": "Entertainment",
+    "tax_treatment": "non-deductible",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 123.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 123.0,
+    "amount_eur": 123.0,
+    "journal_lines": [
+      {
+        "account_code": "5800",
+        "debit": 123.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "1000",
+        "debit": 0.0,
+        "credit": 123.0
+      }
+    ],
+    "debit_total": 123.0,
+    "credit_total": 123.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
   }
 ]

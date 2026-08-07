@@ -2143,5 +2143,286 @@
         "Flags Acknowledged At": ""
       }
     }
+  },
+  {
+    "id": "e79bc489-d8a5-450b-9265-8414a563cadc",
+    "timestamp": "2026-08-07T19:11:20",
+    "action": "create",
+    "entity_type": "income",
+    "details": {
+      "row_number": 2,
+      "record": {
+        "Date": "2026-08-08",
+        "Description": "HQ via form",
+        "Client / Source": "HQ Client",
+        "Category": "",
+        "Invoice #": "",
+        "Invoice ID": "",
+        "Source": "manual",
+        "Amount (\u20ac)": "120.00",
+        "Total incl. VAT (\u20ac)": "120.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Status": "Received",
+        "Payment Method": "",
+        "Payment Date": "",
+        "Notes": "",
+        "Phase Tag": "Phase 1",
+        "Compliance Flags": "[]",
+        "Flags Acknowledged": "No",
+        "Flags Acknowledged At": ""
+      }
+    }
+  },
+  {
+    "id": "f0176165-db23-4fad-a963-4fa4b7a07074",
+    "timestamp": "2026-08-07T19:11:20",
+    "action": "create",
+    "entity_type": "expense",
+    "details": {
+      "row_number": 2,
+      "record": {
+        "Date (Registered)": "2026-08-08",
+        "Title": "HQ expense via form",
+        "Description": "HQ expense form",
+        "Supplier / Payee": "HQ Supplier",
+        "Supplier VAT Number": "",
+        "Receipt / Invoice Ref": "",
+        "Category": "Software and Subscriptions",
+        "Base Net Amount (\u20ac)": "90.00",
+        "Delivery (\u20ac)": "0.00",
+        "Fees (\u20ac)": "0.00",
+        "Other Charges (\u20ac)": "0.00",
+        "Discount Type": "\u20ac",
+        "Discount Value": "0.00",
+        "Net Amount (\u20ac)": "90.00",
+        "Total (\u20ac)": "90.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Input VAT Reclaimable": "Yes",
+        "Deductibility Status": "Fully Deductible",
+        "Capital Expenditure Flag": "No",
+        "Receipt Attached": "Yes",
+        "Bank Reconciliation": "Unreconciled",
+        "Status": "Pending",
+        "Payment Method": "Credit Card",
+        "Notes": "HQ via form",
+        "Phase Tag": "Phase 1",
+        "Discount (\u20ac)": "0.00",
+        "Compliance Flags": "[]",
+        "Flags Acknowledged": "No",
+        "Flags Acknowledged At": ""
+      }
+    }
+  },
+  {
+    "id": "d52769ee-6fee-4191-a979-7c5822c7a9ea",
+    "timestamp": "2026-08-07T19:11:20",
+    "action": "create",
+    "entity_type": "client",
+    "details": {
+      "row_number": 2,
+      "record": {
+        "Client Name": "HQ Client Form",
+        "Contact Person": "HQ Form",
+        "Email": "hq-form@example.com",
+        "Phone": "555",
+        "Country": "Ireland",
+        "Service Tier": "None",
+        "Retainer Frequency": "",
+        "Retainer Amount (\u20ac)": ""
+      }
+    }
+  },
+  {
+    "id": "c2915261-896c-4b24-9817-96cbc9006326",
+    "timestamp": "2026-08-07T19:11:20",
+    "action": "create",
+    "entity_type": "supplier",
+    "details": {
+      "row_number": 2,
+      "record": {
+        "Supplier Name": "HQ Supplier Form",
+        "Contact Person": "HQ Supplier Contact",
+        "Email": "hq-supplier-form@example.com",
+        "Phone": "666",
+        "Country": "Ireland",
+        "Default VAT Treatment": "Standard (Irish VAT)"
+      }
+    }
+  },
+  {
+    "id": "cadb2f11-3dfc-405d-960f-7094038ad070",
+    "timestamp": "2026-08-07T19:11:20",
+    "action": "create",
+    "entity_type": "subscription",
+    "details": {
+      "subscription_id": "2f6c3e8b-f0bb-408f-8ede-f7a919bf8d5a",
+      "record": {
+        "id": "2f6c3e8b-f0bb-408f-8ede-f7a919bf8d5a",
+        "title": "HQ Subscription Form",
+        "description": "HQ subscription form",
+        "supplier": "HQ Supplier",
+        "category": "Software and Subscriptions",
+        "net_amount": "10.00",
+        "total_amount": "10.00",
+        "frequency": "monthly",
+        "start_date": "2026-08-01",
+        "next_charge_date": "2026-09-01",
+        "last_posted_date": "",
+        "end_date": "",
+        "status": "active",
+        "notes": "HQ via form",
+        "created_at": "2026-08-07T19:11:20",
+        "last_updated_at": "2026-08-07T19:11:20"
+      }
+    }
+  },
+  {
+    "id": "f8a8bab5-941a-4f08-9d54-afe6c34396e9",
+    "timestamp": "2026-08-07T20:41:47",
+    "action": "create",
+    "entity_type": "expense",
+    "details": {
+      "row_number": 3,
+      "record": {
+        "Date (Registered)": "2026-08-02",
+        "Title": "Entertainment ",
+        "Description": "H-Test",
+        "Supplier / Payee": "",
+        "Supplier VAT Number": "",
+        "Receipt / Invoice Ref": "",
+        "Category": "Entertainment",
+        "Base Net Amount (\u20ac)": "540.00",
+        "Delivery (\u20ac)": "0.00",
+        "Fees (\u20ac)": "0.00",
+        "Other Charges (\u20ac)": "10.80",
+        "Discount Type": "%",
+        "Discount Value": "10.00",
+        "Net Amount (\u20ac)": "496.80",
+        "Total (\u20ac)": "496.80",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Input VAT Reclaimable": "No",
+        "Deductibility Status": "Non-Deductible",
+        "Capital Expenditure Flag": "Yes",
+        "Receipt Attached": "Yes",
+        "Bank Reconciliation": "Unreconciled",
+        "Status": "Paid",
+        "Payment Method": "Credit Card",
+        "Notes": "",
+        "Phase Tag": "Phase 1",
+        "Discount (\u20ac)": "54.00",
+        "Compliance Flags": "[{\"key\": \"category\", \"severity\": \"danger\", \"message\": \"Entertainment expenses are non-deductible for tax and VAT cannot be reclaimed on them.\"}]",
+        "Flags Acknowledged": "Yes",
+        "Flags Acknowledged At": "2026-08-07T19:41:47.104Z"
+      }
+    }
+  },
+  {
+    "id": "48245fcb-be16-47b5-9c49-4334b61d875b",
+    "timestamp": "2026-08-07T20:49:28",
+    "action": "create",
+    "entity_type": "supplier",
+    "details": {
+      "row_number": 3,
+      "record": {
+        "Supplier Name": "Live Test Supplier",
+        "Contact Person": "",
+        "Email": "",
+        "Phone": "",
+        "Country": "",
+        "Default VAT Treatment": "",
+        "Needs Completion": "Yes"
+      },
+      "source": "quick_add"
+    }
+  },
+  {
+    "id": "9a1aa784-f355-4fb5-860c-c733562e7b9e",
+    "timestamp": "2026-08-07T20:49:36",
+    "action": "create",
+    "entity_type": "expense",
+    "details": {
+      "row_number": 4,
+      "record": {
+        "Date (Registered)": "2026-08-07",
+        "Title": "Live entertainment check",
+        "Description": "",
+        "Supplier / Payee": "",
+        "One-Off Payee": "No",
+        "Supplier VAT Number": "",
+        "Receipt / Invoice Ref": "",
+        "Category": "Entertainment",
+        "Base Net Amount (\u20ac)": "100.00",
+        "Delivery (\u20ac)": "0.00",
+        "Fees (\u20ac)": "0.00",
+        "Other Charges (\u20ac)": "0.00",
+        "Discount Type": "\u20ac",
+        "Discount Value": "0.00",
+        "Net Amount (\u20ac)": "0.00",
+        "Total (\u20ac)": "123.00",
+        "VAT Rate": "0%",
+        "VAT Amount (\u20ac)": "0.00",
+        "VAT Treatment": "standard",
+        "Supply Type": "services",
+        "Input VAT Reclaimable": "No",
+        "Deductibility Status": "Non-Deductible",
+        "Capital Expenditure Flag": "No",
+        "Receipt Attached": "Yes",
+        "Bank Reconciliation": "Unreconciled",
+        "Status": "Pending",
+        "Payment Method": "Cash",
+        "Notes": "",
+        "Phase Tag": "Phase 1",
+        "Discount (\u20ac)": "0.00",
+        "Compliance Flags": "[]",
+        "Flags Acknowledged": "No",
+        "Flags Acknowledged At": ""
+      }
+    }
+  },
+  {
+    "id": "9487baba-82be-4eac-a098-be34167ebeb2",
+    "timestamp": "2026-08-07T21:11:35",
+    "action": "create",
+    "entity_type": "supplier",
+    "details": {
+      "row_number": 4,
+      "record": {
+        "Supplier Name": "Coolydoody Farm",
+        "Contact Person": "",
+        "Email": "",
+        "Phone": "",
+        "Country": "",
+        "Default VAT Treatment": "",
+        "Needs Completion": "No"
+      }
+    }
+  },
+  {
+    "id": "213f9edd-27d4-4a4e-81ce-e80769778d62",
+    "timestamp": "2026-08-07T23:11:34",
+    "action": "create",
+    "entity_type": "supplier",
+    "details": {
+      "row_number": 5,
+      "record": {
+        "Supplier Name": "Leppertip",
+        "Contact Person": "",
+        "Email": "",
+        "Phone": "",
+        "Country": "",
+        "Default VAT Treatment": "",
+        "Needs Completion": "Yes"
+      },
+      "source": "quick_add"
+    }
   }
 ]

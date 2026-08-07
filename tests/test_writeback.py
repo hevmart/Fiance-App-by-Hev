@@ -2679,3 +2679,130 @@ def test_backups_view_lists_available_backup_dates(workbook_copy):
     assert response.status_code == 200
     assert date.today().isoformat().encode() in response.data
     assert app.EXPENSES_PATH.name.encode() in response.data
+
+
+def test_non_deductible_expense_has_zero_taxable_net(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(title="Entertainment zero net", category="Entertainment"),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Entertainment zero net")
+    assert saved["Deductibility Status"] == "Non-Deductible"
+    assert saved["Net Amount (€)"] == "0.00"
+
+
+def test_manually_selected_non_deductible_expense_has_zero_taxable_net(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            title="Manually flagged non-deductible",
+            category="Professional Fees",
+            deductibility_status="Non-Deductible",
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Manually flagged non-deductible")
+    assert saved["Deductibility Status"] == "Non-Deductible"
+    assert saved["Net Amount (€)"] == "0.00"
+
+
+def test_fully_deductible_expense_keeps_calculated_taxable_net(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(title="Fully deductible net check", category="Software and Subscriptions", base_net_amount="80.00"),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Fully deductible net check")
+    assert saved["Deductibility Status"] == "Fully Deductible"
+    assert saved["Net Amount (€)"] == "80.00"
+
+
+def test_quick_add_supplier_creates_incomplete_supplier(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/api/suppliers/quick-add',
+        json={"name": "Corner Shop Ltd"},
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["name"] == "Corner Shop Ltd"
+    assert payload["created"] is True
+
+    app.load_finance_data.cache_clear()
+    suppliers = app.load_finance_data()["sheets"]["Suppliers"]
+    created = next(row for row in suppliers if row.get("Supplier Name") == "Corner Shop Ltd")
+    assert created["Needs Completion"] == "Yes"
+
+    suppliers_response = client.get('/suppliers')
+    assert suppliers_response.status_code == 200
+    assert b'Incomplete' in suppliers_response.data
+
+
+def test_quick_add_supplier_does_not_duplicate_existing_supplier(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    first = client.post('/api/suppliers/quick-add', json={"name": "Repeat Supplier"})
+    assert first.get_json()["created"] is True
+
+    app.load_finance_data.cache_clear()
+    second = client.post('/api/suppliers/quick-add', json={"name": "Repeat Supplier"})
+    assert second.status_code == 200
+    assert second.get_json()["created"] is False
+
+    app.load_finance_data.cache_clear()
+    suppliers = app.load_finance_data()["sheets"]["Suppliers"]
+    matches = [row for row in suppliers if row.get("Supplier Name") == "Repeat Supplier"]
+    assert len(matches) == 1
+
+
+def test_quick_add_supplier_requires_name(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post('/api/suppliers/quick-add', json={"name": "  "})
+    assert response.status_code == 400
+
+
+def test_supplier_search_finds_matches_and_flags_incomplete(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    client.post('/api/suppliers/quick-add', json={"name": "Widget Wholesale"})
+    app.load_finance_data.cache_clear()
+
+    too_short = client.get('/api/suppliers/search?q=W')
+    assert too_short.get_json() == []
+
+    response = client.get('/api/suppliers/search?q=widget')
+    assert response.status_code == 200
+    results = response.get_json()
+    assert any(match["name"] == "Widget Wholesale" and match["needs_completion"] is True for match in results)

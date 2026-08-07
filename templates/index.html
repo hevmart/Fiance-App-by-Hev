@@ -220,7 +220,7 @@
       .discount-input-group { display: flex; gap: 6px; align-items: center; }
       .discount-input-group input { min-height: 44px; }
       .discount-input-group .discount-type-select { flex: 0 0 62px; min-height: 44px; padding: 8px 22px 8px 8px; background-position: calc(100% - 12px) calc(50% - 2px), calc(100% - 8px) calc(50% - 2px); }
-      .discount-input-group .discount-computed { flex: 1 1 90px; min-width: 0; background: var(--brand-bg-deep); color: var(--brand-dark-grey); cursor: not-allowed; font-size: 13px; }
+      .discount-input-group .discount-computed { flex: 0 0 108px; min-width: 108px; background: var(--brand-bg-deep); color: var(--brand-dark-grey); cursor: not-allowed; font-size: 13px; }
       .tier-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
       .tier-card { background: var(--brand-navy); color: var(--brand-white); border-radius: 12px; padding: 22px 20px; border-top: 3px solid var(--brand-gold); display: flex; flex-direction: column; }
       .tier-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; font-family: 'Segoe UI', sans-serif; }
@@ -282,10 +282,68 @@
       .compliance-panel.severity-warning { background: rgba(176, 141, 87, 0.12); border-left: 3px solid var(--brand-gold); color: var(--brand-navy); }
       .compliance-panel.severity-danger { background: rgba(198, 40, 40, 0.08); border-left: 3px solid var(--brand-error); color: var(--brand-error); }
       .compliance-panel .compliance-icon { flex-shrink: 0; }
-      .compliance-panel .learn-more-link { color: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; background: none; border: 0; padding: 0; font: inherit; }
+      .compliance-panel .compliance-text-wrap { display: flex; flex-direction: column; gap: 3px; }
+      .compliance-panel .compliance-text-main { font-weight: 700; }
+      .compliance-panel .compliance-text-sub { font-weight: 400; color: var(--brand-dark-grey); }
       .field select.field-amber-border, .field input.field-amber-border { border-color: var(--brand-gold) !important; box-shadow: 0 0 0 2px rgba(176, 141, 87, 0.15); }
-      .compliance-modal-box { max-width: 480px; }
-      .compliance-modal-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; max-height: 320px; overflow-y: auto; }
+      .field-locked-badge {
+        display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 8px;
+        background: var(--brand-navy); color: var(--brand-white); font-weight: 700; font-size: 14px; letter-spacing: 0.2px;
+      }
+      .taxable-net-note { display: block; margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--brand-error); }
+      .supplier-combo-input-wrap { position: relative; }
+      .supplier-combo input#expense_supplier { transition: border-color 100ms ease; }
+      .supplier-combo.dropdown-open input#expense_supplier {
+        border-color: var(--brand-gold); border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+      }
+      .supplier-combo-dropdown {
+        display: none; position: absolute; z-index: 40; top: 100%; left: 0; right: 0; margin-top: 0;
+        background: var(--brand-white); border: 1px solid var(--brand-border); border-top: 0;
+        border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;
+        box-shadow: 0 8px 20px rgba(22, 41, 74, 0.15); max-height: 220px; overflow-y: auto;
+      }
+      .supplier-combo-dropdown.open { display: block; }
+      .supplier-combo-matches { max-height: 205px; overflow-y: auto; }
+      .supplier-combo-option { padding: 10px 12px; font-size: 14px; font-weight: 400; line-height: 1.4; color: var(--brand-charcoal); cursor: pointer; }
+      .supplier-combo-option:hover, .supplier-combo-option.active { background: var(--brand-bg-light); color: var(--brand-navy); }
+      .supplier-combo-option .incomplete-tag { margin-left: 6px; font-size: 10px; font-weight: 700; color: var(--brand-gold); text-transform: uppercase; }
+      .supplier-combo-option.exact-single-match { background: var(--brand-navy); color: var(--brand-white); font-weight: 600; }
+      .supplier-combo-option.exact-single-match:hover { background: var(--brand-navy); color: var(--brand-white); }
+      .supplier-combo-add {
+        display: flex; align-items: center; gap: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600;
+        color: var(--brand-steel); cursor: pointer; border-top: 1px solid var(--brand-border);
+      }
+      .supplier-combo-add:hover { background: var(--brand-bg-light); color: var(--brand-navy); }
+      .supplier-combo-add .add-icon { font-size: 12px; font-weight: 700; }
+      .supplier-one-off-toggle { display: flex; align-items: flex-start; gap: 8px; margin-top: 8px; }
+      .toggle-switch { position: relative; display: inline-block; width: 34px; height: 20px; flex-shrink: 0; cursor: pointer; margin-top: 1px; }
+      .toggle-switch input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; min-height: auto; }
+      .toggle-track { position: absolute; inset: 0; background: var(--brand-border); border-radius: 999px; transition: background 150ms ease; }
+      .toggle-knob { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--brand-white); box-shadow: 0 1px 2px rgba(22, 41, 74, 0.3); transition: transform 150ms ease; }
+      .toggle-switch input:checked + .toggle-track { background: var(--brand-gold); }
+      .toggle-switch input:checked + .toggle-track .toggle-knob { transform: translateX(14px); }
+      .supplier-one-off-text { display: flex; flex-direction: column; line-height: 1.3; }
+      .one-off-label { font-size: 13px; font-weight: 400; text-transform: none; letter-spacing: normal; color: var(--brand-charcoal); font-family: 'Segoe UI', sans-serif; }
+      .one-off-hint { font-size: 11px; font-weight: 400; text-transform: none; letter-spacing: normal; color: var(--brand-steel); margin-top: 2px; }
+      .supplier-badge-incomplete {
+        display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--brand-gold); color: var(--brand-white);
+        font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+      }
+      .compliance-modal-box { max-width: 480px; padding: 0; overflow: hidden; }
+      .compliance-modal-header { background: var(--brand-navy); padding: 18px 24px; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+      .compliance-modal-header h3 { margin: 0; color: var(--brand-white); font-family: 'Segoe UI', sans-serif; }
+      .compliance-modal-body { padding: 20px 24px 24px; font-family: 'Segoe UI', sans-serif; }
+      .compliance-modal-list { display: flex; flex-direction: column; gap: 10px; margin: 0 0 14px; max-height: 320px; overflow-y: auto; }
+      .compliance-modal-box .btn-go-back {
+        background: var(--brand-white); color: var(--brand-navy); border: 1.5px solid var(--brand-navy); border-radius: 8px;
+        padding: 10px 16px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif;
+      }
+      .compliance-modal-box .btn-go-back:hover { background: var(--brand-bg-light); }
+      .compliance-modal-box .btn-confirm-save {
+        background: var(--brand-gold); color: var(--brand-white); border: 0; border-radius: 8px;
+        padding: 10px 16px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif;
+      }
+      .compliance-modal-box .btn-confirm-save:hover { background: #9c7a49; }
       .compliance-flag-item { padding: 10px 12px; border-radius: 6px; background: rgba(198, 40, 40, 0.06); border-left: 3px solid var(--brand-error); font-size: 13px; color: var(--brand-navy); line-height: 1.5; }
       @keyframes fade-scale { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
       .form-actions { display: flex; justify-content: flex-start; }
@@ -939,7 +997,23 @@
             <div class="field required {% if validation_errors.get('date') %}has-error{% endif %}"><label for="expense_date">Date</label><input id="expense_date" type="date" name="date" value="{{ expense_form.get('date') if expense_form else (editing_expense.get('Date (Registered)') if editing_expense else '') }}">{% if validation_errors.get('date') %}<span class="field-error">{{ validation_errors.get('date') }}</span>{% endif %}</div>
             <div class="field required {% if validation_errors.get('title') %}has-error{% endif %}"><label for="expense_title">Title</label><input id="expense_title" type="text" name="title" value="{{ expense_form.get('title') if expense_form else (editing_expense.get('Title') if editing_expense else '') }}" placeholder="Title">{% if validation_errors.get('title') %}<span class="field-error">{{ validation_errors.get('title') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('description') %}has-error{% endif %}"><label for="expense_description">Description</label><input id="expense_description" type="text" name="description" value="{{ expense_form.get('description') if expense_form else (editing_expense.get('Description') if editing_expense else '') }}" placeholder="Description">{% if validation_errors.get('description') %}<span class="field-error">{{ validation_errors.get('description') }}</span>{% endif %}</div>
-            <div class="field optional"><label for="expense_supplier">Supplier / payee</label><select id="expense_supplier" name="supplier"><option value="">Select supplier / payee</option>{% for option in expense_suppliers %}<option value="{{ option }}" {% if (expense_form and expense_form.get('supplier') == option) or (not expense_form and editing_expense and editing_expense.get('Supplier / Payee') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field optional supplier-combo" style="grid-column: 1 / -1;">
+              <label for="expense_supplier">Supplier / payee</label>
+              <div class="supplier-combo-input-wrap">
+                <input id="expense_supplier" type="text" name="supplier" autocomplete="off" placeholder="Search suppliers..." value="{{ expense_form.get('supplier') if expense_form else (editing_expense.get('Supplier / Payee') if editing_expense else '') }}">
+                <div class="supplier-combo-dropdown" id="expense_supplier_dropdown"></div>
+              </div>
+              <div class="supplier-one-off-toggle">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="expense_supplier_one_off" name="one_off_payee" value="Yes" {% if (expense_form and expense_form.get('one_off_payee') == 'Yes') %}checked{% endif %}>
+                  <span class="toggle-track"><span class="toggle-knob"></span></span>
+                </label>
+                <div class="supplier-one-off-text">
+                  <span class="one-off-label">One-off payee</span>
+                  <span class="one-off-hint">Won't be added to your supplier list.</span>
+                </div>
+              </div>
+            </div>
             <div class="field optional {% if validation_errors.get('supplier_vat_number') %}has-error{% endif %}"><label for="expense_supplier_vat">Supplier VAT number</label><input id="expense_supplier_vat" type="text" name="supplier_vat_number" value="{{ expense_form.get('supplier_vat_number') if expense_form else (editing_expense.get('Supplier VAT Number') if editing_expense else '') }}" placeholder="IE1234567A">{% if validation_errors.get('supplier_vat_number') %}<span class="field-error">{{ validation_errors.get('supplier_vat_number') }}</span>{% endif %}</div>
             <div class="field optional"><label for="expense_receipt_reference">Receipt / invoice ref</label><input id="expense_receipt_reference" type="text" name="receipt_reference" value="{{ expense_form.get('receipt_reference') if expense_form else (editing_expense.get('Receipt / Invoice Ref') if editing_expense else '') }}" placeholder="INV-12345"></div>
             <div class="field required"><label for="expense_category">Category <span class="info-icon" id="expense_category_info" tabindex="0">ⓘ<div class="popover category-tooltip"></div></span></label><select id="expense_category" name="category"><option value="">Select category</option>{% for option in expense_categories %}<option value="{{ option }}" {% if (expense_form and expense_form.get('category') == option) or (not expense_form and editing_expense and editing_expense.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
@@ -963,6 +1037,7 @@
               {% if validation_errors.get('discount_amount') %}<span class="field-error">{{ validation_errors.get('discount_amount') }}</span>{% endif %}
             </div>
             <div class="field required {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="expense_net">Taxable net (calculated)</label><input id="expense_net" type="number" step="0.01" name="net_amount" value="{{ expense_form.get('net_amount') if expense_form else (editing_expense.get('Net Amount (€)') if editing_expense else '') }}" placeholder="Taxable net" readonly>{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}
+              <span class="taxable-net-note" id="expense_net_nondeductible_note" style="display:none;">Non-deductible — excluded from tax calculation.</span>
               <div class="compliance-panel" id="expense_amount_panel" style="display:none;"></div>
             </div>
             <div class="field optional field-total {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="expense_total">Total amount (calculated)</label><input id="expense_total" type="number" step="0.01" name="total_amount" value="{{ expense_form.get('total_amount') if expense_form else (editing_expense.get('Total (€)') if editing_expense else '') }}" placeholder="Total amount" readonly>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
@@ -978,6 +1053,7 @@
               <span class="mini field-lock-hint" id="expense_input_vat_lock_hint" style="display:none;">Locked to No for Entertainment.</span>
             </div>
             <div class="field optional"><label for="expense_deductibility_status">Deductibility status</label><select id="expense_deductibility_status" name="deductibility_status">{% for option in expense_deductibility_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('deductibility_status') == option) or (not expense_form and editing_expense and editing_expense.get('Deductibility Status') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>
+              <span class="field-locked-badge" id="expense_deductibility_badge" style="display:none;"></span>
               <span class="mini field-lock-hint" id="expense_deductibility_lock_hint" style="display:none;">Set automatically by category.</span>
             </div>
             <div class="field optional"><label for="expense_capital_flag">Capital expenditure flag</label><select id="expense_capital_flag" name="capital_expenditure_flag">{% for option in yes_no_options %}<option value="{{ option }}" {% if (expense_form and expense_form.get('capital_expenditure_flag') == option) or (not expense_form and editing_expense and editing_expense.get('Capital Expenditure Flag') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
@@ -1095,7 +1171,7 @@
             <div class="field {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="subscription_net_amount">Net amount</label><input id="subscription_net_amount" type="number" step="0.01" name="net_amount" value="{{ subscription_form.get('net_amount') if subscription_form else (editing_subscription.get('net_amount') if editing_subscription else '') }}" placeholder="0.00">{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
             <div class="field {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="subscription_total_amount">Total amount</label><input id="subscription_total_amount" type="number" step="0.01" name="total_amount" value="{{ subscription_form.get('total_amount') if subscription_form else (editing_subscription.get('total_amount') if editing_subscription else '') }}" placeholder="0.00" required>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
             <div class="field {% if validation_errors.get('status') %}has-error{% endif %}"><label for="subscription_status">Status</label><select id="subscription_status" name="status">{% for option in subscription_statuses %}<option value="{{ option }}" {% if (subscription_form and subscription_form.get('status') == option) or (not subscription_form and ((editing_subscription and editing_subscription.get('status') == option) or (not editing_subscription and option == 'active'))) %}selected{% endif %}>{{ option|title }}</option>{% endfor %}</select>{% if validation_errors.get('status') %}<span class="field-error">{{ validation_errors.get('status') }}</span>{% endif %}</div>
-            <div class="field"><label for="subscription_description">Description</label><input id="subscription_description" type="text" name="description" value="{{ subscription_form.get('description') if subscription_form else (editing_subscription.get('description') if editing_subscription else '') }}" placeholder="Design software subscription"></div>
+            <div class="field"><label for="subscription_description">Description</label><input id="subscription_description" type="text" name="description" value="{{ subscription_form.get('description') if subscription_form else (editing_subscription.get('description') if editing_subscription else '') }}" placeholder="Design software"></div>
             <div class="field" style="grid-column: 1 / -1;"><label for="subscription_notes">Notes</label><input id="subscription_notes" type="text" name="notes" value="{{ subscription_form.get('notes') if subscription_form else (editing_subscription.get('notes') if editing_subscription else '') }}" placeholder="VAT included, annual renewal, company card"></div>
           </div>
           <div class="form-actions"><button type="submit">{% if editing_subscription %}Update subscription{% else %}Save subscription{% endif %}</button></div>
@@ -1614,7 +1690,7 @@
             <div class="field optional"><label for="supplier_email">Email</label><input id="supplier_email" type="email" name="email" value="{{ supplier_form.get('email') if supplier_form else (editing_supplier.get('Email') if editing_supplier else '') }}" placeholder="Email"></div>
             <div class="field optional"><label for="supplier_phone">Phone</label><input id="supplier_phone" type="text" name="phone" value="{{ supplier_form.get('phone') if supplier_form else (editing_supplier.get('Phone') if editing_supplier else '') }}" placeholder="Phone"></div>
             <div class="field optional"><label for="supplier_country">Country</label><input id="supplier_country" type="text" name="country" value="{{ supplier_form.get('country') if supplier_form else (editing_supplier.get('Country') if editing_supplier else '') }}" placeholder="Country"></div>
-            <div class="field optional"><label for="supplier_vat">Default VAT treatment</label><input id="supplier_vat" type="text" name="default_vat_treatment" value="{{ supplier_form.get('default_vat_treatment') if supplier_form else (editing_supplier.get('Default VAT Treatment') if editing_supplier else '') }}" placeholder="Default VAT treatment"></div>
+            <div class="field optional"><label for="supplier_vat">Default VAT treatment</label><input id="supplier_vat" type="text" name="default_vat_treatment" value="{{ supplier_form.get('default_vat_treatment') if supplier_form else (editing_supplier.get('Default VAT Treatment') if editing_supplier else '') }}" placeholder="Standard"></div>
           </div>
           <div class="form-actions"><button type="submit">{% if editing_supplier %}Update supplier{% else %}Save supplier{% endif %}</button></div>
         </form>
@@ -1623,13 +1699,14 @@
       <div class="section">
         <h2>Suppliers</h2>
         <table>
-          <tr><th>Supplier Name</th><th>Contact Person</th><th>Email</th><th>Country</th><th></th></tr>
+          <tr><th>Supplier Name</th><th>Contact Person</th><th>Email</th><th>Country</th><th></th><th></th></tr>
           {% for row in suppliers %}
           <tr>
             <td>{{ row.get('Supplier Name') or '' }}</td>
             <td>{{ row.get('Contact Person') or '' }}</td>
             <td>{{ row.get('Email') or '' }}</td>
             <td>{{ row.get('Country') or '' }}</td>
+            <td>{% if row.get('Needs Completion') == 'Yes' %}<span class="supplier-badge-incomplete">Incomplete — add details</span>{% endif %}</td>
             <td>
               <div class="table-action-stack">
                 <a href="/suppliers?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
@@ -2037,11 +2114,15 @@
 
       <div class="modal-overlay" id="compliance_modal_overlay">
         <div class="modal-box compliance-modal-box">
-          <h3>This transaction has compliance flags that need your attention</h3>
-          <div class="compliance-modal-list" id="compliance_modal_list"></div>
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" id="compliance_modal_fix">Fix Now</button>
-            <button type="button" class="btn-mark-paid" id="compliance_modal_save">Save Anyway with Acknowledgement</button>
+          <div class="compliance-modal-header">
+            <h3>This transaction has compliance flags that need your attention</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <div class="compliance-modal-list" id="compliance_modal_list"></div>
+            <div class="modal-actions">
+              <button type="button" class="btn-go-back" id="compliance_modal_fix">Go Back to Form</button>
+              <button type="button" class="btn-confirm-save" id="compliance_modal_save">Confirm and Save</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2126,14 +2207,23 @@
             vatAmount = 0;
           }
 
-          netInput.value = round2(taxableNet).toFixed(2);
+          var deductibilitySelect = document.getElementById("expense_deductibility_status");
+          var netNote = document.getElementById("expense_net_nondeductible_note");
+          var isNonDeductible = !!(deductibilitySelect && deductibilitySelect.value === "Non-Deductible");
+          var displayNet = isNonDeductible ? 0 : taxableNet;
+
+          netInput.value = round2(displayNet).toFixed(2);
+          if (netNote) {
+            netNote.style.display = isNonDeductible ? "block" : "none";
+          }
           if (vatAmountInput) {
             vatAmountInput.value = round2(vatAmount).toFixed(2);
           }
           totalInput.value = round2(taxableNet + vatAmount).toFixed(2);
 
-          updateCalcSummary("expense", taxableNet, vatAmount, taxableNet + vatAmount);
+          updateCalcSummary("expense", displayNet, vatAmount, taxableNet + vatAmount);
         }
+        window.recalculateExpenseAmounts = updateExpenseCalculatedAmounts;
 
         function formatEuro(value) {
           return "€" + round2(value).toLocaleString("en-IE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2209,6 +2299,7 @@
           "expense_discount_type",
           "expense_vat_rate",
           "expense_vat_treatment",
+          "expense_deductibility_status",
         ];
 
         watchedIds.forEach(function (id) {
@@ -2540,7 +2631,7 @@
           return div.innerHTML;
         }
 
-        function setPanel(panelId, severity, message, learnMore) {
+        function setPanel(panelId, severity, message, subMessage) {
           var panel = document.getElementById(panelId);
           if (!panel) {
             return;
@@ -2551,31 +2642,22 @@
             return;
           }
           var icon = severity === "danger" ? "⛔" : severity === "warning" ? "⚠" : "ℹ";
-          var html = '<span class="compliance-icon">' + icon + '</span><span class="compliance-text">' + escapeHtml(message) + '</span>';
-          if (learnMore && learnMore !== message) {
-            html += ' <button type="button" class="learn-more-link" data-full="' + escapeHtml(learnMore) + '">Learn more</button>';
+          var html = '<span class="compliance-icon">' + icon + '</span><span class="compliance-text-wrap">';
+          html += '<span class="compliance-text-main">' + escapeHtml(message) + '</span>';
+          if (subMessage && subMessage !== message) {
+            html += '<span class="compliance-text-sub">' + escapeHtml(subMessage) + '</span>';
           }
+          html += '</span>';
           panel.className = "compliance-panel severity-" + severity;
           panel.innerHTML = html;
           panel.style.display = "flex";
         }
 
-        document.addEventListener("click", function (event) {
-          if (event.target.classList && event.target.classList.contains("learn-more-link")) {
-            var panel = event.target.closest(".compliance-panel");
-            var textEl = panel && panel.querySelector(".compliance-text");
-            if (textEl) {
-              textEl.textContent = event.target.getAttribute("data-full") || textEl.textContent;
-            }
-            event.target.remove();
-          }
-        });
-
-        function setComplianceFlag(formKey, flagKey, severity, message) {
+        function setComplianceFlag(formKey, flagKey, severity, message, modalMessage) {
           if (!severity || severity === "info" || !message) {
             delete complianceState[formKey][flagKey];
           } else {
-            complianceState[formKey][flagKey] = { key: flagKey, severity: severity, message: message };
+            complianceState[formKey][flagKey] = { key: flagKey, severity: severity, message: message, modalMessage: modalMessage || message };
           }
           var field = document.getElementById(formKey + "_compliance_flags_json");
           if (field) {
@@ -2635,8 +2717,8 @@
             setComplianceFlag("expense", "category", null);
             return;
           }
-          setPanel("expense_category_panel", rule.severity, rule.message, rule.description);
-          setComplianceFlag("expense", "category", rule.severity, rule.message);
+          setPanel("expense_category_panel", rule.severity, rule.message, rule.action);
+          setComplianceFlag("expense", "category", rule.severity, rule.message, rule.modal_message);
         }
 
         function updateExpenseAmountPanel() {
@@ -2705,11 +2787,17 @@
           var rule = expenseCategoryRules[expenseCategoryField.value];
 
           var deductibilitySelect = document.getElementById("expense_deductibility_status");
+          var deductibilityBadge = document.getElementById("expense_deductibility_badge");
           var deductibilityHint = document.getElementById("expense_deductibility_lock_hint");
           var deductibilityLocked = !!(rule && rule.deductibility && rule.deductibility !== "Fully Deductible");
           if (deductibilitySelect) {
             deductibilitySelect.disabled = deductibilityLocked;
+            deductibilitySelect.style.display = deductibilityLocked ? "none" : "";
             if (deductibilityLocked) { deductibilitySelect.value = rule.deductibility; }
+          }
+          if (deductibilityBadge) {
+            deductibilityBadge.style.display = deductibilityLocked ? "inline-flex" : "none";
+            deductibilityBadge.textContent = deductibilityLocked ? rule.deductibility : "";
           }
           if (deductibilityHint) { deductibilityHint.style.display = deductibilityLocked ? "inline" : "none"; }
 
@@ -2721,6 +2809,8 @@
             if (vatReclaimLocked) { vatReclaimSelect.value = "No"; }
           }
           if (vatReclaimHint) { vatReclaimHint.style.display = vatReclaimLocked ? "inline" : "none"; }
+
+          if (window.recalculateExpenseAmounts) { window.recalculateExpenseAmounts(); }
         }
 
         function refreshAllExpensePanels() {
@@ -2767,7 +2857,7 @@
             return;
           }
           setPanel("income_category_panel", rule.severity, rule.message, rule.description);
-          setComplianceFlag("income", "category", rule.severity, rule.message);
+          setComplianceFlag("income", "category", rule.severity, rule.message, rule.modal_message);
         }
         if (incomeCategoryField) {
           incomeCategoryField.addEventListener("change", updateIncomeCategoryPanel);
@@ -2788,7 +2878,7 @@
           var list = document.getElementById("compliance_modal_list");
           if (list) {
             list.innerHTML = flags.map(function (flag) {
-              return '<div class="compliance-flag-item">' + escapeHtml(flag.message) + '</div>';
+              return '<div class="compliance-flag-item">' + escapeHtml(flag.modalMessage || flag.message) + '</div>';
             }).join("");
           }
           var overlay = document.getElementById("compliance_modal_overlay");
@@ -2841,6 +2931,126 @@
             pendingSubmitForm = null;
             pendingSubmitFormKey = null;
             formToSubmit.submit();
+          });
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var input = document.getElementById("expense_supplier");
+        var dropdown = document.getElementById("expense_supplier_dropdown");
+        var wrapper = input ? input.closest(".supplier-combo") : null;
+        var oneOffCheckbox = document.getElementById("expense_supplier_one_off");
+        if (!input || !dropdown) { return; }
+
+        var searchTimer = null;
+        var activeIndex = -1;
+
+        function closeDropdown() {
+          dropdown.classList.remove("open");
+          dropdown.innerHTML = "";
+          activeIndex = -1;
+          if (wrapper) { wrapper.classList.remove("dropdown-open"); }
+        }
+
+        function renderResults(matches, query) {
+          dropdown.innerHTML = "";
+          var exactMatches = matches.filter(function (match) { return match.name.toLowerCase() === query.toLowerCase(); });
+          var isSingleExactMatch = matches.length === 1 && exactMatches.length === 1;
+
+          var matchesWrap = document.createElement("div");
+          matchesWrap.className = "supplier-combo-matches";
+          matches.forEach(function (match) {
+            var option = document.createElement("div");
+            option.className = "supplier-combo-option" + (isSingleExactMatch ? " exact-single-match" : "");
+            option.textContent = match.name;
+            if (match.needs_completion) {
+              var tag = document.createElement("span");
+              tag.className = "incomplete-tag";
+              tag.textContent = "Incomplete";
+              option.appendChild(tag);
+            }
+            option.addEventListener("click", function () {
+              input.value = match.name;
+              closeDropdown();
+            });
+            matchesWrap.appendChild(option);
+          });
+          if (matchesWrap.children.length > 0) {
+            dropdown.appendChild(matchesWrap);
+          }
+
+          if (exactMatches.length === 0 && query.length >= 2) {
+            var addOption = document.createElement("div");
+            addOption.className = "supplier-combo-add";
+            var addIcon = document.createElement("span");
+            addIcon.className = "add-icon";
+            addIcon.textContent = "+";
+            var addLabel = document.createElement("span");
+            addLabel.textContent = "Add \"" + query + "\" as new supplier";
+            addOption.appendChild(addIcon);
+            addOption.appendChild(addLabel);
+            addOption.addEventListener("click", function () {
+              fetch("/api/suppliers/quick-add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: query })
+              })
+                .then(function (response) { return response.json(); })
+                .then(function (result) {
+                  if (result && result.name) {
+                    input.value = result.name;
+                  }
+                  closeDropdown();
+                })
+                .catch(function () { closeDropdown(); });
+            });
+            dropdown.appendChild(addOption);
+          }
+          var hasResults = dropdown.children.length > 0;
+          dropdown.classList.toggle("open", hasResults);
+          if (wrapper) { wrapper.classList.toggle("dropdown-open", hasResults); }
+        }
+
+        function search(query) {
+          if (oneOffCheckbox && oneOffCheckbox.checked) {
+            closeDropdown();
+            return;
+          }
+          if (query.length < 2) {
+            closeDropdown();
+            return;
+          }
+          fetch("/api/suppliers/search?q=" + encodeURIComponent(query))
+            .then(function (response) { return response.json(); })
+            .then(function (matches) { renderResults(matches || [], query); })
+            .catch(function () { closeDropdown(); });
+        }
+
+        input.addEventListener("input", function () {
+          var query = input.value.trim();
+          if (searchTimer) { clearTimeout(searchTimer); }
+          searchTimer = setTimeout(function () { search(query); }, 200);
+        });
+        input.addEventListener("focus", function () {
+          var query = input.value.trim();
+          if (query.length >= 2) { search(query); }
+        });
+        document.addEventListener("click", function (event) {
+          if (!event.target.closest(".supplier-combo")) {
+            closeDropdown();
+          }
+        });
+        var searchPlaceholder = input.getAttribute("placeholder") || "Search suppliers...";
+        if (oneOffCheckbox) {
+          oneOffCheckbox.addEventListener("change", function () {
+            closeDropdown();
+            if (oneOffCheckbox.checked) {
+              input.value = "";
+              input.setAttribute("placeholder", "Enter payee name.");
+            } else {
+              input.setAttribute("placeholder", searchPlaceholder);
+            }
           });
         }
       })();
