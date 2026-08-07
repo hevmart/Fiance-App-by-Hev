@@ -3,17 +3,24 @@
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on http://127.0.0.1:5000
 Press CTRL+C to quit
-127.0.0.1 - - [07/Aug/2026 01:36:03] "GET /healthz HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:12] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:12] "GET /services HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:12] "GET /clients HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:12] "GET /invoices HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:12] "GET /suppliers HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:18] "GET /services HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:28] "GET /invoices HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:29] "GET /invoices HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 01:36:41] "POST /services/add HTTP/1.1" 302 -
-127.0.0.1 - - [07/Aug/2026 01:36:57] "POST /services/archive HTTP/1.1" 302 -
-127.0.0.1 - - [07/Aug/2026 01:36:57] "POST /services/restore HTTP/1.1" 302 -
-127.0.0.1 - - [07/Aug/2026 01:37:06] "POST /clients/add HTTP/1.1" 302 -
-127.0.0.1 - - [07/Aug/2026 01:37:13] "GET /invoices HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:03] "GET /income HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:03] "GET /invoices HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:03] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:04] "GET /services HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:04] "GET /clients HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:04] "GET /suppliers HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:04] "GET /subscriptions HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:04] "GET /payroll HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:04] "GET /ledger HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:44:04] "GET /archive HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:50:45] "GET /ledger HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:50:45] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:50:49] "GET /ledger HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:50:49] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:50:49] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [07/Aug/2026 15:50:52] "GET /invoices HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:50:53] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:52:20] "POST /invoices/add HTTP/1.1" 302 -
+127.0.0.1 - - [07/Aug/2026 15:52:20] "GET /invoices?message=Invoice+added HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 15:52:20] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -

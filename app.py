@@ -99,7 +99,8 @@ SUPPLY_TYPE_OPTIONS = [
     {"value": "goods", "label": "Goods"},
 ]
 INVOICE_STATUS_OPTIONS = ["Draft", "Issued", "Paid", "Partially Paid", "Overdue", "Bad Debt", "Cancelled"]
-INCOME_STATUS_OPTIONS = ["Pending", "Invoiced", "Paid", "Cancelled"]
+INCOME_STATUS_OPTIONS = ["Received", "Pending", "Cancelled"]
+INCOME_SOURCES = ("manual", "invoiced")
 EXPENSE_STATUS_OPTIONS = ["Pending", "Approved", "Paid", "Auto-posted", "Cancelled"]
 EXPENSE_INPUT_VAT_OPTIONS = ["Yes", "No", "Partial"]
 EXPENSE_DEDUCTIBILITY_OPTIONS = ["Fully Deductible", "Partially Deductible", "Non-Deductible"]
@@ -365,7 +366,7 @@ def _resolve_workbook_path() -> Path:
 
 
 SHEET_HEADERS = {
-    "Income": ["Date", "Description", "Client / Source", "Category", "Invoice #", "Amount (€)", "Status", "Total incl. VAT (€)", "Payment Date"],
+    "Income": ["Date", "Description", "Client / Source", "Category", "Invoice #", "Invoice ID", "Source", "Amount (€)", "Status", "Total incl. VAT (€)", "Payment Method", "Payment Date", "Notes"],
     "Expenses": [
         "Date (Registered)",
         "Supplier / Payee",
@@ -725,6 +726,8 @@ def _is_paid_status(entity_type: str, status: Any) -> bool:
     normalized = str(status or "").strip().lower()
     if entity_type == "expense":
         return normalized in {"paid", "auto-posted", "auto_posted"}
+    if entity_type == "income":
+        return normalized in {"received", "partially received", "partially_received"}
     if entity_type == "invoice":
         return normalized in {"paid", "partially paid", "partially_paid"}
     if entity_type == "payroll":
@@ -1279,6 +1282,92 @@ def _normalize_invoice_status(value: Any) -> str:
     return status_map.get(status, "Draft")
 
 
+def _auto_flag_overdue_invoices(invoices: list[dict[str, Any]]) -> bool:
+    """Flip Issued invoices past their due date to Overdue in place. Returns True if anything changed."""
+    changed = False
+    today = date.today()
+    for row in invoices:
+        if _normalize_invoice_status(row.get("Status")) != "Issued":
+            continue
+        due_date = _parse_iso_date(row.get("Due Date"))
+        if due_date and due_date < today:
+            row["Status"] = "Overdue"
+            changed = True
+    return changed
+
+
+def _sync_invoice_income_entry(invoice: dict[str, Any]) -> None:
+    """Create/update/remove the Income entry linked to an invoice so it never needs manual duplication.
+
+    Paid/Partially Paid invoices get exactly one linked Income row (Source=invoiced) reflecting the
+    cumulative amount actually received. Any other status removes the linked row — Draft/Issued/Overdue
+    haven't been received yet, and Bad Debt/Cancelled never will be.
+    """
+    invoice_number = str(invoice.get("Invoice #") or "").strip()
+    if not invoice_number:
+        return
+
+    status = _normalize_invoice_status(invoice.get("Status"))
+    income_records = _load_sheet_records_raw("Income")
+    existing_index = next(
+        (index for index, record in enumerate(income_records) if str(record.get("Invoice ID") or "") == invoice_number),
+        None,
+    )
+
+    if status in ("Paid", "Partially Paid"):
+        total = _coerce_number(invoice.get("Total (€)"))
+        balance = _coerce_number(invoice.get("Balance Due (€)"))
+        amount_received = round(max(total - balance, 0.0), 2)
+        ratio = (amount_received / total) if total > 0 else 1.0
+        line_item_names = ", ".join(str(item.get("name") or "").strip() for item in invoice.get("line_items") or [] if str(item.get("name") or "").strip())
+        record = {
+            "Date": invoice.get("Payment Date") or invoice.get("Issue Date") or "",
+            "Description": line_item_names or invoice.get("Service / Product") or f"Invoice {invoice_number}",
+            "Client / Source": invoice.get("Client Name") or "",
+            "Category": "Consulting / Project Fees",
+            "Invoice #": invoice_number,
+            "Invoice ID": invoice_number,
+            "Source": "invoiced",
+            "Amount (€)": f"{round(_coerce_number(invoice.get('Net (€)')) * ratio, 2):.2f}",
+            "Total incl. VAT (€)": f"{amount_received:.2f}",
+            "VAT Rate": invoice.get("VAT Rate") or "0%",
+            "VAT Amount (€)": f"{round(_coerce_number(invoice.get('VAT Amount (€)')) * ratio, 2):.2f}",
+            "VAT Treatment": invoice.get("VAT Treatment") or "standard",
+            "Supply Type": invoice.get("Supply Type") or "services",
+            "Status": "Received",
+            "Payment Method": invoice.get("Payment Method") or "",
+            "Phase Tag": invoice.get("Phase Tag") or "",
+        }
+        if existing_index is not None:
+            income_records[existing_index] = record
+        else:
+            income_records.append(record)
+        _save_sheet_records_raw("Income", income_records)
+    elif existing_index is not None:
+        del income_records[existing_index]
+        _save_sheet_records_raw("Income", income_records)
+
+
+def _migrate_income_invoice_linkage() -> None:
+    """Startup consistency pass: stamp Source/Invoice ID on legacy Income rows and make sure every
+    Paid/Partially Paid invoice has exactly one linked Income row. Safe to run on every startup."""
+    income_records = _load_sheet_records_raw("Income")
+    changed = False
+    for record in income_records:
+        if "Source" not in record:
+            record["Source"] = "manual"
+            changed = True
+        if "Invoice ID" not in record:
+            record["Invoice ID"] = ""
+            changed = True
+    if changed:
+        _save_sheet_records_raw("Income", income_records)
+
+    for invoice in _load_sheet_records_raw("Invoices"):
+        if _normalize_invoice_status(invoice.get("Status")) in ("Paid", "Partially Paid"):
+            _sync_invoice_income_entry(invoice)
+
+
 def _normalize_expense_status(value: Any) -> str:
     status = str(value or "").strip().lower()
     status_map = {
@@ -1472,6 +1561,15 @@ def _apply_expense_amount_breakdown(payload: dict[str, Any]) -> None:
     payload["Net Amount (€)"] = f"{round(taxable_net, 2):.2f}"
 
 
+def _normalize_invoice_balance(payload: dict[str, Any]) -> None:
+    status = _normalize_invoice_status(payload.get("Status"))
+    total = _coerce_number(payload.get("Total (€)"))
+    if status == "Paid":
+        payload["Balance Due (€)"] = f"{0:.2f}"
+    elif status in ("Draft", "Issued", "Overdue") and not str(payload.get("Balance Due (€)") or "").strip():
+        payload["Balance Due (€)"] = f"{round(total, 2):.2f}"
+
+
 def _apply_invoice_amount_breakdown(payload: dict[str, Any]) -> None:
     base_net = _coerce_number(payload.get("Base Net Amount (€)"))
     delivery = _coerce_number(payload.get("Delivery (€)"))
@@ -1490,6 +1588,100 @@ def _apply_invoice_amount_breakdown(payload: dict[str, Any]) -> None:
     payload["Discount Value"] = f"{round(_coerce_number(payload.get('Discount Value')), 2):.2f}"
     payload["Discount (€)"] = f"{round(discount, 2):.2f}"
     payload["Net (€)"] = f"{round(taxable_net, 2):.2f}"
+
+
+def _compute_invoice_line_item(item: dict[str, Any]) -> dict[str, Any]:
+    quantity = _coerce_number(item.get("quantity")) or 1.0
+    unit_price = round(_coerce_number(item.get("unit_price")), 2)
+    base_amount = round(quantity * unit_price, 2)
+
+    discount_type = "%" if str(item.get("discount_type") or "€").strip() == "%" else "€"
+    discount_value = round(_coerce_number(item.get("discount_value")), 2)
+    if discount_type == "%":
+        discount_amount = round(base_amount * (discount_value / 100.0), 2)
+    else:
+        discount_amount = round(discount_value, 2)
+    discount_amount = max(min(discount_amount, base_amount), 0.0)
+
+    net_amount = round(max(base_amount - discount_amount, 0.0), 2)
+    vat_rate_value = str(item.get("vat_rate") or "0%")
+    vat_amount = round(net_amount * _parse_vat_rate(vat_rate_value), 2) if _is_vat_registered() else 0.0
+    total = round(net_amount + vat_amount, 2)
+
+    return {
+        "service_id": str(item.get("service_id") or "").strip(),
+        "name": str(item.get("name") or "").strip(),
+        "description": str(item.get("description") or "").strip(),
+        "quantity": quantity,
+        "unit_price": unit_price,
+        "discount_type": discount_type,
+        "discount_value": discount_value,
+        "discount_amount": discount_amount,
+        "net_amount": net_amount,
+        "vat_rate": vat_rate_value,
+        "vat_amount": vat_amount,
+        "total": total,
+    }
+
+
+def _apply_invoice_line_items(payload: dict[str, Any], raw_line_items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Compute and store authoritative line items on an invoice payload, then roll them up into the
+    invoice's flat aggregate fields (Base Net/Discount/Net/VAT Amount/Total/Service-Product) so the
+    rest of the invoice pipeline — validation, balance normalization, income sync — needs no changes."""
+    computed = [_compute_invoice_line_item(item) for item in raw_line_items if str(item.get("name") or "").strip()]
+    payload["line_items"] = computed
+
+    base_total = round(sum(item["quantity"] * item["unit_price"] for item in computed), 2)
+    discount_total = round(sum(item["discount_amount"] for item in computed), 2)
+    net_total = round(sum(item["net_amount"] for item in computed), 2)
+    vat_total = round(sum(item["vat_amount"] for item in computed), 2)
+    grand_total = round(sum(item["total"] for item in computed), 2)
+
+    payload["Base Net Amount (€)"] = f"{base_total:.2f}"
+    payload["Discount Type"] = "€"
+    payload["Discount Value"] = f"{discount_total:.2f}"
+    payload["Discount (€)"] = f"{discount_total:.2f}"
+    payload["Net (€)"] = f"{net_total:.2f}"
+    payload["VAT Amount (€)"] = f"{vat_total:.2f}"
+    payload["Total (€)"] = f"{grand_total:.2f}"
+    payload["VAT Rate"] = computed[0]["vat_rate"] if len(computed) == 1 else (computed[0]["vat_rate"] if computed and all(item["vat_rate"] == computed[0]["vat_rate"] for item in computed) else "Mixed")
+    if computed:
+        payload["Service / Product"] = ", ".join(item["name"] for item in computed if item["name"])
+    return computed
+
+
+def _migrate_invoice_line_items() -> None:
+    """Give every legacy invoice (pre-line-items) a single line item derived from its flat fields,
+    so line_items is always the source of truth going forward. The flat Service/Product field is
+    kept untouched for backwards compatibility."""
+    invoices = _load_sheet_records_raw("Invoices")
+    changed = False
+    for invoice in invoices:
+        if invoice.get("line_items"):
+            continue
+        net_amount = round(_coerce_number(invoice.get("Net (€)")), 2)
+        vat_amount = round(_coerce_number(invoice.get("VAT Amount (€)")), 2)
+        total = round(_coerce_number(invoice.get("Total (€)")), 2)
+        name = str(invoice.get("Service / Product") or "Service").strip() or "Service"
+        invoice["line_items"] = [
+            {
+                "service_id": "",
+                "name": name,
+                "description": name,
+                "quantity": 1.0,
+                "unit_price": net_amount,
+                "discount_type": "€",
+                "discount_value": 0.0,
+                "discount_amount": 0.0,
+                "net_amount": net_amount,
+                "vat_rate": str(invoice.get("VAT Rate") or "0%"),
+                "vat_amount": vat_amount,
+                "total": total,
+            }
+        ]
+        changed = True
+    if changed:
+        _save_sheet_records_raw("Invoices", invoices)
 
 
 def _format_currency(value: float) -> str:
@@ -3129,6 +3321,7 @@ def _build_page_context(
         "payroll_summary": resolved_payroll_summary,
         "chart_data": chart_data or _build_chart_data(summary),
         "format_currency": _format_currency,
+        "raw_amount": _coerce_number,
         "version": version,
         "active_tab": active_tab,
         "editing_income": editing_income,
@@ -3234,9 +3427,20 @@ def load_finance_data() -> dict[str, Any]:
         if not row.get("Total (€)"):
             row["Total (€)"] = round(_coerce_number(row.get("Net (€)", 0)) + _coerce_number(row.get("VAT (€)", 0)), 2)
 
-    income_total = sum(_coerce_number(row.get("Amount (€)", row.get("Total incl. VAT (€)", 0))) for row in sheets["Income"])
+    if _auto_flag_overdue_invoices(sheets["Invoices"]):
+        _save_sheet_records_raw("Invoices", [{k: v for k, v in row.items() if not k.startswith("__")} for row in sheets["Invoices"]])
+
+    income_total = sum(
+        _coerce_number(row.get("Amount (€)", row.get("Total incl. VAT (€)", 0)))
+        for row in sheets["Income"]
+        if str(row.get("Status") or "").strip().lower() == "received"
+    )
     expense_total = sum(_coerce_number(row.get("Total (€)")) for row in sheets["Expenses"])
-    invoice_balance = sum(_coerce_number(row.get("Balance Due (€)", row.get("Balance (€)", 0))) for row in sheets["Invoices"])
+    invoice_balance = sum(
+        _coerce_number(row.get("Balance Due (€)", row.get("Balance (€)", 0)))
+        for row in sheets["Invoices"]
+        if _normalize_invoice_status(row.get("Status")) in ("Issued", "Overdue", "Partially Paid")
+    )
     ap_balance = sum(
         _coerce_number(row.get("Total (€)", 0))
         for row in sheets["Expenses"]
@@ -3360,9 +3564,25 @@ def income_view():
     _sync_subscriptions_to_expenses()
     data = load_finance_data()
     rows = data["sheets"].get("Income", [])
+    invoiced_income = [row for row in rows if str(row.get("Source") or "manual") == "invoiced"]
+    manual_income = [row for row in rows if str(row.get("Source") or "manual") != "invoiced"]
+    invoiced_income_total = round(sum(_coerce_number(row.get("Total incl. VAT (€)")) for row in invoiced_income), 2)
+    manual_income_received_total = round(
+        sum(_coerce_number(row.get("Amount (€)")) for row in manual_income if str(row.get("Status") or "").strip().lower() == "received"),
+        2,
+    )
     validation_errors, income_form = _build_validation_state("income")
     editing_income = _find_row_by_number(rows, request.args.get("edit_row"))
-    return render_template("index.html", **_build_page_context("Income", "income", data, income=rows, editing_income=editing_income, income_form=income_form, validation_errors=validation_errors, message=request.args.get("message")))
+    if editing_income is not None and str(editing_income.get("Source") or "manual") == "invoiced":
+        editing_income = None
+    return render_template(
+        "index.html",
+        **_build_page_context("Income", "income", data, income=rows, editing_income=editing_income, income_form=income_form, validation_errors=validation_errors, message=request.args.get("message")),
+        invoiced_income=invoiced_income,
+        manual_income=manual_income,
+        invoiced_income_total=invoiced_income_total,
+        manual_income_received_total=manual_income_received_total,
+    )
 
 
 @app.route("/expenses")
@@ -4058,20 +4278,27 @@ def delete_payroll():
 
 @app.route("/income/add", methods=["POST"])
 def add_income():
+    status = request.form.get("status", "Received")
+    if status not in INCOME_STATUS_OPTIONS:
+        status = "Received"
     payload = {
         "Date": request.form.get("date", ""),
         "Description": request.form.get("description", ""),
         "Client / Source": request.form.get("client_source", ""),
         "Category": request.form.get("category", ""),
-        "Invoice #": request.form.get("invoice_number", ""),
+        "Invoice #": "",
+        "Invoice ID": "",
+        "Source": "manual",
         "Amount (€)": request.form.get("amount", ""),
         "Total incl. VAT (€)": request.form.get("total_incl_vat", ""),
         "VAT Rate": request.form.get("vat_rate", "0%"),
         "VAT Amount (€)": request.form.get("vat_amount", ""),
         "VAT Treatment": request.form.get("vat_treatment", "standard"),
         "Supply Type": request.form.get("supply_type", "services"),
-        "Status": request.form.get("status", ""),
+        "Status": status,
         "Payment Method": request.form.get("payment_method", ""),
+        "Payment Date": request.form.get("payment_date", ""),
+        "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("date", "")),
     }
     _normalize_vat_fields(
@@ -4092,7 +4319,6 @@ def add_income():
                 "description": "Description",
                 "client_source": "Client / Source",
                 "category": "Category",
-                "invoice_number": "Invoice #",
                 "amount": "Amount (€)",
                 "total_incl_vat": "Total incl. VAT (€)",
                 "vat_rate": "VAT Rate",
@@ -4101,6 +4327,8 @@ def add_income():
                 "supply_type": "Supply Type",
                 "status": "Status",
                 "payment_method": "Payment Method",
+                "payment_date": "Payment Date",
+                "notes": "Notes",
             }),
             validation_errors,
             validation_tab="income",
@@ -4118,20 +4346,31 @@ def update_income():
     if row_number is None:
         return redirect(url_for("income_view", message="Income entry could not be updated"))
 
+    current_row = _find_sheet_row_or_raise("Income", row_number)
+    if str(current_row.get("Source") or "manual") == "invoiced":
+        return redirect(url_for("income_view", message="This entry is linked to an invoice — edit the invoice instead"))
+
+    status = request.form.get("status", current_row.get("Status", "Received"))
+    if status not in INCOME_STATUS_OPTIONS:
+        status = "Received"
     payload = {
         "Date": request.form.get("date", ""),
         "Description": request.form.get("description", ""),
         "Client / Source": request.form.get("client_source", ""),
         "Category": request.form.get("category", ""),
-        "Invoice #": request.form.get("invoice_number", ""),
+        "Invoice #": "",
+        "Invoice ID": "",
+        "Source": "manual",
         "Amount (€)": request.form.get("amount", ""),
         "Total incl. VAT (€)": request.form.get("total_incl_vat", ""),
         "VAT Rate": request.form.get("vat_rate", "0%"),
         "VAT Amount (€)": request.form.get("vat_amount", ""),
         "VAT Treatment": request.form.get("vat_treatment", "standard"),
         "Supply Type": request.form.get("supply_type", "services"),
-        "Status": request.form.get("status", ""),
+        "Status": status,
         "Payment Method": request.form.get("payment_method", ""),
+        "Payment Date": request.form.get("payment_date", ""),
+        "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("date", "")),
     }
     _normalize_vat_fields(
@@ -4152,7 +4391,6 @@ def update_income():
                 "description": "Description",
                 "client_source": "Client / Source",
                 "category": "Category",
-                "invoice_number": "Invoice #",
                 "amount": "Amount (€)",
                 "total_incl_vat": "Total incl. VAT (€)",
                 "vat_rate": "VAT Rate",
@@ -4161,6 +4399,8 @@ def update_income():
                 "supply_type": "Supply Type",
                 "status": "Status",
                 "payment_method": "Payment Method",
+                "payment_date": "Payment Date",
+                "notes": "Notes",
             }),
             validation_errors,
             validation_tab="income",
@@ -4180,6 +4420,8 @@ def delete_income():
         return redirect(url_for("income_view", message="Income entry could not be removed"))
 
     row = _find_sheet_row_or_raise("Income", row_number)
+    if str(row.get("Source") or "manual") == "invoiced":
+        return redirect(url_for("income_view", message="This entry is linked to an invoice — edit the invoice instead"))
     _archive_record("income", row, source="workbook")
     _delete_row_from_sheet("Income", row_number)
     load_finance_data.cache_clear()
@@ -4427,16 +4669,6 @@ def add_invoice():
         "Client VAT Number": request.form.get("client_vat_number", ""),
         "Client Address": request.form.get("client_address", ""),
         "Service / Product": request.form.get("service_product", ""),
-        "Base Net Amount (€)": request.form.get("base_net_amount", request.form.get("net_amount", "")),
-        "Delivery (€)": request.form.get("delivery_amount", ""),
-        "Fees (€)": request.form.get("fees_amount", ""),
-        "Other Charges (€)": request.form.get("other_charges_amount", ""),
-        "Discount Type": request.form.get("discount_type", "€"),
-        "Discount Value": request.form.get("discount_value", ""),
-        "Net (€)": request.form.get("net_amount", ""),
-        "Total (€)": request.form.get("total_amount", ""),
-        "VAT Rate": request.form.get("vat_rate", "0%"),
-        "VAT Amount (€)": request.form.get("vat_amount", ""),
         "VAT Treatment": request.form.get("vat_treatment", "standard"),
         "Supply Type": request.form.get("supply_type", "services"),
         "Balance Due (€)": request.form.get("balance_due", ""),
@@ -4447,22 +4679,19 @@ def add_invoice():
         "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("issue_date", "")),
     }
-    _form_total = payload.get("Total (€)", "")
-    _form_vat = payload.get("VAT Amount (€)", "")
-    _apply_invoice_amount_breakdown(payload)
-    payload["Total (€)"] = _form_total
-    payload["VAT Amount (€)"] = _form_vat
-    _normalize_vat_fields(
-        payload,
-        net_key="Net (€)",
-        total_key="Total (€)",
-        vat_rate_key="VAT Rate",
-        vat_amount_key="VAT Amount (€)",
-        vat_registered=_is_vat_registered(),
-    )
+    try:
+        raw_line_items = json.loads(request.form.get("line_items_json") or "[]")
+        if not isinstance(raw_line_items, list):
+            raw_line_items = []
+    except (TypeError, ValueError):
+        raw_line_items = []
+    line_items = _apply_invoice_line_items(payload, raw_line_items)
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
+    _normalize_invoice_balance(payload)
     payment_date_autofilled = _apply_default_payment_date_for_paid(payload, "invoice", "Issue Date")
     validation_errors = _validate_invoice_payload(payload)
+    if not line_items:
+        validation_errors["line_items"] = "At least one line item is required"
     if validation_errors:
         return _redirect_with_form_errors(
             "invoices_view",
@@ -4474,16 +4703,6 @@ def add_invoice():
                 "client_vat_number": request.form.get("client_vat_number", ""),
                 "client_address": request.form.get("client_address", ""),
                 "service_product": request.form.get("service_product", ""),
-                "base_net_amount": request.form.get("base_net_amount", ""),
-                "delivery_amount": request.form.get("delivery_amount", ""),
-                "fees_amount": request.form.get("fees_amount", ""),
-                "other_charges_amount": request.form.get("other_charges_amount", ""),
-                "discount_type": request.form.get("discount_type", "€"),
-                "discount_value": request.form.get("discount_value", ""),
-                "net_amount": request.form.get("net_amount", ""),
-                "total_amount": request.form.get("total_amount", ""),
-                "vat_rate": request.form.get("vat_rate", "0%"),
-                "vat_amount": request.form.get("vat_amount", ""),
                 "vat_treatment": request.form.get("vat_treatment", "standard"),
                 "supply_type": request.form.get("supply_type", "services"),
                 "balance_due": request.form.get("balance_due", ""),
@@ -4492,11 +4711,13 @@ def add_invoice():
                 "payment_date": request.form.get("payment_date", ""),
                 "bank_reconciliation": request.form.get("bank_reconciliation", "Unreconciled"),
                 "notes": request.form.get("notes", ""),
+                "line_items_json": request.form.get("line_items_json", ""),
             },
             validation_errors,
             validation_tab="invoices",
         )
     row_number = _append_row_to_sheet("Invoices", payload)
+    _sync_invoice_income_entry(payload)
     load_finance_data.cache_clear()
     _record_audit("create", "invoice", {"row_number": row_number, "record": payload})
     _record_ledger_entry("create", "invoice", payload, source="workbook", row_number=row_number)
@@ -4521,16 +4742,6 @@ def update_invoice():
         "Client VAT Number": request.form.get("client_vat_number", ""),
         "Client Address": request.form.get("client_address", ""),
         "Service / Product": request.form.get("service_product", ""),
-        "Base Net Amount (€)": request.form.get("base_net_amount", request.form.get("net_amount", "")),
-        "Delivery (€)": request.form.get("delivery_amount", ""),
-        "Fees (€)": request.form.get("fees_amount", ""),
-        "Other Charges (€)": request.form.get("other_charges_amount", ""),
-        "Discount Type": request.form.get("discount_type", "€"),
-        "Discount Value": request.form.get("discount_value", ""),
-        "Net (€)": request.form.get("net_amount", ""),
-        "Total (€)": request.form.get("total_amount", ""),
-        "VAT Rate": request.form.get("vat_rate", "0%"),
-        "VAT Amount (€)": request.form.get("vat_amount", ""),
         "VAT Treatment": request.form.get("vat_treatment", "standard"),
         "Supply Type": request.form.get("supply_type", "services"),
         "Balance Due (€)": request.form.get("balance_due", ""),
@@ -4541,22 +4752,19 @@ def update_invoice():
         "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("issue_date", "")),
     }
-    _form_total = payload.get("Total (€)", "")
-    _form_vat = payload.get("VAT Amount (€)", "")
-    _apply_invoice_amount_breakdown(payload)
-    payload["Total (€)"] = _form_total
-    payload["VAT Amount (€)"] = _form_vat
-    _normalize_vat_fields(
-        payload,
-        net_key="Net (€)",
-        total_key="Total (€)",
-        vat_rate_key="VAT Rate",
-        vat_amount_key="VAT Amount (€)",
-        vat_registered=_is_vat_registered(),
-    )
+    try:
+        raw_line_items = json.loads(request.form.get("line_items_json") or "[]")
+        if not isinstance(raw_line_items, list):
+            raw_line_items = []
+    except (TypeError, ValueError):
+        raw_line_items = []
+    line_items = _apply_invoice_line_items(payload, raw_line_items)
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
+    _normalize_invoice_balance(payload)
     payment_date_autofilled = _apply_default_payment_date_for_paid(payload, "invoice", "Issue Date")
     validation_errors = _validate_invoice_payload(payload)
+    if not line_items:
+        validation_errors["line_items"] = "At least one line item is required"
     if validation_errors:
         return _redirect_with_form_errors(
             "invoices_view",
@@ -4568,16 +4776,6 @@ def update_invoice():
                 "client_vat_number": request.form.get("client_vat_number", ""),
                 "client_address": request.form.get("client_address", ""),
                 "service_product": request.form.get("service_product", ""),
-                "base_net_amount": request.form.get("base_net_amount", ""),
-                "delivery_amount": request.form.get("delivery_amount", ""),
-                "fees_amount": request.form.get("fees_amount", ""),
-                "other_charges_amount": request.form.get("other_charges_amount", ""),
-                "discount_type": request.form.get("discount_type", "€"),
-                "discount_value": request.form.get("discount_value", ""),
-                "net_amount": request.form.get("net_amount", ""),
-                "total_amount": request.form.get("total_amount", ""),
-                "vat_rate": request.form.get("vat_rate", "0%"),
-                "vat_amount": request.form.get("vat_amount", ""),
                 "vat_treatment": request.form.get("vat_treatment", "standard"),
                 "supply_type": request.form.get("supply_type", "services"),
                 "balance_due": request.form.get("balance_due", ""),
@@ -4586,12 +4784,14 @@ def update_invoice():
                 "payment_date": request.form.get("payment_date", ""),
                 "bank_reconciliation": request.form.get("bank_reconciliation", "Unreconciled"),
                 "notes": request.form.get("notes", ""),
+                "line_items_json": request.form.get("line_items_json", ""),
             },
             validation_errors,
             validation_tab="invoices",
             edit_row=row_number,
         )
     _update_row_in_sheet("Invoices", row_number, payload)
+    _sync_invoice_income_entry(payload)
     load_finance_data.cache_clear()
     _record_audit("update", "invoice", {"row_number": row_number, "record": payload})
     _record_ledger_entry("update", "invoice", payload, source="workbook", row_number=row_number)
@@ -4611,10 +4811,38 @@ def delete_invoice():
     if _normalize_invoice_status(row.get("Status")) != "Cancelled":
         row["Status"] = "Cancelled"
     _update_row_in_sheet("Invoices", row_number, row)
+    _sync_invoice_income_entry(row)
     load_finance_data.cache_clear()
     _record_audit("cancel", "invoice", {"row_number": row_number, "record": row})
     _record_ledger_entry("cancel", "invoice", row, source="workbook", row_number=row_number)
     return redirect(url_for("invoices_view", message="Invoice cancelled and retained for audit trail"))
+
+
+@app.route("/invoices/record-payment", methods=["POST"])
+def record_invoice_payment():
+    row_number = _parse_row_number(request.form.get("row_number"))
+    if row_number is None:
+        return redirect(url_for("invoices_view", message="Invoice could not be updated"))
+
+    row = _find_sheet_row_or_raise("Invoices", row_number)
+    total = _coerce_number(row.get("Total (€)"))
+    current_balance = _coerce_number(row.get("Balance Due (€)", total))
+    payment_amount = _coerce_number(request.form.get("amount_received"))
+    if payment_amount <= 0:
+        return redirect(url_for("invoices_view", message="Amount received must be greater than zero"))
+
+    new_balance = round(max(current_balance - payment_amount, 0.0), 2)
+    row["Balance Due (€)"] = f"{new_balance:.2f}"
+    row["Payment Date"] = request.form.get("payment_date") or date.today().isoformat()
+    row["Payment Method"] = request.form.get("payment_method") or row.get("Payment Method", "")
+    row["Status"] = "Paid" if new_balance <= 0.01 else "Partially Paid"
+    _update_row_in_sheet("Invoices", row_number, row)
+    _sync_invoice_income_entry(row)
+    load_finance_data.cache_clear()
+    _record_audit("payment", "invoice", {"row_number": row_number, "record": row})
+    _record_ledger_entry("update", "invoice", row, source="workbook", row_number=row_number)
+    message = "Invoice marked as paid — income entry created" if row["Status"] == "Paid" else "Partial payment recorded — income entry updated"
+    return redirect(url_for("invoices_view", message=message))
 
 
 @app.route("/subscriptions/add", methods=["POST"])
@@ -5098,6 +5326,8 @@ def export_xlsm():
 
 _migrate_transaction_sheets_from_workbook()
 _ensure_default_services()
+_migrate_invoice_line_items()
+_migrate_income_invoice_linkage()
 
 
 if __name__ == "__main__":

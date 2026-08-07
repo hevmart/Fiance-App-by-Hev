@@ -1081,5 +1081,338 @@
     "credit_total": 900.0,
     "entry_balanced": true,
     "phase_tag": "Phase 1"
+  },
+  {
+    "id": "c75d6a68-7167-46f3-9127-0b58dbe47455",
+    "timestamp": "2026-08-07T15:09:04",
+    "action": "update",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 1,
+    "transaction_date": "2026-07-30",
+    "description": "Improvements",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 600.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 600.0,
+    "amount_eur": 600.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 600.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 600.0
+      }
+    ],
+    "debit_total": 600.0,
+    "credit_total": 600.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "89e918f0-a7ca-4c51-8bdb-439c6198a0d6",
+    "timestamp": "2026-08-07T15:09:38",
+    "action": "update",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 1,
+    "transaction_date": "2026-07-30",
+    "description": "Improvements",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 600.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 600.0,
+    "amount_eur": 600.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 600.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 600.0
+      }
+    ],
+    "debit_total": 600.0,
+    "credit_total": 600.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "bfb6999d-e98d-42ba-a220-e213a97eca8b",
+    "timestamp": "2026-08-07T15:09:48",
+    "action": "update",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 1,
+    "transaction_date": "2026-07-30",
+    "description": "Improvements",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 600.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 600.0,
+    "amount_eur": 600.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 600.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 600.0
+      }
+    ],
+    "debit_total": 600.0,
+    "credit_total": 600.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "434f678f-139f-4ea2-b1f3-d2ec839dee5b",
+    "timestamp": "2026-08-07T15:09:56",
+    "action": "update",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 1,
+    "transaction_date": "2026-07-30",
+    "description": "Improvements",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 600.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 600.0,
+    "amount_eur": 600.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 600.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 600.0
+      }
+    ],
+    "debit_total": 600.0,
+    "credit_total": 600.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "56102ca5-18f3-41f5-8d6f-2d7b4216aa27",
+    "timestamp": "2026-08-07T15:17:35",
+    "action": "create",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 2,
+    "transaction_date": "2026-07-01",
+    "description": "Overdue test",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 200.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 200.0,
+    "amount_eur": 200.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 200.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 200.0
+      }
+    ],
+    "debit_total": 200.0,
+    "credit_total": 200.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "ea2b54c9-7f11-49b6-8e67-b64b0a0598d2",
+    "timestamp": "2026-08-07T15:28:12",
+    "action": "create",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 3,
+    "transaction_date": "2026-08-06",
+    "description": "Test Service 1",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "0%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 2000.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 2000.0,
+    "amount_eur": 2000.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 2000.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 2000.0
+      }
+    ],
+    "debit_total": 2000.0,
+    "credit_total": 2000.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "a63075b9-a040-4529-8003-fc6dc73cbdd1",
+    "timestamp": "2026-08-07T15:41:06",
+    "action": "create",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-08-07",
+    "description": "Clarity Base, SOP Creation",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "23%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 1220.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 1220.0,
+    "amount_eur": 1220.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 1220.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 1220.0
+      }
+    ],
+    "debit_total": 1220.0,
+    "credit_total": 1220.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "0e873665-54c3-4e1b-81ab-e6b00cab4362",
+    "timestamp": "2026-08-07T15:42:41",
+    "action": "update",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 4,
+    "transaction_date": "2026-08-07",
+    "description": "Clarity Base, SOP Creation",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "23%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 1220.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 1220.0,
+    "amount_eur": 1220.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 1220.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 1220.0
+      }
+    ],
+    "debit_total": 1220.0,
+    "credit_total": 1220.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
+  },
+  {
+    "id": "c5e30d0a-49f5-4723-9315-38a52714a610",
+    "timestamp": "2026-08-07T15:52:20",
+    "action": "create",
+    "entity_type": "invoice",
+    "source": "workbook",
+    "row_number": 5,
+    "transaction_date": "2026-07-30",
+    "description": "Clarity Base, Data Audit and Cleanup",
+    "category": "",
+    "account_code": "4000",
+    "account_name": "Consulting / Project Fees",
+    "tax_treatment": "trading",
+    "vat_rate": "23%",
+    "vat_treatment": "standard",
+    "supply_type": "services",
+    "net_amount_eur": 1350.0,
+    "vat_amount_eur": 0.0,
+    "total_amount_eur": 1350.0,
+    "amount_eur": 1350.0,
+    "journal_lines": [
+      {
+        "account_code": "1100",
+        "debit": 1350.0,
+        "credit": 0.0
+      },
+      {
+        "account_code": "4000",
+        "debit": 0.0,
+        "credit": 1350.0
+      }
+    ],
+    "debit_total": 1350.0,
+    "credit_total": 1350.0,
+    "entry_balanced": true,
+    "phase_tag": "Phase 1"
   }
 ]

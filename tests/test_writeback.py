@@ -174,6 +174,21 @@ def _seed_transaction_json(tmp_path):
     )
 
 
+def _invoice_line_items_payload(name, net_amount, *, vat_rate="23%", quantity=1):
+    return json.dumps([
+        {
+            "service_id": "",
+            "name": name,
+            "description": name,
+            "quantity": quantity,
+            "unit_price": net_amount,
+            "discount_type": "€",
+            "discount_value": 0,
+            "vat_rate": vat_rate,
+        }
+    ])
+
+
 def test_append_income_row_updates_workbook(workbook_copy):
     app.WORKBOOK_PATH = workbook_copy
     app.load_finance_data.cache_clear()
@@ -1041,8 +1056,7 @@ def test_invoice_add_flash_mentions_payment_date_autofill(workbook_copy):
             "client_vat_number": "IE1234567A",
             "client_address": "1 Example Street, Dublin",
             "service_product": "Invoice flash",
-            "net_amount": "100.00",
-            "total_amount": "123.00",
+            "line_items_json": _invoice_line_items_payload("Invoice flash", 100.00),
             "balance_due": "0.00",
             "status": "Paid",
             "payment_method": "Business Bank",
@@ -1136,8 +1150,7 @@ def test_unpaid_entries_allow_blank_payment_fields(workbook_copy):
             "client_vat_number": "IE1234567A",
             "client_address": "1 Example Street, Dublin",
             "service_product": "Draft invoice",
-            "net_amount": "100.00",
-            "total_amount": "123.00",
+            "line_items_json": _invoice_line_items_payload("Draft invoice", 100.00),
             "balance_due": "123.00",
             "status": "Draft",
             "payment_method": "",
@@ -1202,8 +1215,7 @@ def test_reconciliation_exports_include_queue_and_exceptions(workbook_copy):
             "client_vat_number": "IE1234567A",
             "client_address": "1 Example Street, Dublin",
             "service_product": "Reconciliation test",
-            "net_amount": "200.00",
-            "total_amount": "246.00",
+            "line_items_json": _invoice_line_items_payload("Reconciliation test", 200.00),
             "balance_due": "0.00",
             "status": "Paid",
             "bank_reconciliation": "Unreconciled",
@@ -1435,8 +1447,7 @@ def test_mark_reconciliation_autofills_payment_date_for_paid_invoice(workbook_co
             "client_vat_number": "IE1234567A",
             "client_address": "1 Example Street, Dublin",
             "service_product": "Recon Invoice Autofill",
-            "net_amount": "100.00",
-            "total_amount": "123.00",
+            "line_items_json": _invoice_line_items_payload("Recon Invoice Autofill", 100.00),
             "balance_due": "123.00",
             "status": "Draft",
             "payment_method": "",
@@ -1638,8 +1649,7 @@ def test_invoice_crud_routes_update_and_remove_rows(workbook_copy):
         "client_vat_number": "IE1234567A",
         "client_address": "1 Example Street, Dublin",
         "service_product": "Web design",
-        "net_amount": "300.00",
-        "total_amount": "363.00",
+        "line_items_json": _invoice_line_items_payload("Web design", 300.00),
         "balance_due": "363.00",
         "status": "Draft",
     }
@@ -1660,8 +1670,7 @@ def test_invoice_crud_routes_update_and_remove_rows(workbook_copy):
         "client_vat_number": "IE1234567A",
         "client_address": "1 Example Street, Dublin",
         "service_product": "Updated service",
-        "net_amount": "350.00",
-        "total_amount": "423.50",
+        "line_items_json": _invoice_line_items_payload("Updated service", 350.00),
         "balance_due": "200.00",
         "status": "Sent",
     }
@@ -1710,8 +1719,7 @@ def test_invoice_numbers_auto_generate_sequentially(workbook_copy):
         "client_vat_number": "IE1234567A",
         "client_address": "1 Example Street, Dublin",
         "service_product": "Service A",
-        "net_amount": "100.00",
-        "total_amount": "123.00",
+        "line_items_json": _invoice_line_items_payload("Service A", 100.00),
         "balance_due": "123.00",
         "status": "Issued",
     }
@@ -1909,3 +1917,389 @@ def test_audit_csv_export_returns_csv_download(workbook_copy):
     assert 'attachment; filename=audit-log.csv' in response.headers['Content-Disposition']
     assert b'timestamp,action,entity_type,details_json' in response.data
     assert b'update,expense' in response.data
+
+
+def _add_draft_invoice(client, *, net_amount="500.00", total_amount="500.00"):
+    add_payload = {
+        "issue_date": "2026-08-01",
+        "due_date": "2026-08-31",
+        "client_name": "Client A",
+        "client_vat_number": "IE1234567A",
+        "client_address": "1 Example Street, Dublin",
+        "service_product": "Consulting engagement",
+        "line_items_json": _invoice_line_items_payload("Consulting engagement", float(net_amount), vat_rate="0%"),
+        "balance_due": total_amount,
+        "status": "Draft",
+    }
+    client.post('/invoices/add', data=add_payload, follow_redirects=True)
+    app.load_finance_data.cache_clear()
+    invoice_rows = app.load_finance_data()["sheets"]["Invoices"]
+    return next(row for row in invoice_rows if row["Service / Product"] == "Consulting engagement")
+
+
+def test_invoice_marked_paid_creates_linked_income_entry(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    invoice = _add_draft_invoice(client)
+    response = client.post(
+        '/invoices/record-payment',
+        data={
+            "row_number": str(invoice["__row_number"]),
+            "amount_received": "500.00",
+            "payment_date": "2026-08-05",
+            "payment_method": "Business Bank Account",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'Invoice marked as paid' in response.data
+
+    app.load_finance_data.cache_clear()
+    updated_invoice = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row["__row_number"] == invoice["__row_number"])
+    assert updated_invoice["Status"] == "Paid"
+    assert app._coerce_number(updated_invoice["Balance Due (€)"]) == 0
+
+    income_rows = app.load_finance_data()["sheets"]["Income"]
+    linked = [row for row in income_rows if row.get("Invoice ID") == updated_invoice["Invoice #"]]
+    assert len(linked) == 1
+    assert linked[0]["Source"] == "invoiced"
+    assert linked[0]["Status"] == "Received"
+    assert app._coerce_number(linked[0]["Total incl. VAT (€)"]) == 500.0
+
+
+def test_invoice_partial_payment_creates_partial_income_entry_and_updates_on_second_payment(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    invoice = _add_draft_invoice(client, net_amount="1000.00", total_amount="1000.00")
+    first_payment = client.post(
+        '/invoices/record-payment',
+        data={
+            "row_number": str(invoice["__row_number"]),
+            "amount_received": "400.00",
+            "payment_date": "2026-08-05",
+            "payment_method": "Cash",
+        },
+        follow_redirects=True,
+    )
+    assert b'Partial payment recorded' in first_payment.data
+
+    app.load_finance_data.cache_clear()
+    after_first = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row["__row_number"] == invoice["__row_number"])
+    assert after_first["Status"] == "Partially Paid"
+    assert app._coerce_number(after_first["Balance Due (€)"]) == 600.0
+
+    income_rows = app.load_finance_data()["sheets"]["Income"]
+    linked = [row for row in income_rows if row.get("Invoice ID") == after_first["Invoice #"]]
+    assert len(linked) == 1
+    assert app._coerce_number(linked[0]["Total incl. VAT (€)"]) == 400.0
+
+    second_payment = client.post(
+        '/invoices/record-payment',
+        data={
+            "row_number": str(invoice["__row_number"]),
+            "amount_received": "600.00",
+            "payment_date": "2026-08-10",
+            "payment_method": "Cash",
+        },
+        follow_redirects=True,
+    )
+    assert b'Invoice marked as paid' in second_payment.data
+
+    app.load_finance_data.cache_clear()
+    after_second = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row["__row_number"] == invoice["__row_number"])
+    assert after_second["Status"] == "Paid"
+    assert app._coerce_number(after_second["Balance Due (€)"]) == 0
+
+    income_rows_after = app.load_finance_data()["sheets"]["Income"]
+    linked_after = [row for row in income_rows_after if row.get("Invoice ID") == after_second["Invoice #"]]
+    assert len(linked_after) == 1, "second payment must update the existing linked row, not create a duplicate"
+    assert app._coerce_number(linked_after[0]["Total incl. VAT (€)"]) == 1000.0
+
+
+def test_invoice_bad_debt_removes_linked_income_entry(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    invoice = _add_draft_invoice(client)
+    client.post(
+        '/invoices/record-payment',
+        data={"row_number": str(invoice["__row_number"]), "amount_received": "500.00", "payment_date": "2026-08-05", "payment_method": "Cash"},
+        follow_redirects=True,
+    )
+    app.load_finance_data.cache_clear()
+    paid_invoice = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row["__row_number"] == invoice["__row_number"])
+    assert any(row.get("Invoice ID") == paid_invoice["Invoice #"] for row in app.load_finance_data()["sheets"]["Income"])
+
+    update_payload = {
+        "row_number": str(invoice["__row_number"]),
+        "invoice_number": str(paid_invoice["Invoice #"]),
+        "issue_date": "2026-08-01",
+        "due_date": "2026-08-31",
+        "client_name": "Client A",
+        "client_vat_number": "IE1234567A",
+        "client_address": "1 Example Street, Dublin",
+        "service_product": "Consulting engagement",
+        "line_items_json": _invoice_line_items_payload("Consulting engagement", 500.00, vat_rate="0%"),
+        "balance_due": "500.00",
+        "status": "Bad Debt",
+    }
+    response = client.post('/invoices/update', data=update_payload, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Validation:' not in response.data
+
+    app.load_finance_data.cache_clear()
+    remaining_links = [row for row in app.load_finance_data()["sheets"]["Income"] if row.get("Invoice ID") == paid_invoice["Invoice #"]]
+    assert remaining_links == []
+
+
+def test_invoice_cancelled_removes_linked_income_entry(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    invoice = _add_draft_invoice(client)
+    client.post(
+        '/invoices/record-payment',
+        data={"row_number": str(invoice["__row_number"]), "amount_received": "500.00", "payment_date": "2026-08-05", "payment_method": "Cash"},
+        follow_redirects=True,
+    )
+    app.load_finance_data.cache_clear()
+
+    response = client.post('/invoices/delete', data={"row_number": str(invoice["__row_number"])}, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Invoice cancelled' in response.data
+
+    app.load_finance_data.cache_clear()
+    invoice_row = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row["__row_number"] == invoice["__row_number"])
+    assert invoice_row["Status"] == "Cancelled"
+    remaining_links = [row for row in app.load_finance_data()["sheets"]["Income"] if row.get("Invoice ID") == invoice_row["Invoice #"]]
+    assert remaining_links == []
+
+
+def test_invoiced_income_row_cannot_be_edited_or_deleted_manually(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    invoice = _add_draft_invoice(client)
+    client.post(
+        '/invoices/record-payment',
+        data={"row_number": str(invoice["__row_number"]), "amount_received": "500.00", "payment_date": "2026-08-05", "payment_method": "Cash"},
+        follow_redirects=True,
+    )
+    app.load_finance_data.cache_clear()
+    linked_income = next(row for row in app.load_finance_data()["sheets"]["Income"] if row.get("Source") == "invoiced")
+
+    update_response = client.post(
+        '/income/update',
+        data={"row_number": str(linked_income["__row_number"]), "date": "2026-08-05", "description": "Tampered", "amount": "1.00", "status": "Received"},
+        follow_redirects=True,
+    )
+    assert b'linked to an invoice' in update_response.data
+
+    delete_response = client.post('/income/delete', data={"row_number": str(linked_income["__row_number"])}, follow_redirects=True)
+    assert b'linked to an invoice' in delete_response.data
+
+    app.load_finance_data.cache_clear()
+    still_present = [row for row in app.load_finance_data()["sheets"]["Income"] if row.get("Source") == "invoiced"]
+    assert len(still_present) == 1
+    assert still_present[0]["Description"] != "Tampered"
+
+
+def test_overdue_invoice_auto_flagged_and_excluded_from_income(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    add_payload = {
+        "issue_date": "2026-01-01",
+        "due_date": "2026-01-15",
+        "client_name": "Client A",
+        "client_vat_number": "IE1234567A",
+        "client_address": "1 Example Street, Dublin",
+        "service_product": "Overdue engagement",
+        "line_items_json": _invoice_line_items_payload("Overdue engagement", 250.00, vat_rate="0%"),
+        "balance_due": "",
+        "status": "Issued",
+    }
+    add_response = client.post('/invoices/add', data=add_payload, follow_redirects=True)
+    assert b'Validation:' not in add_response.data
+
+    app.load_finance_data.cache_clear()
+    data = app.load_finance_data()
+    invoice = next(row for row in data["sheets"]["Invoices"] if row["Service / Product"] == "Overdue engagement")
+    assert invoice["Status"] == "Overdue"
+    assert app._coerce_number(invoice["Balance Due (€)"]) == 250.0
+    assert invoice["Balance Due (€)"] != ""
+
+    assert not any(row.get("Invoice ID") == invoice["Invoice #"] for row in data["sheets"]["Income"])
+
+
+def test_income_total_sums_invoiced_paid_and_manual_received_only(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    baseline_income_total = app.load_finance_data()["summary"]["income_total"]
+
+    invoice = _add_draft_invoice(client, net_amount="500.00", total_amount="500.00")
+    client.post(
+        '/invoices/record-payment',
+        data={"row_number": str(invoice["__row_number"]), "amount_received": "500.00", "payment_date": "2026-08-05", "payment_method": "Cash"},
+        follow_redirects=True,
+    )
+
+    client.post(
+        '/income/add',
+        data={"date": "2026-08-06", "description": "Grant", "category": "Other Income", "amount": "200.00", "status": "Received", "payment_method": "Business Bank Account"},
+        follow_redirects=True,
+    )
+    client.post(
+        '/income/add',
+        data={"date": "2026-08-06", "description": "Pending grant", "category": "Other Income", "amount": "999.00", "status": "Pending", "payment_method": "Business Bank Account"},
+        follow_redirects=True,
+    )
+
+    app.load_finance_data.cache_clear()
+    data = app.load_finance_data()
+    # Only the invoiced payment (500) and the Received manual entry (200) should count —
+    # the Pending manual entry (999) must be excluded.
+    assert data["summary"]["income_total"] == baseline_income_total + 500.0 + 200.0
+
+
+def test_invoice_multi_line_items_stored_and_totals_computed(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    line_items = json.dumps([
+        {"service_id": "svc-1", "name": "Clarity Base", "description": "Foundation audit", "quantity": 1, "unit_price": 950.00, "discount_type": "€", "discount_value": 0, "vat_rate": "0%"},
+        {"service_id": "svc-2", "name": "SOP Creation", "description": "Two procedures", "quantity": 2, "unit_price": 150.00, "discount_type": "%", "discount_value": 10, "vat_rate": "0%"},
+    ])
+    add_payload = {
+        "issue_date": "2026-08-01",
+        "due_date": "2026-08-31",
+        "client_name": "Client A",
+        "client_vat_number": "IE1234567A",
+        "client_address": "1 Example Street, Dublin",
+        "line_items_json": line_items,
+        "balance_due": "",
+        "status": "Draft",
+    }
+    response = client.post('/invoices/add', data=add_payload, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'Invoice added' in response.data
+
+    app.load_finance_data.cache_clear()
+    invoice = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row.get("Service / Product") == "Clarity Base, SOP Creation")
+
+    stored_items = invoice["line_items"]
+    assert len(stored_items) == 2
+    assert stored_items[0]["name"] == "Clarity Base"
+    assert stored_items[0]["net_amount"] == 950.0
+    # SOP Creation: base = 2 * 150 = 300, 10% discount = 30, net = 270
+    assert stored_items[1]["quantity"] == 2.0
+    assert stored_items[1]["discount_amount"] == 30.0
+    assert stored_items[1]["net_amount"] == 270.0
+
+    # Aggregate invoice fields must be the sum across all line items.
+    assert app._coerce_number(invoice["Base Net Amount (€)"]) == 950.0 + 300.0
+    assert app._coerce_number(invoice["Discount (€)"]) == 30.0
+    assert app._coerce_number(invoice["Net (€)"]) == 1220.0
+    assert app._coerce_number(invoice["Total (€)"]) == 1220.0
+    assert app._coerce_number(invoice["Balance Due (€)"]) == 1220.0
+
+
+def test_invoice_line_items_required_to_submit(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    add_payload = {
+        "issue_date": "2026-08-01",
+        "due_date": "2026-08-31",
+        "client_name": "Client A",
+        "client_vat_number": "IE1234567A",
+        "client_address": "1 Example Street, Dublin",
+        "line_items_json": json.dumps([]),
+        "status": "Draft",
+    }
+    response = client.post('/invoices/add', data=add_payload, follow_redirects=True)
+    assert response.status_code == 200
+    assert b'At least one line item is required' in response.data
+
+
+def test_invoice_mark_paid_description_uses_line_item_names(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    line_items = json.dumps([
+        {"name": "Clarity Base", "quantity": 1, "unit_price": 950.00, "discount_type": "€", "discount_value": 0, "vat_rate": "0%"},
+        {"name": "SOP Creation", "quantity": 2, "unit_price": 150.00, "discount_type": "%", "discount_value": 10, "vat_rate": "0%"},
+    ])
+    client.post(
+        '/invoices/add',
+        data={
+            "issue_date": "2026-08-01",
+            "due_date": "2026-08-31",
+            "client_name": "Client A",
+            "client_vat_number": "IE1234567A",
+            "client_address": "1 Example Street, Dublin",
+            "line_items_json": line_items,
+            "status": "Draft",
+        },
+        follow_redirects=True,
+    )
+    app.load_finance_data.cache_clear()
+    invoice = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row.get("Service / Product") == "Clarity Base, SOP Creation")
+
+    client.post(
+        '/invoices/record-payment',
+        data={"row_number": str(invoice["__row_number"]), "amount_received": "1220.00", "payment_date": "2026-08-05", "payment_method": "Cash"},
+        follow_redirects=True,
+    )
+    app.load_finance_data.cache_clear()
+    linked_income = next(row for row in app.load_finance_data()["sheets"]["Income"] if row.get("Invoice ID") == invoice["Invoice #"])
+    assert linked_income["Description"] == "Clarity Base, SOP Creation"
+
+
+def test_legacy_invoice_without_line_items_gets_migrated(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+
+    legacy_invoice = {
+        "Invoice #": "LEGACY-001",
+        "Issue Date": "2026-01-01",
+        "Due Date": "2026-01-31",
+        "Client Name": "Client A",
+        "Service / Product": "Legacy consulting work",
+        "Net (€)": 400.0,
+        "VAT Rate": "23%",
+        "VAT Amount (€)": 92.0,
+        "Total (€)": 492.0,
+        "Balance Due (€)": 492.0,
+        "Status": "Issued",
+    }
+    records = app._load_sheet_records_raw("Invoices")
+    records.append(legacy_invoice)
+    app._save_sheet_records_raw("Invoices", records)
+    app.load_finance_data.cache_clear()
+
+    app._migrate_invoice_line_items()
+
+    app.load_finance_data.cache_clear()
+    migrated = next(row for row in app.load_finance_data()["sheets"]["Invoices"] if row["Invoice #"] == "LEGACY-001")
+    assert len(migrated["line_items"]) == 1
+    line_item = migrated["line_items"][0]
+    assert line_item["name"] == "Legacy consulting work"
+    assert line_item["net_amount"] == 400.0
+    assert line_item["vat_amount"] == 92.0
+    assert line_item["total"] == 492.0
+    # The flat Service/Product field is preserved untouched for backwards compatibility.
+    assert migrated["Service / Product"] == "Legacy consulting work"

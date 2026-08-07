@@ -195,6 +195,24 @@
       .tier-card-label { margin-top: 12px; font-size: 12px; color: var(--brand-steel); font-weight: 600; }
       .tier-card .table-actions button { background: transparent; border: 1px solid var(--brand-gold); border-bottom: 1px solid var(--brand-gold); color: var(--brand-gold); }
       .tier-card .table-actions button:hover { background: var(--brand-gold); color: var(--brand-navy); }
+      .line-items-header, .line-item-row {
+        display: grid;
+        grid-template-columns: 1.3fr 1.3fr 55px 90px 110px 85px 80px 80px 90px 28px;
+        gap: 6px;
+        align-items: center;
+      }
+      .line-items-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--brand-steel); padding: 0 0 6px; }
+      .line-items-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+      .line-item-row { padding: 6px 0; border-bottom: 1px solid var(--brand-border); }
+      .line-item-row input, .line-item-row select {
+        width: 100%; min-height: 38px; padding: 6px 8px; border: 1px solid var(--brand-border); border-radius: 6px; background: var(--brand-bg-light); color: var(--brand-charcoal); font: inherit; font-size: 13px; box-sizing: border-box;
+      }
+      .line-item-row .li-discount-group { display: flex; gap: 4px; }
+      .line-item-row .li-discount-group select { flex: 0 0 44px; padding: 6px 2px; }
+      .line-item-row .li-net, .line-item-row .li-vat-amount, .line-item-row .li-total { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--brand-navy); text-align: right; padding-right: 4px; }
+      .line-item-row .li-total { font-weight: 700; color: var(--brand-gold); }
+      .line-item-row .li-remove { background: transparent; border: 1px solid var(--brand-error); color: var(--brand-error); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-weight: 700; line-height: 1; }
+      .line-item-row .li-remove:hover { background: var(--brand-error); color: var(--brand-white); }
       .calc-block { border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold); border-radius: 8px; padding: 14px 16px; background: var(--brand-bg-light); }
       .calc-block-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
       .calc-block-header h3 { margin: 0; font-size: 14px; font-weight: 700; color: var(--brand-navy); text-transform: uppercase; letter-spacing: 0.06em; }
@@ -248,6 +266,10 @@
       .status-pill.issued, .status-pill.approved, .status-pill.auto-posted, .status-pill.filed { border-left-color: var(--brand-navy); }
       .status-pill.paid, .status-pill.partially-paid { border-left-color: var(--brand-gold); color: var(--brand-navy); }
       .status-pill.overdue, .status-pill.bad-debt, .status-pill.cancelled { border-left-color: var(--brand-error); }
+      .status-pill.income-received { border-left-color: var(--brand-gold); color: var(--brand-navy); }
+      .status-pill.income-pending, .status-pill.income-partially-received { border-left-color: var(--brand-steel); }
+      .status-pill.income-overdue, .status-pill.income-bad-debt { border-left-color: var(--brand-error); }
+      .status-pill.income-cancelled { border-left-color: var(--brand-dark-grey); color: var(--brand-dark-grey); }
       .edit-link, .cancel-link {
         display: inline-flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 8px; padding: 8px 12px; font-weight: 700; border: 1px solid var(--brand-border);
       }
@@ -255,6 +277,17 @@
       .edit-link:hover { border-color: var(--brand-gold); }
       .cancel-link { background: transparent; color: var(--brand-navy); border-color: transparent; }
       .edit-banner { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+      .section-subtitle { font-size: 12px; font-weight: 600; text-transform: none; color: var(--brand-steel); letter-spacing: normal; margin-left: 6px; }
+      tr.row-overdue td { background: rgba(198, 40, 40, 0.06); border-left: 3px solid var(--brand-error); }
+      .btn-mark-paid { background: var(--brand-gold); color: var(--brand-navy); border: 0; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; font-family: 'Segoe UI', sans-serif; }
+      .btn-mark-paid:hover { background: #9c7a49; }
+      .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(22, 41, 74, 0.55); align-items: center; justify-content: center; z-index: 100; }
+      .modal-overlay.open { display: flex; }
+      .modal-box { background: var(--brand-white); border-radius: 12px; padding: 22px 24px; width: 92%; max-width: 380px; border-top: 3px solid var(--brand-gold); box-shadow: 0 12px 32px rgba(22, 41, 74, 0.3); }
+      .modal-box h3 { margin: 0 0 4px; color: var(--brand-navy); font-family: 'Segoe UI', sans-serif; }
+      .modal-box .mini { margin: 0 0 14px; }
+      .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+      .modal-actions .btn-cancel { background: var(--brand-white); color: var(--brand-navy); border: 1px solid var(--brand-border); border-radius: 8px; padding: 10px 16px; font-weight: 700; cursor: pointer; }
       .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 18px 0 24px; }
       .chart-card { background: var(--brand-white); border-radius: 10px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(22, 41, 74, 0.06); border: 1px solid var(--brand-border); border-left: 3px solid var(--brand-gold); overflow: hidden; }
       .chart-card h3 { margin: -18px -20px 14px; padding: 10px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; background: var(--brand-mid-navy); color: var(--brand-white); border-radius: 8px 8px 0 0; font-weight: 700; }
@@ -590,48 +623,84 @@
         <div class="card">
           <h3>Total income</h3>
           <div class="value">{{ format_currency(summary.income_total) }}</div>
-          <div class="pill">Workbook income total</div>
+          <div class="pill">Invoiced (paid) + non-invoiced (received)</div>
+        </div>
+        <div class="card">
+          <h3>Invoiced income</h3>
+          <div class="value">{{ format_currency(invoiced_income_total) }}</div>
+          <div class="pill">Auto-created from paid invoices</div>
+        </div>
+        <div class="card">
+          <h3>Non-invoiced income</h3>
+          <div class="value">{{ format_currency(manual_income_received_total) }}</div>
+          <div class="pill">Manual entries, received only</div>
         </div>
       </div>
+
       <div class="section">
         <div class="edit-banner">
-          <h2>{% if editing_income %}Edit income{% else %}Add income{% endif %}</h2>
+          <h2>Invoiced income <span class="section-subtitle">(auto — read only)</span></h2>
+        </div>
+        <p class="mini">Created automatically whenever an invoice is marked Paid or Partially Paid. To correct one of these, edit the invoice — not this row.</p>
+        <table>
+          <tr><th>Date</th><th>Client</th><th>Invoice #</th><th>Amount received</th><th>Status</th></tr>
+          {% if invoiced_income %}
+          {% for row in invoiced_income %}
+          <tr>
+            <td>{{ row.get('Date') or '' }}</td>
+            <td>{{ row.get('Client / Source') or '' }}</td>
+            <td>{{ row.get('Invoice ID') or '' }}</td>
+            <td>{{ format_currency(row.get('Total incl. VAT (€)', 0) or 0) }}</td>
+            <td><span class="status-pill income-received">Received</span></td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr><td colspan="5">No invoiced income yet — mark an invoice as Paid or Partially Paid to see it here.</td></tr>
+          {% endif %}
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="edit-banner">
+          <h2>{% if editing_income %}Edit non-invoiced income{% else %}Non-invoiced income{% endif %}</h2>
           {% if editing_income %}<a href="/income" class="cancel-link">Cancel edit</a>{% endif %}
         </div>
+        <p class="mini">For money received without an invoice — grants, cash receipts, BTWEA, bank interest, etc.</p>
         <form method="post" action="{% if editing_income %}/income/update{% else %}/income/add{% endif %}" class="form-shell" novalidate>
           {% if editing_income %}<input type="hidden" name="row_number" value="{{ editing_income.get('__row_number') }}">{% endif %}
           <div class="form-grid">
             <div class="field required {% if validation_errors.get('date') %}has-error{% endif %}"><label for="income_date">Date</label><input id="income_date" type="date" name="date" value="{{ income_form.get('date') if income_form else (editing_income.get('Date') if editing_income else '') }}">{% if validation_errors.get('date') %}<span class="field-error">{{ validation_errors.get('date') }}</span>{% endif %}</div>
             <div class="field required {% if validation_errors.get('description') %}has-error{% endif %}"><label for="income_description">Description</label><input id="income_description" type="text" name="description" value="{{ income_form.get('description') if income_form else (editing_income.get('Description') if editing_income else '') }}" placeholder="Description">{% if validation_errors.get('description') %}<span class="field-error">{{ validation_errors.get('description') }}</span>{% endif %}</div>
-            <div class="field optional"><label for="income_client">Client / source</label><select id="income_client" name="client_source"><option value="">Select client / source</option>{% for option in income_clients %}<option value="{{ option }}" {% if (income_form and income_form.get('client_source') == option) or (not income_form and editing_income and editing_income.get('Client / Source') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field optional"><label for="income_client">Source</label><select id="income_client" name="client_source"><option value="">Select source</option>{% for option in income_clients %}<option value="{{ option }}" {% if (income_form and income_form.get('client_source') == option) or (not income_form and editing_income and editing_income.get('Client / Source') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field required"><label for="income_category">Category</label><select id="income_category" name="category"><option value="">Select category</option>{% for option in income_categories %}<option value="{{ option }}" {% if (income_form and income_form.get('category') == option) or (not income_form and editing_income and editing_income.get('Category') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
-            <div class="field optional"><label for="income_invoice">Invoice #</label><input id="income_invoice" type="text" name="invoice_number" value="{{ income_form.get('invoice_number') if income_form else (editing_income.get('Invoice #') if editing_income else '') }}" placeholder="Invoice #"></div>
             <div class="field required {% if validation_errors.get('amount') %}has-error{% endif %}"><label for="income_amount">Amount</label><input id="income_amount" type="number" step="0.01" name="amount" value="{{ income_form.get('amount') if income_form else (editing_income.get('Amount (€)') if editing_income else '') }}" placeholder="Amount">{% if validation_errors.get('amount') %}<span class="field-error">{{ validation_errors.get('amount') }}</span>{% endif %}</div>
             {% if vat_registered %}
             <div class="field optional"><label for="income_vat_rate">VAT rate</label><select id="income_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (income_form and income_form.get('vat_rate') == option) or (not income_form and editing_income and editing_income.get('VAT Rate') == option) or (not income_form and not editing_income and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field optional"><label for="income_vat_amount">VAT amount</label><input id="income_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ income_form.get('vat_amount') if income_form else (editing_income.get('VAT Amount (€)') if editing_income else '') }}" placeholder="VAT amount"></div>
             <div class="field optional"><label for="income_vat_treatment">VAT treatment</label><select id="income_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (income_form and income_form.get('vat_treatment') == option.value) or (not income_form and editing_income and editing_income.get('VAT Treatment') == option.value) or (not income_form and not editing_income and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
-            <div class="field optional"><label for="income_supply_type">Supply type</label><select id="income_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (income_form and income_form.get('supply_type') == option.value) or (not income_form and editing_income and editing_income.get('Supply Type') == option.value) or (not income_form and not editing_income and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
             <div class="field optional"><label for="income_total_vat">Total incl. VAT</label><input id="income_total_vat" type="number" step="0.01" name="total_incl_vat" value="{{ income_form.get('total_incl_vat') if income_form else (editing_income.get('Total incl. VAT (€)') if editing_income else '') }}" placeholder="Total incl. VAT"></div>
             {% endif %}
-            <div class="field required"><label for="income_status">Status</label><select id="income_status" name="status">{% for option in income_status_options %}<option value="{{ option }}" {% if (income_form and income_form.get('status') == option) or (not income_form and editing_income and editing_income.get('Status') == option) or (not income_form and not editing_income and option == 'Pending') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field required"><label for="income_status">Status</label><select id="income_status" name="status">{% for option in income_status_options %}<option value="{{ option }}" {% if (income_form and income_form.get('status') == option) or (not income_form and editing_income and editing_income.get('Status') == option) or (not income_form and not editing_income and option == 'Received') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
             <div class="field required"><label for="income_payment_method">Payment method</label><select id="income_payment_method" name="payment_method"><option value="">Select payment method</option>{% for option in income_payment_methods %}<option value="{{ option }}" {% if (income_form and income_form.get('payment_method') == option) or (not income_form and editing_income and editing_income.get('Payment Method') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
+            <div class="field optional" style="grid-column: 1 / -1;"><label for="income_notes">Notes</label><input id="income_notes" type="text" name="notes" value="{{ income_form.get('notes') if income_form else (editing_income.get('Notes') if editing_income else '') }}" placeholder="Notes"></div>
           </div>
           <div class="form-actions"><button type="submit">{% if editing_income %}Update income{% else %}Save income{% endif %}</button></div>
         </form>
       </div>
       <div class="section">
-        <h2>Income register</h2>
+        <h2>Non-invoiced income register</h2>
         <table>
-          <tr><th>Date</th><th>Description</th><th>Client / Source</th><th>Amount (€)</th><th>Status</th><th></th></tr>
-          {% if income %}
-          {% for row in income %}
+          <tr><th>Date</th><th>Description</th><th>Source</th><th>Amount (€)</th><th>Status</th><th></th></tr>
+          {% if manual_income %}
+          {% for row in manual_income %}
           <tr>
             <td>{{ row.get('Date') or '' }}</td>
             <td>{{ row.get('Description') or '' }}</td>
             <td>{{ row.get('Client / Source') or '' }}</td>
             <td>{{ format_currency(row.get('Amount (€)', 0) or 0) }}</td>
-            <td>{{ row.get('Status') or '' }}</td>
+            {% set income_status_label = row.get('Status') or '' %}
+            {% set income_status_key = (income_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
+            <td><span class="status-pill {% if income_status_key in ['received', 'pending', 'cancelled'] %}income-{{ income_status_key }}{% else %}legacy{% endif %}">{{ income_status_label or 'Received' }}</span></td>
             <td>
               <div class="table-action-stack">
                 <a href="/income?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
@@ -644,7 +713,7 @@
           </tr>
           {% endfor %}
           {% else %}
-          <tr><td colspan="6">No income rows are currently present in the workbook.</td></tr>
+          <tr><td colspan="6">No non-invoiced income entries yet.</td></tr>
           {% endif %}
         </table>
       </div>
@@ -963,43 +1032,22 @@
             <div class="field required {% if validation_errors.get('client_name') %}has-error{% endif %}"><label for="invoice_client_name">Client</label><select id="invoice_client_name" name="client_name"><option value="">Select client</option>{% for option in client_names %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('client_name') == option) or (not invoice_form and editing_invoice and editing_invoice.get('Client Name') == option) %}selected{% endif %}>{{ option }}</option>{% endfor %}</select>{% if validation_errors.get('client_name') %}<span class="field-error">{{ validation_errors.get('client_name') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('client_vat_number') %}has-error{% endif %}"><label for="invoice_client_vat_number">Client VAT number</label><input id="invoice_client_vat_number" type="text" name="client_vat_number" value="{{ invoice_form.get('client_vat_number') if invoice_form else (editing_invoice.get('Client VAT Number') if editing_invoice else '') }}" placeholder="IE1234567A">{% if validation_errors.get('client_vat_number') %}<span class="field-error">{{ validation_errors.get('client_vat_number') }}</span>{% endif %}</div>
             <div class="field optional {% if validation_errors.get('client_address') %}has-error{% endif %}"><label for="invoice_client_address">Client address</label><input id="invoice_client_address" type="text" name="client_address" value="{{ invoice_form.get('client_address') if invoice_form else (editing_invoice.get('Client Address') if editing_invoice else '') }}" placeholder="Client legal address">{% if validation_errors.get('client_address') %}<span class="field-error">{{ validation_errors.get('client_address') }}</span>{% endif %}</div>
-            <div class="field optional"><label for="invoice_service_catalog">Service catalog</label><select id="invoice_service_catalog"><option value="">Select from catalogue…</option>{% for service in active_services %}<option value="{{ service.id }}">{{ service.name }} — {{ format_currency(service.price) }}{% if service.price_type == 'retainer' %}/mo{% endif %}</option>{% endfor %}</select></div>
-            <div class="field required"><label for="invoice_service_product">Service / product</label><input id="invoice_service_product" type="text" name="service_product" value="{{ invoice_form.get('service_product') if invoice_form else (editing_invoice.get('Service / Product') if editing_invoice else '') }}" placeholder="Service or product"></div>
+            {% if vat_registered %}
+            <div class="field optional"><label for="invoice_vat_treatment">VAT treatment</label><select id="invoice_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('vat_treatment') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Treatment') == option.value) or (not invoice_form and not editing_invoice and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            <div class="field optional"><label for="invoice_supply_type">Supply type</label><select id="invoice_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('supply_type') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('Supply Type') == option.value) or (not invoice_form and not editing_invoice and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
+            {% endif %}
           </div>
           <div class="calc-block">
             <div class="calc-block-header">
-              <h3>Invoice total</h3>
-              <button type="button" id="invoice_charges_toggle" class="btn-secondary calc-toggle-btn">+ Add charges</button>
+              <h3>Line items</h3>
+              <button type="button" id="invoice_add_line_btn" class="btn-secondary calc-toggle-btn">+ Add line</button>
             </div>
-            <div class="form-grid">
-              <div class="field required {% if validation_errors.get('net_amount') %}has-error{% endif %}"><label for="invoice_base_net">Net amount</label><input id="invoice_base_net" type="number" step="0.01" name="base_net_amount" value="{{ invoice_form.get('base_net_amount') if invoice_form else (editing_invoice.get('Base Net Amount (€)') if editing_invoice and editing_invoice.get('Base Net Amount (€)') else (editing_invoice.get('Net (€)') if editing_invoice else '')) }}" placeholder="0.00">{% if validation_errors.get('net_amount') %}<span class="field-error">{{ validation_errors.get('net_amount') }}</span>{% endif %}</div>
-              {% set invoice_discount_type_value = invoice_form.get('discount_type') if invoice_form else (editing_invoice.get('Discount Type') if editing_invoice else '€') %}
-              <div class="field optional discount-field {% if validation_errors.get('discount_amount') %}has-error{% endif %}">
-                <label for="invoice_discount_value">Discount</label>
-                <div class="discount-input-group">
-                  <input id="invoice_discount_value" type="number" step="0.01" name="discount_value" value="{{ invoice_form.get('discount_value') if invoice_form else (editing_invoice.get('Discount Value') if editing_invoice else '') }}" placeholder="0.00">
-                  <select id="invoice_discount_type" name="discount_type" class="discount-type-select">
-                    <option value="€" {% if invoice_discount_type_value != '%' %}selected{% endif %}>€</option>
-                    <option value="%" {% if invoice_discount_type_value == '%' %}selected{% endif %}>%</option>
-                  </select>
-                  <input id="invoice_discount" type="text" readonly class="discount-computed" value="{{ editing_invoice.get('Discount (€)') if editing_invoice else '' }}" placeholder="€0.00">
-                </div>
-                {% if validation_errors.get('discount_amount') %}<span class="field-error">{{ validation_errors.get('discount_amount') }}</span>{% endif %}
-              </div>
-              <div id="invoice_charges_section" class="calc-extra-charges" style="display:none;">
-                <div class="field optional"><label for="invoice_delivery">Delivery</label><input id="invoice_delivery" type="number" step="0.01" name="delivery_amount" value="{{ invoice_form.get('delivery_amount') if invoice_form else (editing_invoice.get('Delivery (€)') if editing_invoice else '') }}" placeholder="0.00"></div>
-                <div class="field optional"><label for="invoice_fees">Fees</label><input id="invoice_fees" type="number" step="0.01" name="fees_amount" value="{{ invoice_form.get('fees_amount') if invoice_form else (editing_invoice.get('Fees (€)') if editing_invoice else '') }}" placeholder="0.00"></div>
-                <div class="field optional"><label for="invoice_other_charges">Other charges</label><input id="invoice_other_charges" type="number" step="0.01" name="other_charges_amount" value="{{ invoice_form.get('other_charges_amount') if invoice_form else (editing_invoice.get('Other Charges (€)') if editing_invoice else '') }}" placeholder="0.00"></div>
-              </div>
-              <div class="field optional"><label for="invoice_subtotal">Subtotal (calculated)</label><input id="invoice_subtotal" type="number" step="0.01" readonly placeholder="0.00"></div>
-              {% if vat_registered %}
-              <div class="field optional"><label for="invoice_vat_rate">VAT rate</label><select id="invoice_vat_rate" name="vat_rate">{% for option in vat_rate_options %}<option value="{{ option }}" {% if (invoice_form and invoice_form.get('vat_rate') == option) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Rate') == option) or (not invoice_form and not editing_invoice and option == '23%') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div>
-              <div class="field optional"><label for="invoice_vat_amount">VAT amount (calculated)</label><input id="invoice_vat_amount" type="number" step="0.01" name="vat_amount" value="{{ invoice_form.get('vat_amount') if invoice_form else (editing_invoice.get('VAT Amount (€)') if editing_invoice else '') }}" placeholder="VAT amount" readonly></div>
-              <div class="field optional"><label for="invoice_vat_treatment">VAT treatment</label><select id="invoice_vat_treatment" name="vat_treatment">{% for option in vat_treatment_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('vat_treatment') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('VAT Treatment') == option.value) or (not invoice_form and not editing_invoice and option.value == 'standard') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
-              <div class="field optional"><label for="invoice_supply_type">Supply type</label><select id="invoice_supply_type" name="supply_type">{% for option in supply_type_options %}<option value="{{ option.value }}" {% if (invoice_form and invoice_form.get('supply_type') == option.value) or (not invoice_form and editing_invoice and editing_invoice.get('Supply Type') == option.value) or (not invoice_form and not editing_invoice and option.value == 'services') %}selected{% endif %}>{{ option.label }}</option>{% endfor %}</select></div>
-              {% endif %}
-              <div class="field required field-total {% if validation_errors.get('total_amount') %}has-error{% endif %}"><label for="invoice_total_amount">Total incl. VAT (calculated)</label><input id="invoice_total_amount" type="number" step="0.01" name="total_amount" value="{{ invoice_form.get('total_amount') if invoice_form else (editing_invoice.get('Total (€)') if editing_invoice else '') }}" placeholder="0.00" readonly>{% if validation_errors.get('total_amount') %}<span class="field-error">{{ validation_errors.get('total_amount') }}</span>{% endif %}</div>
+            <div class="line-items-header">
+              <span>Service</span><span>Name</span><span>Qty</span><span>Unit price (€)</span><span>Discount</span><span>VAT</span><span>Net</span><span>VAT amt</span><span>Total</span><span></span>
             </div>
+            <div id="invoice_line_items_container" class="line-items-container"></div>
+            {% if validation_errors.get('line_items') %}<span class="field-error">{{ validation_errors.get('line_items') }}</span>{% endif %}
+            <input type="hidden" name="line_items_json" id="invoice_line_items_json">
             <div class="calc-summary" id="invoice_calc_summary">Net <span class="calc-summary-value" id="invoice_summary_net">€0.00</span> + VAT <span class="calc-summary-value" id="invoice_summary_vat">€0.00</span> = Total <span class="calc-summary-value calc-summary-total" id="invoice_summary_total">€0.00</span></div>
           </div>
           <div class="form-grid">
@@ -1017,29 +1065,41 @@
       <div class="section">
         <h2>Invoice register</h2>
         <table>
-          <tr><th>Invoice #</th><th>Client</th><th>Total (€)</th><th>Balance Due (€)</th><th>Status</th><th></th></tr>
+          <tr><th>Invoice #</th><th>Client</th><th>Services</th><th>Total (€)</th><th>Balance Due (€)</th><th>Status</th><th></th></tr>
           {% for row in invoices %}
-          <tr>
+          {% set invoice_status_label = row.get('Status') or '' %}
+          {% set invoice_status_key = (invoice_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
+          <tr class="{% if invoice_status_key == 'overdue' %}row-overdue{% endif %}">
             <td>{{ row.get('Invoice #') or '' }}</td>
             <td>{{ row.get('Client Name') or '' }}</td>
+            <td>{{ row.get('line_items', [])|map(attribute='name')|join(', ') or row.get('Service / Product') or '' }}</td>
             <td>
               <span class="info-trigger" tabindex="0">{{ format_currency(row.get('Total (€)', 0) or 0) }}
                 <div class="popover">
+                  {% if row.get('line_items') %}
+                  {% for item in row.get('line_items') %}
+                  <div class="popover-row popover-line-item"><span>{{ item.name }}{% if item.quantity and item.quantity != 1 %} × {{ item.quantity|int }}{% endif %}{% if item.discount_amount %} (-{{ format_currency(item.discount_amount) }}){% endif %}</span><span>{{ format_currency(item.total) }}</span></div>
+                  {% endfor %}
+                  <div class="popover-row popover-total"><span>Total</span><span>{{ format_currency(row.get('Total (€)', 0) or 0) }}</span></div>
+                  {% else %}
                   <div class="popover-row"><span>Net</span><span>{{ format_currency(row.get('Base Net Amount (€)', row.get('Net (€)', 0)) or 0) }}</span></div>
                   <div class="popover-row"><span>Discount</span><span>-{{ format_currency(row.get('Discount (€)', 0) or 0) }}</span></div>
                   <div class="popover-row"><span>Subtotal</span><span>{{ format_currency(row.get('Net (€)', 0) or 0) }}</span></div>
                   <div class="popover-row"><span>VAT rate</span><span>{{ row.get('VAT Rate') or '0%' }}</span></div>
                   <div class="popover-row"><span>VAT amount</span><span>{{ format_currency(row.get('VAT Amount (€)', 0) or 0) }}</span></div>
                   <div class="popover-row popover-total"><span>Total</span><span>{{ format_currency(row.get('Total (€)', 0) or 0) }}</span></div>
+                  {% endif %}
                 </div>
               </span>
             </td>
             <td>{{ format_currency(row.get('Balance Due (€)', 0) or 0) }}</td>
-            {% set invoice_status_label = row.get('Status') or '' %}
-            {% set invoice_status_key = (invoice_status_label|string|lower|replace(' ', '-')|replace('_', '-')) %}
             <td><span class="status-pill {% if invoice_status_key in ['draft', 'issued', 'paid', 'partially-paid', 'overdue', 'bad-debt', 'cancelled'] %}{{ invoice_status_key }}{% else %}legacy{% endif %}">{{ invoice_status_label or 'Draft' }}</span></td>
             <td>
               <div class="table-action-stack">
+                {% if invoice_status_key in ['draft', 'issued', 'overdue', 'partially-paid'] %}
+                <button type="button" class="btn-mark-paid" onclick="openPaymentModal('{{ row.get('__row_number') }}', '{{ row.get('Invoice #') or '' }}', '{{ '%.2f'|format(raw_amount(row.get('Balance Due (€)'))) }}', 'paid')">Mark as Paid</button>
+                <button type="button" class="btn-mark-paid" style="background:var(--brand-white);color:var(--brand-navy);border:1px solid var(--brand-gold);" onclick="openPaymentModal('{{ row.get('__row_number') }}', '{{ row.get('Invoice #') or '' }}', '{{ '%.2f'|format(raw_amount(row.get('Balance Due (€)'))) }}', 'partial')">Record Part Payment</button>
+                {% endif %}
                 <a href="/invoices?edit_row={{ row.get('__row_number') }}" class="edit-link">Edit</a>
                 <form method="post" action="/invoices/delete" class="table-actions" onsubmit="return confirm('Cancel this invoice and retain it in the register for audit trail?');">
                   <input type="hidden" name="row_number" value="{{ row.get('__row_number') }}">
@@ -1051,6 +1111,52 @@
           {% endfor %}
         </table>
       </div>
+
+      <div class="modal-overlay" id="payment_modal_overlay">
+        <div class="modal-box">
+          <h3 id="payment_modal_title">Record payment</h3>
+          <p class="mini" id="payment_modal_subtitle">Invoice</p>
+          <form method="post" action="/invoices/record-payment" id="payment_modal_form">
+            <input type="hidden" name="row_number" id="payment_modal_row_number">
+            <div class="form-shell">
+              <div class="field required">
+                <label for="payment_modal_amount">Amount received (€)</label>
+                <input id="payment_modal_amount" type="number" step="0.01" name="amount_received" required>
+              </div>
+              <div class="field required">
+                <label for="payment_modal_date">Payment date</label>
+                <input id="payment_modal_date" type="date" name="payment_date" required>
+              </div>
+              <div class="field required">
+                <label for="payment_modal_method">Payment method</label>
+                <select id="payment_modal_method" name="payment_method">
+                  <option value="">Select payment method</option>
+                  {% for option in expense_payment_methods %}
+                  <option value="{{ option }}">{{ option }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-cancel" onclick="closePaymentModal()">Cancel</button>
+              <button type="submit" class="btn-primary">Confirm</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <script>
+        function openPaymentModal(rowNumber, invoiceNumber, balanceDue, mode) {
+          document.getElementById("payment_modal_row_number").value = rowNumber;
+          document.getElementById("payment_modal_amount").value = balanceDue;
+          document.getElementById("payment_modal_date").value = new Date().toISOString().slice(0, 10);
+          document.getElementById("payment_modal_title").textContent = mode === "paid" ? "Mark as Paid" : "Record Part Payment";
+          document.getElementById("payment_modal_subtitle").textContent = "Invoice " + invoiceNumber + " — balance due €" + balanceDue;
+          document.getElementById("payment_modal_overlay").classList.add("open");
+        }
+        function closePaymentModal() {
+          document.getElementById("payment_modal_overlay").classList.remove("open");
+        }
+      </script>
       {% endif %}
       {% endif %}
 
@@ -1718,6 +1824,8 @@
     </div>
     <script id="services_catalog_data" type="application/json">{{ services_catalog_json|safe }}</script>
     <script id="clients_catalog_data" type="application/json">{{ clients_catalog_json|safe }}</script>
+    <script id="invoice_editing_line_items_data" type="application/json">{{ (editing_invoice.get('line_items') if editing_invoice else [])|tojson }}</script>
+    <script id="vat_rate_options_data" type="application/json">{{ vat_rate_options|tojson }}</script>
     <script>
       (function () {
         function parseAmount(value) {
@@ -1887,46 +1995,6 @@
           element.addEventListener("change", updateExpenseCalculatedAmounts);
         });
 
-        var invoiceWatchedIds = [
-          "invoice_base_net",
-          "invoice_discount_value",
-          "invoice_discount_type",
-          "invoice_delivery",
-          "invoice_fees",
-          "invoice_other_charges",
-          "invoice_vat_rate",
-          "invoice_vat_treatment",
-        ];
-
-        invoiceWatchedIds.forEach(function (id) {
-          var element = document.getElementById(id);
-          if (!element) {
-            return;
-          }
-          element.addEventListener("input", updateInvoiceCalculatedAmounts);
-          element.addEventListener("change", updateInvoiceCalculatedAmounts);
-        });
-
-        var invoiceChargesToggle = document.getElementById("invoice_charges_toggle");
-        var invoiceChargesSection = document.getElementById("invoice_charges_section");
-        if (invoiceChargesToggle && invoiceChargesSection) {
-          invoiceChargesToggle.addEventListener("click", function () {
-            var isHidden = invoiceChargesSection.style.display === "none";
-            invoiceChargesSection.style.display = isHidden ? "contents" : "none";
-            invoiceChargesToggle.textContent = isHidden ? "− Hide charges" : "+ Add charges";
-          });
-          var hasChargeValues = ["invoice_delivery", "invoice_fees", "invoice_other_charges"].some(function (id) {
-            var el = document.getElementById(id);
-            return el && parseAmount(el.value) > 0;
-          });
-          if (hasChargeValues) {
-            invoiceChargesSection.style.display = "contents";
-            invoiceChargesToggle.textContent = "− Hide charges";
-          }
-        }
-
-        updateInvoiceCalculatedAmounts();
-
         var serviceTierField = document.getElementById("service_tier_field");
         var serviceGroupFieldWrapper = document.getElementById("service_group_field_wrapper");
         function updateServiceGroupVisibility() {
@@ -1958,46 +2026,178 @@
         var servicesCatalog = servicesCatalogEl ? JSON.parse(servicesCatalogEl.textContent || "[]") : [];
         var clientsCatalog = clientsCatalogEl ? JSON.parse(clientsCatalogEl.textContent || "[]") : [];
 
-        var invoiceServiceCatalogField = document.getElementById("invoice_service_catalog");
-        var invoiceServiceProductField = document.getElementById("invoice_service_product");
-        var invoiceClientNameField = document.getElementById("invoice_client_name");
-        var invoiceBaseNetFieldForCatalog = document.getElementById("invoice_base_net");
+        var vatRateOptionsEl = document.getElementById("vat_rate_options_data");
+        var vatRateOptions = vatRateOptionsEl ? JSON.parse(vatRateOptionsEl.textContent || "[]") : ["0%"];
+        var defaultLineVatRate = vatRateOptions.indexOf("23%") >= 0 ? "23%" : (vatRateOptions[0] || "0%");
+        var editingLineItemsEl = document.getElementById("invoice_editing_line_items_data");
+        var editingLineItems = editingLineItemsEl ? JSON.parse(editingLineItemsEl.textContent || "[]") : [];
+        var lineItemsContainer = document.getElementById("invoice_line_items_container");
+        var lineItemsJsonField = document.getElementById("invoice_line_items_json");
+        var addLineBtn = document.getElementById("invoice_add_line_btn");
 
-        if (invoiceServiceCatalogField) {
-          invoiceServiceCatalogField.addEventListener("change", function () {
-            var selectedId = invoiceServiceCatalogField.value;
-            if (!selectedId) {
+        function escapeAttr(value) {
+          return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+        }
+
+        function buildServiceOptionsHtml(selectedId) {
+          var html = '<option value="">Custom…</option>';
+          servicesCatalog.forEach(function (service) {
+            html += '<option value="' + service.id + '"' + (service.id === selectedId ? " selected" : "") + '>' + escapeAttr(service.name) + '</option>';
+          });
+          return html;
+        }
+
+        function buildVatRateOptionsHtml(selectedRate) {
+          var html = "";
+          vatRateOptions.forEach(function (rate) {
+            html += '<option value="' + rate + '"' + (rate === selectedRate ? " selected" : "") + '>' + rate + '</option>';
+          });
+          return html;
+        }
+
+        function createLineItemRow(data) {
+          data = data || {};
+          var row = document.createElement("div");
+          row.className = "line-item-row";
+          row.innerHTML =
+            '<select class="li-service">' + buildServiceOptionsHtml(data.service_id || "") + '</select>' +
+            '<input type="text" class="li-name" value="' + escapeAttr(data.name) + '" placeholder="Item name">' +
+            '<input type="number" class="li-quantity" step="1" min="0" value="' + (data.quantity != null ? data.quantity : 1) + '">' +
+            '<input type="number" class="li-unit-price" step="0.01" value="' + (data.unit_price != null ? Number(data.unit_price).toFixed(2) : "0.00") + '">' +
+            '<div class="li-discount-group"><input type="number" class="li-discount-value" step="0.01" value="' + (data.discount_value != null ? data.discount_value : 0) + '"><select class="li-discount-type"><option value="€"' + (data.discount_type !== "%" ? " selected" : "") + '>€</option><option value="%"' + (data.discount_type === "%" ? " selected" : "") + '>%</option></select></div>' +
+            '<select class="li-vat-rate">' + buildVatRateOptionsHtml(data.vat_rate || defaultLineVatRate) + '</select>' +
+            '<span class="li-net">€0.00</span>' +
+            '<span class="li-vat-amount">€0.00</span>' +
+            '<span class="li-total">€0.00</span>' +
+            '<button type="button" class="li-remove" title="Remove line">✕</button>';
+          return row;
+        }
+
+        function recalcLineItemRow(row) {
+          var quantity = parseAmount(row.querySelector(".li-quantity").value) || 0;
+          var unitPrice = parseAmount(row.querySelector(".li-unit-price").value);
+          var base = quantity * unitPrice;
+          var discountValue = parseAmount(row.querySelector(".li-discount-value").value);
+          var discountType = row.querySelector(".li-discount-type").value;
+          var discountAmount = discountType === "%" ? base * (discountValue / 100) : discountValue;
+          discountAmount = Math.max(Math.min(discountAmount, base), 0);
+          var net = Math.max(base - discountAmount, 0);
+          var vatAmount = net * parseVatRateRatio(row.querySelector(".li-vat-rate").value);
+          var total = net + vatAmount;
+          row.querySelector(".li-net").textContent = formatEuro(net);
+          row.querySelector(".li-vat-amount").textContent = formatEuro(vatAmount);
+          row.querySelector(".li-total").textContent = formatEuro(total);
+          return { net: net, vat: vatAmount, total: total };
+        }
+
+        function recalcAllLineItems() {
+          if (!lineItemsContainer) {
+            return;
+          }
+          var rows = lineItemsContainer.querySelectorAll(".line-item-row");
+          var totalNet = 0, totalVat = 0, totalAmount = 0;
+          rows.forEach(function (row) {
+            var result = recalcLineItemRow(row);
+            totalNet += result.net;
+            totalVat += result.vat;
+            totalAmount += result.total;
+          });
+          updateCalcSummary("invoice", totalNet, totalVat, totalAmount);
+        }
+
+        function serializeLineItems() {
+          var rows = lineItemsContainer.querySelectorAll(".line-item-row");
+          var items = [];
+          rows.forEach(function (row) {
+            var name = row.querySelector(".li-name").value.trim();
+            if (!name) {
               return;
             }
-            var service = servicesCatalog.filter(function (item) { return item.id === selectedId; })[0];
-            if (!service) {
-              return;
+            items.push({
+              service_id: row.querySelector(".li-service").value,
+              name: name,
+              description: name,
+              quantity: parseAmount(row.querySelector(".li-quantity").value) || 1,
+              unit_price: parseAmount(row.querySelector(".li-unit-price").value),
+              discount_type: row.querySelector(".li-discount-type").value,
+              discount_value: parseAmount(row.querySelector(".li-discount-value").value),
+              vat_rate: row.querySelector(".li-vat-rate").value,
+            });
+          });
+          return items;
+        }
+
+        function addLineItemRow(data) {
+          if (!lineItemsContainer) {
+            return;
+          }
+          var row = createLineItemRow(data);
+          lineItemsContainer.appendChild(row);
+          recalcAllLineItems();
+        }
+
+        if (lineItemsContainer) {
+          lineItemsContainer.addEventListener("input", function (event) {
+            if (event.target.closest(".line-item-row")) {
+              recalcAllLineItems();
             }
-            if (invoiceServiceProductField) {
-              invoiceServiceProductField.value = service.name;
+          });
+          lineItemsContainer.addEventListener("change", function (event) {
+            if (event.target.classList.contains("li-service")) {
+              var row = event.target.closest(".line-item-row");
+              var service = servicesCatalog.filter(function (item) { return item.id === event.target.value; })[0];
+              if (service) {
+                row.querySelector(".li-name").value = service.name;
+                row.querySelector(".li-unit-price").value = Number(service.price).toFixed(2);
+              }
             }
-            if (invoiceBaseNetFieldForCatalog) {
-              invoiceBaseNetFieldForCatalog.value = Number(service.price).toFixed(2);
-              updateInvoiceCalculatedAmounts();
+            recalcAllLineItems();
+          });
+          lineItemsContainer.addEventListener("click", function (event) {
+            if (event.target.classList.contains("li-remove")) {
+              event.target.closest(".line-item-row").remove();
+              recalcAllLineItems();
             }
+          });
+
+          if (editingLineItems.length > 0) {
+            editingLineItems.forEach(function (item) { addLineItemRow(item); });
+          } else {
+            addLineItemRow({ quantity: 1, unit_price: 0, discount_type: "€", discount_value: 0, vat_rate: defaultLineVatRate });
+          }
+        }
+
+        if (addLineBtn) {
+          addLineBtn.addEventListener("click", function () {
+            addLineItemRow({ quantity: 1, unit_price: 0, discount_type: "€", discount_value: 0, vat_rate: defaultLineVatRate });
           });
         }
 
+        var invoiceLineItemsFormEl = lineItemsJsonField ? lineItemsJsonField.closest("form") : null;
+        if (invoiceLineItemsFormEl) {
+          invoiceLineItemsFormEl.addEventListener("submit", function () {
+            lineItemsJsonField.value = JSON.stringify(serializeLineItems());
+          });
+        }
+
+        var invoiceClientNameField = document.getElementById("invoice_client_name");
         function applyClarityPartnerRetainer() {
-          if (!invoiceClientNameField || !invoiceBaseNetFieldForCatalog) {
+          if (!invoiceClientNameField || !lineItemsContainer) {
             return;
           }
           var client = clientsCatalog.filter(function (item) { return item.name === invoiceClientNameField.value; })[0];
           if (!client || client.tier !== "Clarity Partner") {
             return;
           }
-          invoiceBaseNetFieldForCatalog.value = Number(client.retainer_amount || 0).toFixed(2);
-          if (invoiceServiceProductField && !invoiceServiceProductField.value) {
-            invoiceServiceProductField.value = "Clarity Partner Retainer (" + (client.retainer_frequency || "monthly") + ")";
+          var rows = lineItemsContainer.querySelectorAll(".line-item-row");
+          var onlyEmptyRow = rows.length === 1 && !rows[0].querySelector(".li-name").value.trim() && parseAmount(rows[0].querySelector(".li-unit-price").value) === 0;
+          if (!onlyEmptyRow) {
+            return;
           }
-          updateInvoiceCalculatedAmounts();
+          rows[0].querySelector(".li-name").value = "Clarity Partner Retainer (" + (client.retainer_frequency || "monthly") + ")";
+          rows[0].querySelector(".li-unit-price").value = Number(client.retainer_amount || 0).toFixed(2);
+          recalcAllLineItems();
         }
-
         if (invoiceClientNameField) {
           invoiceClientNameField.addEventListener("change", applyClarityPartnerRetainer);
         }

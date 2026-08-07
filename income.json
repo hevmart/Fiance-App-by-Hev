@@ -11,9 +11,11 @@
     "VAT Amount (\u20ac)": "0.00",
     "VAT Treatment": "standard",
     "Supply Type": "services",
-    "Status": "Invoiced",
+    "Status": "Pending",
     "Payment Method": "Cash",
-    "Phase Tag": "Phase 1"
+    "Phase Tag": "Phase 1",
+    "Source": "manual",
+    "Invoice ID": ""
   },
   {
     "Date": "2026-08-03",
@@ -27,8 +29,46 @@
     "VAT Amount (\u20ac)": "0.00",
     "VAT Treatment": "standard",
     "Supply Type": "services",
-    "Status": "Paid",
+    "Status": "Received",
     "Payment Method": "Business Bank Account",
+    "Phase Tag": "Phase 1",
+    "Source": "manual",
+    "Invoice ID": ""
+  },
+  {
+    "Date": "2026-08-03",
+    "Description": "Improvements",
+    "Client / Source": "TiciLey",
+    "Category": "Consulting / Project Fees",
+    "Invoice #": "HQ-2026-001",
+    "Invoice ID": "HQ-2026-001",
+    "Source": "invoiced",
+    "Amount (\u20ac)": "600.00",
+    "Total incl. VAT (\u20ac)": "600.00",
+    "VAT Rate": "0%",
+    "VAT Amount (\u20ac)": "0.00",
+    "VAT Treatment": "standard",
+    "Supply Type": "services",
+    "Status": "Received",
+    "Payment Method": "Cash",
+    "Phase Tag": "Phase 1"
+  },
+  {
+    "Date": "2026-08-07",
+    "Description": "Clarity Base, SOP Creation",
+    "Client / Source": "Coolydoody",
+    "Category": "Consulting / Project Fees",
+    "Invoice #": "HQ-2026-004",
+    "Invoice ID": "HQ-2026-004",
+    "Source": "invoiced",
+    "Amount (\u20ac)": "1220.00",
+    "Total incl. VAT (\u20ac)": "1220.00",
+    "VAT Rate": "23%",
+    "VAT Amount (\u20ac)": "0.00",
+    "VAT Treatment": "standard",
+    "Supply Type": "services",
+    "Status": "Received",
+    "Payment Method": "Cash",
     "Phase Tag": "Phase 1"
   }
 ]
