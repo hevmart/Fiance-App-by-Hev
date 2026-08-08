@@ -63,9 +63,12 @@ def isolated_subscription_file(tmp_path):
     original_backups_dir = app.BACKUPS_DIR
     original_gdrive_backup_dir = app.GDRIVE_BACKUP_DIR
     original_backup_status_path = app.BACKUP_STATUS_PATH
+    original_receipts_dir = app.RECEIPTS_DIR
     app.BACKUPS_DIR = tmp_path / "backups"
     app.GDRIVE_BACKUP_DIR = tmp_path / "gdrive-backups"
     app.BACKUP_STATUS_PATH = tmp_path / "backup-status.json"
+    app.RECEIPTS_DIR = tmp_path / "receipts"
+    app.RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
     app.SUBSCRIPTIONS_PATH = tmp_path / "subscriptions.json"
     app.ARCHIVE_PATH = tmp_path / "archives.json"
     app.AUDIT_LOG_PATH = tmp_path / "audit-log.json"
@@ -107,6 +110,7 @@ def isolated_subscription_file(tmp_path):
     app.BACKUPS_DIR = original_backups_dir
     app.GDRIVE_BACKUP_DIR = original_gdrive_backup_dir
     app.BACKUP_STATUS_PATH = original_backup_status_path
+    app.RECEIPTS_DIR = original_receipts_dir
     app.load_finance_data.cache_clear()
 
 
@@ -2819,3 +2823,136 @@ def test_supplier_search_finds_matches_and_flags_incomplete(workbook_copy):
     assert response.status_code == 200
     results = response.get_json()
     assert any(match["name"] == "Widget Wholesale" and match["needs_completion"] is True for match in results)
+
+
+def test_pre_trading_expense_gets_pre_trading_phase_tag_and_amber_flag(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    app._save_business_profile({
+        "structure": "sole_trader",
+        "transition_date": "2026-06-01",
+        "pre_trading_start_date": "2026-01-01",
+    })
+    app.load_finance_data.cache_clear()
+
+    response = client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            title="Laptop before trading",
+            category="Equipment and Hardware",
+            date="2026-02-15",
+            base_net_amount="1500.00",
+            net_amount="1500.00",
+            total_amount="1845.00",
+        ),
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Laptop before trading")
+    assert saved["Phase Tag"] == "Pre-Trading"
+    flags = json.loads(saved["Compliance Flags"])
+    assert any(flag["key"] == "pretrading_capex" and flag["severity"] == "warning" for flag in flags)
+
+
+def test_expense_dated_after_trading_start_is_not_pre_trading(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    app._save_business_profile({
+        "structure": "sole_trader",
+        "transition_date": "2026-06-01",
+        "pre_trading_start_date": "2026-01-01",
+    })
+    app.load_finance_data.cache_clear()
+
+    client.post(
+        '/expenses/add',
+        data=_expense_add_payload(title="After trading start", category="Software and Subscriptions", date="2026-07-01"),
+        follow_redirects=True,
+    )
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "After trading start")
+    assert saved["Phase Tag"] != "Pre-Trading"
+
+
+def test_expenses_page_phase_filter(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    app._save_business_profile({
+        "structure": "sole_trader",
+        "transition_date": "2026-06-01",
+        "pre_trading_start_date": "2026-01-01",
+    })
+    app.load_finance_data.cache_clear()
+
+    client.post(
+        '/expenses/add',
+        data=_expense_add_payload(
+            title="Pre-trading filter check",
+            description="Pre-trading filter check description",
+            category="Software and Subscriptions",
+            date="2026-02-01",
+        ),
+        follow_redirects=True,
+    )
+
+    response = client.get('/expenses?phase_filter=Pre-Trading')
+    assert response.status_code == 200
+    assert b'Pre-trading filter check description' in response.data
+
+    response_phase1 = client.get('/expenses?phase_filter=Phase 1')
+    assert response_phase1.status_code == 200
+    assert b'Pre-trading filter check description' not in response_phase1.data
+
+
+def test_expense_receipt_file_upload_stores_filename_and_file(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    data = _expense_add_payload(title="Receipt upload check", category="Software and Subscriptions")
+    data['receipt_file'] = (BytesIO(b'%PDF-1.4 fake receipt content'), 'my receipt.pdf')
+
+    response = client.post(
+        '/expenses/add',
+        data=data,
+        content_type='multipart/form-data',
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Receipt upload check")
+    filename = saved["Receipt Filename"]
+    assert filename
+    assert filename.endswith("my_receipt.pdf") or filename.endswith("my-receipt.pdf")
+    assert (app.RECEIPTS_DIR / filename).exists()
+    assert saved["Receipt Attached"] == "Yes"
+
+
+def test_expense_receipt_rejects_disallowed_extension(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    data = _expense_add_payload(title="Bad receipt extension", category="Software and Subscriptions")
+    data['receipt_file'] = (BytesIO(b'not a real executable'), 'malware.exe')
+
+    client.post(
+        '/expenses/add',
+        data=data,
+        content_type='multipart/form-data',
+        follow_redirects=True,
+    )
+
+    app.load_finance_data.cache_clear()
+    saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Bad receipt extension")
+    assert saved["Receipt Filename"] == ""

@@ -70,6 +70,22 @@ Font: Segoe UI throughout. No other typeface, no other colours.
   `"Submit"`, `"Go Back to Form"` not `"Cancel"`, `"I Understand — Save Record"` not
   `"Save Anyway"`.
 - Never use ALL CAPS on a button label or any interactive element.
+- **Archive is always de-emphasised — never gold, never prominent.** Gold is reserved
+  for primary positive actions (Save, Confirm, Export). Archive renders as a light grey
+  outline (`#E2E2E3` border, dark grey `#37373A` text), small font, using the shared
+  `archive_button()` macro (see Component Patterns) so every instance across the app is
+  identical. Edit always sits to the left of Archive, same height, same row.
+- Archive confirmation is an inline tooltip anchored to the button ("Archive? Yes / No"),
+  never a full modal — the tooltip must position itself within the viewport (flip above
+  the button if there isn't room below), never off-screen.
+
+## Breadcrumbs
+
+- Every page reached from a parent section (e.g. a Finance module reached from the
+  Finance hub) shows a breadcrumb above its page title: small steel blue `#618096` text,
+  format `Parent › Current Page`, with the large navy bold page title directly beneath
+  it. This is how a user knows where they are and how to get back — never rely on the
+  main nav alone to convey hierarchy.
 
 ## Layout
 
@@ -93,9 +109,22 @@ Font: Segoe UI throughout. No other typeface, no other colours.
 - Every form follows the same field order convention: Date → Title/Name → Description →
   Category → Amounts → secondary fields.
 - Every list/table uses the same column styling: header in navy, alternating rows in
-  white and `#F7F7F7`.
+  white and `#F7F7F7`. Numeric columns (price, amount) right-aligned; status columns
+  centred; name/description columns left-aligned; action columns (Edit/Archive)
+  right-aligned — consistently, in every table, not decided per-page.
 - Every page uses the same header structure: module title in navy, subtitle in steel
   blue.
+- **The same interactive component must never be hand-rolled twice.** Archive button,
+  Edit button, and the supplier smart-search field are each defined exactly once as a
+  Jinja2 macro at the top of `templates/index.html` (`archive_button()`, `edit_button()`,
+  `supplier_search_field()`) and called everywhere they're needed. If a page needs a
+  variant (different label, different confirm text), extend the macro's parameters —
+  never copy-paste the markup and tweak it in place. A second hand-written copy of an
+  existing component is a bug, not a new feature.
+- **System status information never belongs in the main KPI/dashboard area.** Backup
+  status, server/sync status, and similar operational information belong in a dedicated
+  status bar or footer, in small steel blue `#618096` text — not as a KPI card competing
+  with business metrics like Income or Net Cashflow.
 
 ## Component Patterns
 

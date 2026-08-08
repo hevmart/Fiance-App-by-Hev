@@ -16,6 +16,7 @@ from uuid import uuid4
 
 from flask import Flask, Response, jsonify, redirect, render_template, request, url_for
 from openpyxl import load_workbook
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -53,6 +54,9 @@ SUPPLIERS_PATH = BASE_DIR / "suppliers.json"
 SERVICES_PATH = BASE_DIR / "services.json"
 TAX_RULES_PATH = BASE_DIR / "tax-rules.json"
 BACKUPS_DIR = BASE_DIR / "backups"
+RECEIPTS_DIR = BASE_DIR / "receipts"
+RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
+ALLOWED_RECEIPT_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "gif", "heic", "webp"}
 GDRIVE_BACKUP_DIR = Path("G:/My Drive/H-Queex — Working Documents/H-Queex Control/Backups")
 BACKUP_STATUS_PATH = BASE_DIR / "backup-status.json"
 BACKUP_RETENTION_DAYS = 30
@@ -218,6 +222,7 @@ def _default_business_profile() -> dict[str, Any]:
         "vat_registered": True,
         "vat_threshold_basis": "services",
         "transition_date": "",
+        "pre_trading_start_date": "",
         "updated_at": datetime.now().isoformat(timespec="seconds"),
     }
 
@@ -249,6 +254,7 @@ def _load_business_profile() -> dict[str, Any]:
         "vat_registered": bool(payload.get("vat_registered", defaults["vat_registered"])),
         "vat_threshold_basis": _normalize_vat_threshold_basis(payload.get("vat_threshold_basis")),
         "transition_date": str(payload.get("transition_date") or "").strip(),
+        "pre_trading_start_date": str(payload.get("pre_trading_start_date") or "").strip(),
         "updated_at": str(payload.get("updated_at") or defaults["updated_at"]).strip(),
     }
 
@@ -263,6 +269,7 @@ def _save_business_profile(profile: dict[str, Any]) -> None:
         "vat_registered": bool(profile.get("vat_registered", True)),
         "vat_threshold_basis": _normalize_vat_threshold_basis(profile.get("vat_threshold_basis")),
         "transition_date": str(profile.get("transition_date") or "").strip(),
+        "pre_trading_start_date": str(profile.get("pre_trading_start_date") or "").strip(),
         "updated_at": datetime.now().isoformat(timespec="seconds"),
     }
     BUSINESS_PROFILE_PATH.write_text(json.dumps(normalized, indent=2), encoding="utf-8")
@@ -295,7 +302,13 @@ def _resolve_phase_tag(transaction_date: Any) -> str:
     profile = _load_business_profile()
     structure = _normalize_business_structure(profile.get("structure"))
     transition_date = _parse_transaction_date(profile.get("transition_date"))
+    pre_trading_start = _parse_transaction_date(profile.get("pre_trading_start_date"))
     record_date = _parse_transaction_date(transaction_date)
+
+    trading_start = transition_date
+    if pre_trading_start is not None and record_date is not None:
+        if record_date >= pre_trading_start and (trading_start is None or record_date < trading_start):
+            return "Pre-Trading"
 
     if structure == "sole_trader":
         return "Phase 1"
@@ -1222,6 +1235,35 @@ def _apply_compliance_flags_to_payload(payload: dict[str, Any], flags: list[dict
     payload["Flags Acknowledged"] = "Yes" if (has_red_flag and acknowledged) else "No"
     payload["Flags Acknowledged At"] = acknowledged_at if (has_red_flag and acknowledged) else ""
     return errors
+
+
+def _save_uploaded_receipt(file_storage: Any) -> str:
+    """Save an uploaded receipt file into RECEIPTS_DIR and return the stored filename, or '' if no valid file."""
+    if not file_storage or not getattr(file_storage, "filename", ""):
+        return ""
+    original_name = secure_filename(file_storage.filename)
+    if not original_name or "." not in original_name:
+        return ""
+    extension = original_name.rsplit(".", 1)[-1].lower()
+    if extension not in ALLOWED_RECEIPT_EXTENSIONS:
+        return ""
+    stored_name = f"{uuid4().hex[:10]}_{original_name}"
+    file_storage.save(RECEIPTS_DIR / stored_name)
+    return stored_name
+
+
+PRE_TRADING_CAPEX_THRESHOLD = 1000.0
+PRE_TRADING_CAPEX_MESSAGE = "Pre-trading capital expenditure — confirm this qualifies as a pre-trading expense with your accountant before claiming."
+
+
+def _apply_pretrading_compliance_flag(payload: dict[str, Any], flags: list[dict[str, Any]]) -> None:
+    if str(payload.get("Phase Tag") or "") != "Pre-Trading":
+        return
+    if _coerce_number(payload.get("Total (€)")) <= PRE_TRADING_CAPEX_THRESHOLD:
+        return
+    if any(flag.get("key") == "pretrading_capex" for flag in flags if isinstance(flag, dict)):
+        return
+    flags.append({"key": "pretrading_capex", "severity": "warning", "message": PRE_TRADING_CAPEX_MESSAGE})
 
 
 def _apply_expense_compliance_fields(payload: dict[str, Any]) -> None:
@@ -3585,6 +3627,7 @@ def _build_page_context(
     message: str | None = None,
     sync_message: str | None = None,
     error: str | None = None,
+    phase_filter: str | None = None,
 ) -> dict[str, Any]:
     try:
         workbook_path = _resolve_workbook_path()
@@ -3648,6 +3691,7 @@ def _build_page_context(
         "raw_amount": _coerce_number,
         "version": version,
         "active_tab": active_tab,
+        "phase_filter": phase_filter,
         "editing_income": editing_income,
         "editing_expense": editing_expense,
         "editing_invoice": editing_invoice,
@@ -4019,10 +4063,14 @@ def expenses_view():
     sync_result = _sync_subscriptions_to_expenses()
     data = load_finance_data()
     rows = data["sheets"].get("Expenses", [])
+    editing_expense = _find_row_by_number(rows, request.args.get("edit_row"))
+    phase_filter = str(request.args.get("phase_filter") or "All").strip()
+    if phase_filter not in {"All", "Pre-Trading", "Phase 1", "Phase 2"}:
+        phase_filter = "All"
+    visible_rows = rows if phase_filter == "All" else [row for row in rows if str(row.get("Phase Tag") or "") == phase_filter]
     subscription_rows = _build_subscription_rows(_load_subscriptions())
     validation_errors, expense_form = _build_validation_state("expenses")
-    editing_expense = _find_row_by_number(rows, request.args.get("edit_row"))
-    return render_template("index.html", **_build_page_context("Expenses", "expenses", data, expenses=rows, subscription_summary=_summarize_subscriptions(subscription_rows), editing_expense=editing_expense, expense_form=expense_form, validation_errors=validation_errors, message=request.args.get("message"), sync_message=_build_sync_message(sync_result)))
+    return render_template("index.html", **_build_page_context("Expenses", "expenses", data, expenses=visible_rows, phase_filter=phase_filter, subscription_summary=_summarize_subscriptions(subscription_rows), editing_expense=editing_expense, expense_form=expense_form, validation_errors=validation_errors, message=request.args.get("message"), sync_message=_build_sync_message(sync_result)))
 
 
 @app.route("/invoices")
@@ -4333,16 +4381,21 @@ def refresh_workbook():
 def update_business_structure():
     structure = _normalize_business_structure(request.form.get("structure"))
     transition_date = str(request.form.get("transition_date") or "").strip()
+    pre_trading_start_date = str(request.form.get("pre_trading_start_date") or "").strip()
     vat_registered = str(request.form.get("vat_registered") or "").strip().lower() in {"1", "true", "yes", "on"}
     vat_threshold_basis = _normalize_vat_threshold_basis(request.form.get("vat_threshold_basis"))
     if transition_date and _parse_transaction_date(transition_date) is None:
         next_page = str(request.args.get("next") or "/")
         return redirect(_append_message_to_path(next_page, "Invalid transition date format"))
+    if pre_trading_start_date and _parse_transaction_date(pre_trading_start_date) is None:
+        next_page = str(request.args.get("next") or "/")
+        return redirect(_append_message_to_path(next_page, "Invalid pre-trading start date format"))
 
     profile = _load_business_profile()
     previous_profile = dict(profile)
     profile["structure"] = structure
     profile["transition_date"] = transition_date
+    profile["pre_trading_start_date"] = pre_trading_start_date
     profile["vat_registered"] = vat_registered
     profile["vat_threshold_basis"] = vat_threshold_basis
     _save_business_profile(profile)
@@ -4872,6 +4925,7 @@ def add_expense():
         "One-Off Payee": "Yes" if request.form.get("one_off_payee") == "Yes" else "No",
         "Supplier VAT Number": request.form.get("supplier_vat_number", ""),
         "Receipt / Invoice Ref": request.form.get("receipt_reference", ""),
+        "Receipt Filename": "",
         "Category": request.form.get("category", ""),
         "Base Net Amount (€)": request.form.get("base_net_amount", request.form.get("net_amount", "")),
         "Delivery (€)": request.form.get("delivery_amount", ""),
@@ -4895,6 +4949,10 @@ def add_expense():
         "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("date", "")),
     }
+    uploaded_receipt_name = _save_uploaded_receipt(request.files.get("receipt_file"))
+    if uploaded_receipt_name:
+        payload["Receipt Filename"] = uploaded_receipt_name
+        payload["Receipt Attached"] = "Yes"
     _form_total = payload.get("Total (€)", "")
     _form_vat = payload.get("VAT Amount (€)", "")
     _apply_expense_amount_breakdown(payload)
@@ -4911,6 +4969,7 @@ def add_expense():
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
     _apply_expense_compliance_fields(payload)
     compliance_flags, flags_acknowledged, flags_acknowledged_at = _process_compliance_flags(request.form)
+    _apply_pretrading_compliance_flag(payload, compliance_flags)
     validation_errors = _validate_expense_payload(payload)
     validation_errors.update(_apply_compliance_flags_to_payload(payload, compliance_flags, flags_acknowledged, flags_acknowledged_at))
     if validation_errors:
@@ -4962,6 +5021,7 @@ def update_expense():
     if row_number is None:
         return redirect(url_for("expenses_view", message="Expense could not be updated"))
 
+    existing_expense_row = _find_row_by_number(_load_sheet_rows_with_row_numbers("Expenses"), row_number) or {}
     payload = {
         "Date (Registered)": request.form.get("date", ""),
         "Title": request.form.get("title", ""),
@@ -4970,6 +5030,7 @@ def update_expense():
         "One-Off Payee": "Yes" if request.form.get("one_off_payee") == "Yes" else "No",
         "Supplier VAT Number": request.form.get("supplier_vat_number", ""),
         "Receipt / Invoice Ref": request.form.get("receipt_reference", ""),
+        "Receipt Filename": existing_expense_row.get("Receipt Filename", ""),
         "Category": request.form.get("category", ""),
         "Base Net Amount (€)": request.form.get("base_net_amount", request.form.get("net_amount", "")),
         "Delivery (€)": request.form.get("delivery_amount", ""),
@@ -4993,6 +5054,10 @@ def update_expense():
         "Notes": request.form.get("notes", ""),
         "Phase Tag": _resolve_phase_tag(request.form.get("date", "")),
     }
+    uploaded_receipt_name = _save_uploaded_receipt(request.files.get("receipt_file"))
+    if uploaded_receipt_name:
+        payload["Receipt Filename"] = uploaded_receipt_name
+        payload["Receipt Attached"] = "Yes"
     _form_total = payload.get("Total (€)", "")
     _form_vat = payload.get("VAT Amount (€)", "")
     _apply_expense_amount_breakdown(payload)
@@ -5009,6 +5074,7 @@ def update_expense():
     _apply_vat_classification(payload, vat_rate_key="VAT Rate")
     _apply_expense_compliance_fields(payload)
     compliance_flags, flags_acknowledged, flags_acknowledged_at = _process_compliance_flags(request.form)
+    _apply_pretrading_compliance_flag(payload, compliance_flags)
     validation_errors = _validate_expense_payload(payload)
     validation_errors.update(_apply_compliance_flags_to_payload(payload, compliance_flags, flags_acknowledged, flags_acknowledged_at))
     if validation_errors:

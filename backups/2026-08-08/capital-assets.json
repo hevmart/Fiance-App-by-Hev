@@ -1,0 +1,18 @@
+[
+  {
+    "id": "expense-3",
+    "source": "expense",
+    "expense_row_number": 3,
+    "acquisition_date": "2026-08-02",
+    "supplier": "",
+    "description": "H-Test",
+    "category": "Entertainment",
+    "cost_eur": 496.8,
+    "allowance_rate": 0.125,
+    "allowance_years": 8,
+    "annual_allowance_eur": 62.1,
+    "phase_tag": "Phase 1",
+    "active": true,
+    "updated_at": "2026-08-07T20:41:47"
+  }
+]
