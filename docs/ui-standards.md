@@ -1,4 +1,4 @@
-# H-Queex Control — UI Standards
+# H-Queex Hub — UI Standards
 
 This document is the standing set of UI rules for `templates/index.html`. It exists so
 basic UX quality doesn't depend on being re-requested every time.
@@ -40,6 +40,10 @@ Font: Segoe UI throughout. No other typeface, no other colours.
 - Mandatory fields show a visible asterisk (`.field.required label::after`).
 - Locked/read-only fields must never look editable: no dropdown arrow, no input border —
   render as a badge or plain text instead.
+- **Description fields must always be textareas with a minimum of 3 rows, never
+  single-line inputs.** Any field labelled Description, Notes, or Details anywhere in
+  the app must follow this rule — full width, resizable vertically, same font size and
+  Segoe UI as every other field, with comfortable padding for reading and editing.
 
 ## Dropdowns
 
@@ -70,14 +74,20 @@ Font: Segoe UI throughout. No other typeface, no other colours.
   `"Submit"`, `"Go Back to Form"` not `"Cancel"`, `"I Understand — Save Record"` not
   `"Save Anyway"`.
 - Never use ALL CAPS on a button label or any interactive element.
-- **Archive is always de-emphasised — never gold, never prominent.** Gold is reserved
-  for primary positive actions (Save, Confirm, Export). Archive renders as a light grey
-  outline (`#E2E2E3` border, dark grey `#37373A` text), small font, using the shared
-  `archive_button()` macro (see Component Patterns) so every instance across the app is
-  identical. Edit always sits to the left of Archive, same height, same row.
-- Archive confirmation is an inline tooltip anchored to the button ("Archive? Yes / No"),
-  never a full modal — the tooltip must position itself within the viewport (flip above
-  the button if there isn't room below), never off-screen.
+- **Destructive actions must never appear as prominent buttons in list views — they
+  belong inside the edit context only.** Archive/Cancel is never a button on a table row
+  or a list card. Edit is the sole row-level action everywhere (Services, Clients,
+  Suppliers, Income, Expenses, Invoices, Payroll, Subscriptions). The archive/cancel
+  action lives at the bottom of the record's edit form or edit modal, below a full-width
+  divider, styled as a small red `#C62828` text link ("Archive this record" — "Cancel
+  invoice" for Invoices) using the shared `archive_in_modal()` macro (see Component
+  Patterns) so every instance across the app is identical.
+- Archive/cancel confirmation is an inline step below the link ("Are you sure? This will
+  archive the record. Yes, archive / Cancel"), never a full modal on top of a modal and
+  never a floating tooltip.
+- If archiving a record is blocked by a dependency (e.g. an Income entry linked to a paid
+  invoice), the archive link does not render at all — show a plain explanatory line
+  instead (steel blue `#618096`) telling the user where to make the change.
 
 ## Breadcrumbs
 
@@ -114,10 +124,11 @@ Font: Segoe UI throughout. No other typeface, no other colours.
   right-aligned — consistently, in every table, not decided per-page.
 - Every page uses the same header structure: module title in navy, subtitle in steel
   blue.
-- **The same interactive component must never be hand-rolled twice.** Archive button,
-  Edit button, and the supplier smart-search field are each defined exactly once as a
-  Jinja2 macro at the top of `templates/index.html` (`archive_button()`, `edit_button()`,
-  `supplier_search_field()`) and called everywhere they're needed. If a page needs a
+- **The same interactive component must never be hand-rolled twice.** The in-modal
+  archive/cancel action, Edit button, and the supplier/client smart-search field are each
+  defined exactly once as a Jinja2 macro at the top of `templates/index.html`
+  (`archive_in_modal()`, `edit_button()`, `supplier_search_field()`) and called everywhere
+  they're needed. If a page needs a
   variant (different label, different confirm text), extend the macro's parameters —
   never copy-paste the markup and tweak it in place. A second hand-written copy of an
   existing component is a bug, not a new feature.

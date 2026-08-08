@@ -5,10 +5,10 @@ Set shell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
 appRoot = fso.GetParentFolderName(WScript.ScriptFullName)
-launcherPath = appRoot & "\Launch-Finance-App.ps1"
+launcherPath = appRoot & "\Launch-HQueex-Hub.ps1"
 
 If Not fso.FileExists(launcherPath) Then
-    MsgBox "Launcher script not found: " & launcherPath, vbCritical, "H-Queex Finance App"
+    MsgBox "Launcher script not found: " & launcherPath, vbCritical, "H-Queex Hub"
     WScript.Quit 1
 End If
 

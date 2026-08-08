@@ -57,7 +57,7 @@ BACKUPS_DIR = BASE_DIR / "backups"
 RECEIPTS_DIR = BASE_DIR / "receipts"
 RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
 ALLOWED_RECEIPT_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "gif", "heic", "webp"}
-GDRIVE_BACKUP_DIR = Path("G:/My Drive/H-Queex — Working Documents/H-Queex Control/Backups")
+GDRIVE_BACKUP_DIR = Path("G:/My Drive/H-Queex — Working Documents/H-Queex Hub/Backups")
 BACKUP_STATUS_PATH = BASE_DIR / "backup-status.json"
 BACKUP_RETENTION_DAYS = 30
 SHEET_JSON_PATHS = {
@@ -3900,7 +3900,7 @@ def index():
     subscription_rows = _build_subscription_rows(_load_subscriptions())
     subscription_summary = _summarize_subscriptions(subscription_rows)
     if "error" in data:
-        return render_template("index.html", **_build_page_context("H-Queex Control", "dashboard", {}, error=data["error"], subscriptions=subscription_rows, subscription_summary=subscription_summary, sync_message=_build_sync_message(sync_result)))
+        return render_template("index.html", **_build_page_context("H-Queex Hub", "dashboard", {}, error=data["error"], subscriptions=subscription_rows, subscription_summary=subscription_summary, sync_message=_build_sync_message(sync_result)))
 
     summary = data["summary"]
     income = data["sheets"].get("Income", [])[:8]
@@ -3911,7 +3911,7 @@ def index():
     return render_template(
         "index.html",
         **_build_page_context(
-            "H-Queex Control",
+            "H-Queex Hub",
             "dashboard",
             data,
             income=income,
@@ -5749,6 +5749,52 @@ def api_suppliers_quick_add():
     row_number = _append_row_to_sheet("Suppliers", payload)
     load_finance_data.cache_clear()
     _record_audit("create", "supplier", {"row_number": row_number, "record": payload, "source": "quick_add"})
+    return jsonify({"name": name, "created": True})
+
+
+@app.route("/api/clients/search")
+def api_clients_search():
+    query = str(request.args.get("q") or "").strip().lower()
+    if len(query) < 2:
+        return jsonify([])
+    clients = _load_sheet_records_raw("Clients")
+    matches = []
+    seen = set()
+    for client in clients:
+        name = str(client.get("Client Name") or "").strip()
+        if not name or name.lower() in seen:
+            continue
+        if query in name.lower():
+            matches.append({"name": name, "needs_completion": False})
+            seen.add(name.lower())
+    return jsonify(matches[:20])
+
+
+@app.route("/api/clients/quick-add", methods=["POST"])
+def api_clients_quick_add():
+    body = request.get_json(silent=True) or {}
+    name = str(body.get("name") or "").strip()
+    if not name:
+        return jsonify({"error": "Client name is required"}), 400
+
+    clients = _load_sheet_records_raw("Clients")
+    for client in clients:
+        if str(client.get("Client Name") or "").strip().lower() == name.lower():
+            return jsonify({"name": client.get("Client Name"), "created": False})
+
+    payload = {
+        "Client Name": name,
+        "Contact Person": "",
+        "Email": "",
+        "Phone": "",
+        "Country": "",
+        "Service Tier": "None",
+        "Retainer Frequency": "",
+        "Retainer Amount (€)": "",
+    }
+    row_number = _append_row_to_sheet("Clients", payload)
+    load_finance_data.cache_clear()
+    _record_audit("create", "client", {"row_number": row_number, "record": payload, "source": "quick_add"})
     return jsonify({"name": name, "created": True})
 
 

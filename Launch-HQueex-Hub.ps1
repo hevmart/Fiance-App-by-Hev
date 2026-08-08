@@ -29,7 +29,7 @@ function Show-LaunchError {
     param([string]$Message)
     try {
         $shell = New-Object -ComObject WScript.Shell
-        $shell.Popup($Message, 0, "H-Queex Finance App", 16) | Out-Null
+        $shell.Popup($Message, 0, "H-Queex Hub", 16) | Out-Null
     }
     catch {
     }

@@ -1,4 +1,4 @@
-# H-Queex Control
+# H-Queex Hub
 
 ## UI standards
 
