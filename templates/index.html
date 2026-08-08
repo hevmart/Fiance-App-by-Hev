@@ -598,12 +598,13 @@
           </div>
           <div class="header-right">
             <span class="phase-badge">{% if business_structure == 'limited_company' %}Phase 2 — Limited Company{% else %}Phase 1 — Sole Trader{% endif %}</span>
-            <a href="/settings" class="settings-link {% if active_tab == 'settings' %}active{% endif %}" title="Settings" aria-label="Settings">⚙</a>
+            <a href="/company/settings" class="settings-link {% if active_tab == 'settings' %}active{% endif %}" title="Settings" aria-label="Settings">⚙</a>
           </div>
         </div>
       </div>
 
       {% set finance_tabs = ['finance', 'income', 'expenses', 'invoices', 'subscriptions', 'payroll', 'ledger', 'archive'] %}
+      {% set company_tabs = ['company', 'company_documents', 'company_compliance', 'company_profile', 'settings'] %}
       <nav class="main-nav">
         <button type="button" class="nav-hamburger" id="nav_hamburger" aria-label="Toggle menu" aria-expanded="false">☰ Menu</button>
         <div class="nav-menu" id="nav_menu">
@@ -611,6 +612,7 @@
           <a href="/finance" class="nav-item {% if active_tab in finance_tabs %}active{% endif %}">Finance</a>
           <a href="/services" class="nav-item {% if active_tab == 'services' %}active{% endif %}">Services</a>
           <a href="/clients" class="nav-item {% if active_tab == 'clients' %}active{% endif %}">Clients</a>
+          <a href="/company" class="nav-item {% if active_tab in company_tabs %}active{% endif %}">Company</a>
           <a href="/suppliers" class="nav-item {% if active_tab == 'suppliers' %}active{% endif %}">Suppliers</a>
           <span class="nav-item nav-item-disabled" tabindex="0" title="Coming soon">Operations</span>
         </div>
@@ -650,6 +652,22 @@
         {% endfor %}
       </nav>
       <p class="breadcrumb">Finance <span class="breadcrumb-sep">›</span> {{ page_title }}</p>
+      <h1 class="finance-page-title">{{ page_title }}</h1>
+      {% endif %}
+
+      {% set company_nav_items = [
+        ('company_documents', 'Documents', '/company/documents'),
+        ('company_compliance', 'Compliance', '/company/compliance'),
+        ('company_profile', 'Profile', '/company/profile'),
+        ('settings', 'Settings', '/company/settings'),
+      ] %}
+      {% if active_tab in company_tabs and active_tab != 'company' %}
+      <nav class="finance-subnav">
+        {% for tab_key, tab_label, tab_url in company_nav_items %}
+        <a href="{{ tab_url }}" class="finance-subnav-tab {% if active_tab == tab_key %}active{% endif %}">{{ tab_label }}</a>
+        {% endfor %}
+      </nav>
+      <p class="breadcrumb">Company <span class="breadcrumb-sep">›</span> {{ page_title }}</p>
       <h1 class="finance-page-title">{{ page_title }}</h1>
       {% endif %}
 
@@ -714,57 +732,429 @@
       </div>
       {% endif %}
 
-      {% if active_tab == 'settings' and available_backups is not defined %}
-      <p class="mini" style="margin:-8px 0 16px;color:var(--brand-steel);">H-Queex Hub — application settings</p>
+      {% if active_tab == 'company' %}
       <div class="section">
-        <h2>Business structure</h2>
-        <div class="card" style="margin-bottom:16px;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-            <div>
-              <div class="mini" style="margin:0;">Current phase: <strong>{{ phase_label }}</strong></div>
-              {% if business_profile.transition_date %}
-              <div class="mini" style="margin-top:4px;">Transition date: <strong>{{ business_profile.transition_date }}</strong></div>
-              {% endif %}
+        <h2>Company hub</h2>
+        <p class="mini" style="margin:0 0 14px;">Central home for company documentation, compliance tracking and business profile management.</p>
+        <div class="finance-card-grid">
+          <a href="/company/documents" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Documents</h3>
+              <p>Store and track certificates, policies, agreements and templates in one place.</p>
+              <span class="pill">Records</span>
             </div>
-            <form method="post" action="/business-structure/update?next={{ request.path }}" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));width:min(760px,100%);">
-              <label class="field" style="margin:0;">
-                <span>Legal structure</span>
-                <select name="structure">
-                  <option value="sole_trader" {% if business_structure == 'sole_trader' %}selected{% endif %}>Sole Trader / Business Name (Phase 1)</option>
-                  <option value="limited_company" {% if business_structure == 'limited_company' %}selected{% endif %}>Private Limited Company (Phase 2)</option>
-                </select>
-              </label>
-              <label class="field" style="margin:0;">
-                <span>Transition date</span>
-                <input type="date" name="transition_date" value="{{ business_profile.transition_date }}">
-              </label>
-              <label class="field" style="margin:0;">
-                <span>Pre-trading start date</span>
-                <input type="date" name="pre_trading_start_date" value="{{ business_profile.pre_trading_start_date }}">
-              </label>
-              <label class="field" style="margin:0;justify-content:flex-end;">
-                <span>VAT registration</span>
-                <div style="display:flex;align-items:center;gap:8px;min-height:46px;">
-                  <input id="vat_registered" type="checkbox" name="vat_registered" value="1" {% if vat_registered %}checked{% endif %}>
-                  <label for="vat_registered" style="margin:0;font-size:13px;color:var(--brand-charcoal);">VAT registered business</label>
+          </a>
+          <a href="/company/compliance" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Compliance Calendar</h3>
+              <p>See every upcoming filing and deadline, auto-populated from your tax and payroll setup.</p>
+              <span class="pill">Deadlines</span>
+            </div>
+          </a>
+          <a href="/company/profile" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Business Profile</h3>
+              <p>Review and update your registered business details, structure and VAT status.</p>
+              <span class="pill">Profile</span>
+            </div>
+          </a>
+          <a href="/company/settings" class="finance-card-link">
+            <div class="finance-card">
+              <h3>Settings</h3>
+              <p>Manage application settings and backups.</p>
+              <span class="pill">Admin</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if active_tab == 'company_documents' %}
+      <div class="section">
+        <div class="edit-banner">
+          <h2>Company documents</h2>
+          <a href="/company/documents#document-upload-modal" class="btn-secondary" id="document_upload_btn">+ Upload Document</a>
+        </div>
+        {% for category in document_categories %}
+        {% set category_documents = company_documents|selectattr('category', 'equalto', category)|selectattr('status', 'equalto', 'active')|list %}
+        {% if category_documents %}
+        <h3 style="color:var(--brand-navy);font-size:16px;font-weight:700;margin:18px 0 8px;padding-left:10px;border-left:3px solid var(--brand-gold);">{{ category }}</h3>
+        <table class="services-table">
+          <tr><th class="col-name">Name</th><th>Date added</th><th>Expiry</th><th class="col-actions"></th></tr>
+          {% for document in category_documents %}
+          <tr>
+            <td class="col-name">{{ document.name }}{% if document.notes %}<div class="mini" style="margin-top:2px;">{{ document.notes }}</div>{% endif %}</td>
+            <td>{{ document.date_added }}</td>
+            <td>
+              {% if document.expiry_date %}
+                <span style="{% if document.expiry_severity == 'expired' %}color:var(--brand-error);font-weight:700;{% elif document.expiry_severity == 'soon' %}color:#9c7a2f;font-weight:700;{% endif %}">{{ document.expiry_date }}</span>
+              {% else %}
+                <span class="mini" style="margin:0;">No expiry</span>
+              {% endif %}
+            </td>
+            <td class="col-actions">
+              <div class="table-action-stack">
+                {% if document.file_path %}
+                <a href="/{{ document.file_path }}" target="_blank" rel="noopener" class="edit-link">View</a>
+                <a href="/{{ document.file_path }}?download=1" class="edit-link">Download</a>
+                {% endif %}
+                {{ edit_button('/company/documents?edit_id=' ~ document.id ~ '#document-edit-modal') }}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+        {% endfor %}
+        {% if not company_documents|selectattr('status', 'equalto', 'active')|list %}
+        <p class="mini">No documents uploaded yet.</p>
+        {% endif %}
+      </div>
+
+      <div class="modal-overlay" id="document_upload_modal_overlay">
+        <div class="modal-box compliance-modal-box form-modal-box">
+          <div class="compliance-modal-header">
+            <h3>Upload Document</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="/company/documents/upload" class="form-shell" enctype="multipart/form-data" novalidate>
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('name') %}has-error{% endif %}">
+                  <label for="document_name">Document name</label>
+                  <input id="document_name" type="text" name="name" value="{{ document_form.get('name', '') }}" placeholder="Document name">
+                  {% if validation_errors.get('name') %}<span class="field-error">{{ validation_errors.get('name') }}</span>{% endif %}
                 </div>
-              </label>
-              <label class="field" style="margin:0;">
-                <span>VAT threshold basis</span>
-                <select name="vat_threshold_basis">
-                  {% for option in vat_threshold_options %}
-                  <option value="{{ option.value }}" {% if business_profile.vat_threshold_basis == option.value %}selected{% endif %}>{{ option.label }}</option>
-                  {% endfor %}
-                </select>
-              </label>
-              <div style="display:flex;align-items:flex-end;">
-                <button type="submit" class="btn-primary" style="border-radius:999px;">Save structure</button>
+                <div class="field required">
+                  <label for="document_category">Category</label>
+                  <select id="document_category" name="category">
+                    {% for category in document_categories %}
+                    <option value="{{ category }}" {% if document_form.get('category') == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="document_description">Description</label>
+                  <textarea id="document_description" name="description" rows="3" placeholder="Description">{{ document_form.get('description', '') }}</textarea>
+                </div>
+                <div class="field optional {% if validation_errors.get('expiry_date') %}has-error{% endif %}">
+                  <label for="document_expiry_date">Expiry date</label>
+                  <input id="document_expiry_date" type="date" name="expiry_date" value="{{ document_form.get('expiry_date', '') }}">
+                  {% if validation_errors.get('expiry_date') %}<span class="field-error">{{ validation_errors.get('expiry_date') }}</span>{% endif %}
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="document_notes">Notes</label>
+                  <textarea id="document_notes" name="notes" rows="3" placeholder="Notes">{{ document_form.get('notes', '') }}</textarea>
+                </div>
+                <div class="field optional {% if validation_errors.get('document_file') %}has-error{% endif %}" style="grid-column: 1 / -1;">
+                  <label for="document_upload_file">File</label>
+                  <div class="receipt-dropzone" id="document_upload_dropzone">
+                    <input type="file" id="document_upload_file" name="document_file" accept=".pdf,.docx,.png,.jpg,.jpeg" style="display:none;">
+                    <span class="receipt-dropzone-text">Drag file here or click to upload (PDF, DOCX, PNG, JPG — max 10MB)</span>
+                    <span class="receipt-dropzone-filename" id="document_upload_filename"></span>
+                  </div>
+                  {% if validation_errors.get('document_file') %}<span class="field-error">{{ validation_errors.get('document_file') }}</span>{% endif %}
+                </div>
+              </div>
+              <div class="modal-actions">
+                <a href="/company/documents" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">Upload Document</button>
               </div>
             </form>
           </div>
         </div>
       </div>
 
+      {% if editing_document %}
+      <div class="modal-overlay" id="document_edit_modal_overlay">
+        <div class="modal-box compliance-modal-box form-modal-box">
+          <div class="compliance-modal-header">
+            <h3>Edit Document</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="/company/documents/update" class="form-shell" enctype="multipart/form-data" novalidate>
+              <input type="hidden" name="document_id" value="{{ editing_document.id }}">
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('name') %}has-error{% endif %}">
+                  <label for="document_edit_name">Document name</label>
+                  <input id="document_edit_name" type="text" name="name" value="{{ document_form.get('name') if document_form else editing_document.name }}" placeholder="Document name">
+                  {% if validation_errors.get('name') %}<span class="field-error">{{ validation_errors.get('name') }}</span>{% endif %}
+                </div>
+                <div class="field required">
+                  <label for="document_edit_category">Category</label>
+                  <select id="document_edit_category" name="category">
+                    {% for category in document_categories %}
+                    <option value="{{ category }}" {% if (document_form.get('category') if document_form else editing_document.category) == category %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="document_edit_description">Description</label>
+                  <textarea id="document_edit_description" name="description" rows="3" placeholder="Description">{{ document_form.get('description') if document_form else editing_document.description }}</textarea>
+                </div>
+                <div class="field optional {% if validation_errors.get('expiry_date') %}has-error{% endif %}">
+                  <label for="document_edit_expiry_date">Expiry date</label>
+                  <input id="document_edit_expiry_date" type="date" name="expiry_date" value="{{ document_form.get('expiry_date') if document_form else editing_document.expiry_date }}">
+                  {% if validation_errors.get('expiry_date') %}<span class="field-error">{{ validation_errors.get('expiry_date') }}</span>{% endif %}
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="document_edit_notes">Notes</label>
+                  <textarea id="document_edit_notes" name="notes" rows="3" placeholder="Notes">{{ document_form.get('notes') if document_form else editing_document.notes }}</textarea>
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="document_edit_file">Replace file</label>
+                  <div class="receipt-dropzone" id="document_edit_dropzone">
+                    <input type="file" id="document_edit_file" name="document_file" accept=".pdf,.docx,.png,.jpg,.jpeg" style="display:none;">
+                    <span class="receipt-dropzone-text">Drag file here or click to upload (PDF, DOCX, PNG, JPG — max 10MB)</span>
+                    <span class="receipt-dropzone-filename" id="document_edit_filename">{% if editing_document.filename %}Current file: {{ editing_document.filename }}{% endif %}</span>
+                  </div>
+                  {% if validation_errors.get('document_file') %}<span class="field-error">{{ validation_errors.get('document_file') }}</span>{% endif %}
+                </div>
+              </div>
+              {{ archive_in_modal('/company/documents/archive', 'document_id', editing_document.id, label='Archive this document', confirm_message='Are you sure? This will archive the document.') }}
+              <div class="modal-actions">
+                <a href="/company/documents" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">Update Document</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.DOCUMENT_EDIT_MODAL_OPEN = true;
+      </script>
+      {% endif %}
+      <script>
+        window.DOCUMENT_UPLOAD_MODAL_OPEN = {{ 'true' if (validation_errors and not editing_document) else 'false' }};
+      </script>
+      {% endif %}
+
+      {% if active_tab == 'company_compliance' %}
+      <div class="section">
+        <div class="edit-banner">
+          <h2>Compliance timeline</h2>
+          <a href="/company/compliance#compliance-add-modal" class="btn-secondary" id="compliance_add_btn">+ Add Deadline</a>
+        </div>
+        {% if compliance_deadlines %}
+        <div class="actions-list" style="gap:10px;">
+          {% for deadline in compliance_deadlines %}
+          <div class="action-row action-{% if deadline.severity == 'red' %}danger{% elif deadline.severity == 'amber' %}warning{% else %}info{% endif %}" style="cursor:default;">
+            <span class="action-dot"></span>
+            <span class="action-label">{{ deadline.name }}</span>
+            <span class="action-detail">Due {{ deadline.due_date }}</span>
+            {% if deadline.description %}<div class="mini" style="width:100%;margin:2px 0 0 19px;">{{ deadline.description }}</div>{% endif %}
+            <div class="table-action-stack" style="margin-left:19px;margin-top:6px;">
+              {% if deadline.category == 'manual' %}
+              {{ edit_button('/company/compliance?edit_id=' ~ deadline.id ~ '#compliance-edit-modal') }}
+              <form method="post" action="/company/compliance/complete" class="table-actions">
+                <input type="hidden" name="entry_id" value="{{ deadline.id }}">
+                <button type="submit">Mark as Complete</button>
+              </form>
+              {% else %}
+              <a href="{{ deadline.link }}" class="edit-link">Go to module</a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="mini">No upcoming deadlines.</p>
+        {% endif %}
+      </div>
+
+      <div class="modal-overlay" id="compliance_add_modal_overlay">
+        <div class="modal-box compliance-modal-box form-modal-box">
+          <div class="compliance-modal-header">
+            <h3>Add Deadline</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="/company/compliance/add" class="form-shell" novalidate>
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('name') %}has-error{% endif %}">
+                  <label for="compliance_name">Deadline name</label>
+                  <input id="compliance_name" type="text" name="name" value="{{ compliance_form.get('name', '') }}" placeholder="Deadline name">
+                  {% if validation_errors.get('name') %}<span class="field-error">{{ validation_errors.get('name') }}</span>{% endif %}
+                </div>
+                <div class="field required {% if validation_errors.get('due_date') %}has-error{% endif %}">
+                  <label for="compliance_due_date">Due date</label>
+                  <input id="compliance_due_date" type="date" name="due_date" value="{{ compliance_form.get('due_date', '') }}">
+                  {% if validation_errors.get('due_date') %}<span class="field-error">{{ validation_errors.get('due_date') }}</span>{% endif %}
+                </div>
+                <div class="field optional">
+                  <label for="compliance_repeat_frequency">Repeat</label>
+                  <select id="compliance_repeat_frequency" name="repeat_frequency">
+                    <option value="">Does not repeat</option>
+                    {% for frequency in compliance_repeat_frequencies if frequency %}
+                    <option value="{{ frequency }}" {% if compliance_form.get('repeat_frequency') == frequency %}selected{% endif %}>{{ frequency|capitalize }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="compliance_description">Description</label>
+                  <textarea id="compliance_description" name="description" rows="3" placeholder="Description">{{ compliance_form.get('description', '') }}</textarea>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <a href="/company/compliance" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">Save Deadline</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {% if editing_compliance_entry %}
+      <div class="modal-overlay" id="compliance_edit_modal_overlay">
+        <div class="modal-box compliance-modal-box form-modal-box">
+          <div class="compliance-modal-header">
+            <h3>Edit Deadline</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="/company/compliance/update" class="form-shell" novalidate>
+              <input type="hidden" name="entry_id" value="{{ editing_compliance_entry.id }}">
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('name') %}has-error{% endif %}">
+                  <label for="compliance_edit_name">Deadline name</label>
+                  <input id="compliance_edit_name" type="text" name="name" value="{{ compliance_form.get('name') if compliance_form else editing_compliance_entry.name }}" placeholder="Deadline name">
+                  {% if validation_errors.get('name') %}<span class="field-error">{{ validation_errors.get('name') }}</span>{% endif %}
+                </div>
+                <div class="field required {% if validation_errors.get('due_date') %}has-error{% endif %}">
+                  <label for="compliance_edit_due_date">Due date</label>
+                  <input id="compliance_edit_due_date" type="date" name="due_date" value="{{ compliance_form.get('due_date') if compliance_form else editing_compliance_entry.due_date }}">
+                  {% if validation_errors.get('due_date') %}<span class="field-error">{{ validation_errors.get('due_date') }}</span>{% endif %}
+                </div>
+                <div class="field optional">
+                  <label for="compliance_edit_repeat_frequency">Repeat</label>
+                  <select id="compliance_edit_repeat_frequency" name="repeat_frequency">
+                    <option value="">Does not repeat</option>
+                    {% for frequency in compliance_repeat_frequencies if frequency %}
+                    <option value="{{ frequency }}" {% if (compliance_form.get('repeat_frequency') if compliance_form else editing_compliance_entry.repeat_frequency) == frequency %}selected{% endif %}>{{ frequency|capitalize }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="field optional" style="grid-column: 1 / -1;">
+                  <label for="compliance_edit_description">Description</label>
+                  <textarea id="compliance_edit_description" name="description" rows="3" placeholder="Description">{{ compliance_form.get('description') if compliance_form else editing_compliance_entry.description }}</textarea>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <a href="/company/compliance" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">Update Deadline</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.COMPLIANCE_EDIT_MODAL_OPEN = true;
+      </script>
+      {% endif %}
+      <script>
+        window.COMPLIANCE_ADD_MODAL_OPEN = {{ 'true' if (validation_errors and not editing_compliance_entry) else 'false' }};
+      </script>
+      {% endif %}
+
+      {% if active_tab == 'company_profile' %}
+      <div class="section">
+        <div class="edit-banner">
+          <h2>Business profile</h2>
+          <a href="/company/profile#profile-edit-modal" class="btn-secondary" id="profile_edit_btn">Edit Profile</a>
+        </div>
+        <div class="card" style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div><div class="mini" style="margin:0;">Business name</div><strong>{{ business_profile.business_name }}</strong></div>
+          <div><div class="mini" style="margin:0;">Owner name</div><strong>{{ business_profile.owner_name }}</strong></div>
+          <div><div class="mini" style="margin:0;">CRO number</div><strong>{{ business_profile.cro_number or '—' }}</strong></div>
+          <div><div class="mini" style="margin:0;">Registration date</div><strong>{{ business_profile.registration_date or '—' }}</strong></div>
+          <div><div class="mini" style="margin:0;">Legal structure</div><strong>{{ phase_label }}</strong></div>
+          <div><div class="mini" style="margin:0;">Trading start date</div><strong>{{ business_profile.trading_start_date or '—' }}</strong></div>
+          <div><div class="mini" style="margin:0;">Pre-trading start date</div><strong>{{ business_profile.pre_trading_start_date or '—' }}</strong></div>
+          <div><div class="mini" style="margin:0;">Transition date</div><strong>{{ business_profile.transition_date or '—' }}</strong></div>
+          <div><div class="mini" style="margin:0;">VAT registration</div><strong>{{ 'Registered' if vat_registered else 'Not registered' }}</strong></div>
+          <div><div class="mini" style="margin:0;">VAT threshold basis</div><strong>{{ vat_threshold_summary.get('label', business_profile.vat_threshold_basis) if vat_threshold_summary else business_profile.vat_threshold_basis }}</strong></div>
+        </div>
+      </div>
+
+      <div class="modal-overlay" id="profile_edit_modal_overlay">
+        <div class="modal-box compliance-modal-box form-modal-box">
+          <div class="compliance-modal-header">
+            <h3>Edit Business Profile</h3>
+          </div>
+          <div class="compliance-modal-body">
+            <form method="post" action="/company/profile/update" class="form-shell" novalidate>
+              <div class="form-grid">
+                <div class="field required {% if validation_errors.get('business_name') %}has-error{% endif %}">
+                  <label for="profile_business_name">Business name</label>
+                  <input id="profile_business_name" type="text" name="business_name" value="{{ business_profile.business_name }}" placeholder="Business name">
+                  {% if validation_errors.get('business_name') %}<span class="field-error">{{ validation_errors.get('business_name') }}</span>{% endif %}
+                </div>
+                <div class="field optional">
+                  <label for="profile_owner_name">Owner name</label>
+                  <input id="profile_owner_name" type="text" name="owner_name" value="{{ business_profile.owner_name }}" placeholder="Owner name">
+                </div>
+                <div class="field optional">
+                  <label for="profile_cro_number">CRO number</label>
+                  <input id="profile_cro_number" type="text" name="cro_number" value="{{ business_profile.cro_number }}" placeholder="CRO number">
+                </div>
+                <div class="field optional {% if validation_errors.get('registration_date') %}has-error{% endif %}">
+                  <label for="profile_registration_date">Registration date</label>
+                  <input id="profile_registration_date" type="date" name="registration_date" value="{{ business_profile.registration_date }}">
+                  {% if validation_errors.get('registration_date') %}<span class="field-error">{{ validation_errors.get('registration_date') }}</span>{% endif %}
+                </div>
+                <div class="field required">
+                  <label for="profile_structure">Legal structure</label>
+                  <select id="profile_structure" name="structure">
+                    <option value="sole_trader" {% if business_structure == 'sole_trader' %}selected{% endif %}>Sole Trader / Business Name (Phase 1)</option>
+                    <option value="limited_company" {% if business_structure == 'limited_company' %}selected{% endif %}>Private Limited Company (Phase 2)</option>
+                  </select>
+                </div>
+                <div class="field optional {% if validation_errors.get('trading_start_date') %}has-error{% endif %}">
+                  <label for="profile_trading_start_date">Trading start date</label>
+                  <input id="profile_trading_start_date" type="date" name="trading_start_date" value="{{ business_profile.trading_start_date }}">
+                  {% if validation_errors.get('trading_start_date') %}<span class="field-error">{{ validation_errors.get('trading_start_date') }}</span>{% endif %}
+                </div>
+                <div class="field optional {% if validation_errors.get('pre_trading_start_date') %}has-error{% endif %}">
+                  <label for="profile_pre_trading_start_date">Pre-trading start date</label>
+                  <input id="profile_pre_trading_start_date" type="date" name="pre_trading_start_date" value="{{ business_profile.pre_trading_start_date }}">
+                  {% if validation_errors.get('pre_trading_start_date') %}<span class="field-error">{{ validation_errors.get('pre_trading_start_date') }}</span>{% endif %}
+                </div>
+                <div class="field optional {% if validation_errors.get('transition_date') %}has-error{% endif %}">
+                  <label for="profile_transition_date">Transition date</label>
+                  <input id="profile_transition_date" type="date" name="transition_date" value="{{ business_profile.transition_date }}">
+                  {% if validation_errors.get('transition_date') %}<span class="field-error">{{ validation_errors.get('transition_date') }}</span>{% endif %}
+                </div>
+                <div class="field optional" style="justify-content:flex-end;">
+                  <span>VAT registration</span>
+                  <div style="display:flex;align-items:center;gap:8px;min-height:46px;">
+                    <label class="toggle-switch">
+                      <input id="profile_vat_registered" type="checkbox" name="vat_registered" value="1" {% if vat_registered %}checked{% endif %}>
+                      <span class="toggle-track"><span class="toggle-knob"></span></span>
+                    </label>
+                    <label for="profile_vat_registered" style="margin:0;font-size:13px;color:var(--brand-charcoal);">VAT registered business</label>
+                  </div>
+                </div>
+                <div class="field optional">
+                  <label for="profile_vat_threshold_basis">VAT threshold basis</label>
+                  <select id="profile_vat_threshold_basis" name="vat_threshold_basis">
+                    {% for option in vat_threshold_options %}
+                    <option value="{{ option.value }}" {% if business_profile.vat_threshold_basis == option.value %}selected{% endif %}>{{ option.label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <a href="/company/profile" class="btn-go-back">Cancel</a>
+                <button type="submit" class="btn-confirm-save">Save Profile</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.PROFILE_EDIT_MODAL_OPEN = {{ 'true' if validation_errors else 'false' }};
+      </script>
+      {% endif %}
+
+      {% if active_tab == 'settings' and available_backups is not defined %}
+      <p class="mini" style="margin:-8px 0 16px;color:var(--brand-steel);">Business structure, phase and VAT settings have moved to <a href="/company/profile">Business Profile</a>.</p>
       <div class="section">
         <h2>Backups</h2>
         <div class="card" style="margin-bottom:16px;">
@@ -824,6 +1214,11 @@
       {% if backup_status and backup_status.timestamp and (not backup_status.local_ok or not backup_status.gdrive_ok) %}
       <div class="notice-exceeded" style="margin-bottom:16px;padding:10px 14px;border-radius:8px;border:1px solid var(--brand-error);">
         ⚠ Backup failed — {{ backup_status.error or "the last backup did not complete successfully." }} <a href="/settings/backups" style="color:var(--brand-error);font-weight:700;">Check backups</a>
+      </div>
+      {% endif %}
+      {% if documents_expiring_soon %}
+      <div class="notice-exceeded" style="margin-bottom:16px;padding:10px 14px;border-radius:8px;border:1px solid var(--brand-error);">
+        ⚠ {{ documents_expiring_soon|length }} document{{ 's' if documents_expiring_soon|length != 1 else '' }} expiring soon — {{ documents_expiring_soon[0].name }} ({{ documents_expiring_soon[0].expiry_date }}) <a href="/company/documents" style="color:var(--brand-error);font-weight:700;">Review documents</a>
       </div>
       {% endif %}
       <h4 class="kpi-group-label">Financial Position</h4>
@@ -3385,6 +3780,45 @@
         initFormModal({ overlayId: "service_modal_overlay", addBtnId: "service_add_btn", basePath: "/services", hash: "#service-modal", openFlag: "SERVICE_MODAL_OPEN" });
         initFormModal({ overlayId: "client_modal_overlay", addBtnId: "client_add_btn", basePath: "/clients", hash: "#client-modal", openFlag: "CLIENT_MODAL_OPEN" });
         initFormModal({ overlayId: "supplier_modal_overlay", addBtnId: "supplier_add_btn", basePath: "/suppliers", hash: "#supplier-modal", openFlag: "SUPPLIER_MODAL_OPEN" });
+        initFormModal({ overlayId: "document_upload_modal_overlay", addBtnId: "document_upload_btn", basePath: "/company/documents", hash: "#document-upload-modal", openFlag: "DOCUMENT_UPLOAD_MODAL_OPEN" });
+        initFormModal({ overlayId: "document_edit_modal_overlay", addBtnId: "", basePath: "/company/documents", hash: "#document-edit-modal", openFlag: "DOCUMENT_EDIT_MODAL_OPEN" });
+        initFormModal({ overlayId: "compliance_add_modal_overlay", addBtnId: "compliance_add_btn", basePath: "/company/compliance", hash: "#compliance-add-modal", openFlag: "COMPLIANCE_ADD_MODAL_OPEN" });
+        initFormModal({ overlayId: "compliance_edit_modal_overlay", addBtnId: "", basePath: "/company/compliance", hash: "#compliance-edit-modal", openFlag: "COMPLIANCE_EDIT_MODAL_OPEN" });
+        initFormModal({ overlayId: "profile_edit_modal_overlay", addBtnId: "profile_edit_btn", basePath: "/company/profile", hash: "#profile-edit-modal", openFlag: "PROFILE_EDIT_MODAL_OPEN" });
+
+        function initDropzone(dropzoneId, fileInputId, filenameId) {
+          var dropzone = document.getElementById(dropzoneId);
+          var fileInput = document.getElementById(fileInputId);
+          var filenameLabel = document.getElementById(filenameId);
+          if (!dropzone || !fileInput) { return; }
+          dropzone.addEventListener("click", function () { fileInput.click(); });
+          fileInput.addEventListener("change", function () {
+            if (fileInput.files && fileInput.files[0] && filenameLabel) {
+              filenameLabel.textContent = "Selected: " + fileInput.files[0].name;
+            }
+          });
+          ["dragenter", "dragover"].forEach(function (evtName) {
+            dropzone.addEventListener(evtName, function (event) {
+              event.preventDefault();
+              dropzone.classList.add("drag-over");
+            });
+          });
+          ["dragleave", "drop"].forEach(function (evtName) {
+            dropzone.addEventListener(evtName, function (event) {
+              event.preventDefault();
+              dropzone.classList.remove("drag-over");
+            });
+          });
+          dropzone.addEventListener("drop", function (event) {
+            var files = event.dataTransfer && event.dataTransfer.files;
+            if (files && files[0]) {
+              fileInput.files = files;
+              if (filenameLabel) { filenameLabel.textContent = "Selected: " + files[0].name; }
+            }
+          });
+        }
+        initDropzone("document_upload_dropzone", "document_upload_file", "document_upload_filename");
+        initDropzone("document_edit_dropzone", "document_edit_file", "document_edit_filename");
       })();
     </script>
     <script>

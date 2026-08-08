@@ -2791,5 +2791,68 @@
         "Flags Acknowledged At": ""
       }
     }
+  },
+  {
+    "id": "8b670952-a4ab-4891-a035-83a0111e92af",
+    "timestamp": "2026-08-08T02:09:48",
+    "action": "create",
+    "entity_type": "client",
+    "details": {
+      "row_number": 3,
+      "record": {
+        "Client Name": "Test Combo Client XYZ",
+        "Contact Person": "",
+        "Email": "",
+        "Phone": "",
+        "Country": "",
+        "Service Tier": "None",
+        "Retainer Frequency": "",
+        "Retainer Amount (\u20ac)": ""
+      },
+      "source": "quick_add"
+    }
+  },
+  {
+    "id": "5a942c0c-8404-4910-97a1-109c77a3964d",
+    "timestamp": "2026-08-08T03:16:32",
+    "action": "create",
+    "entity_type": "company_document",
+    "details": {
+      "document_id": "83ead6ce-29f8-4e82-91e8-c41549743871",
+      "record": {
+        "id": "83ead6ce-29f8-4e82-91e8-c41549743871",
+        "name": "Test Insurance Policy",
+        "category": "Insurance",
+        "description": "Test upload",
+        "filename": "7194ce68c4_test_doc.pdf",
+        "file_path": "documents/7194ce68c4_test_doc.pdf",
+        "date_added": "2026-08-08",
+        "expiry_date": "2026-09-01",
+        "status": "active",
+        "notes": "note",
+        "created_at": "2026-08-08T03:16:32",
+        "last_updated_at": "2026-08-08T03:16:32"
+      }
+    }
+  },
+  {
+    "id": "0008c861-2a51-4575-b363-7e462e89e356",
+    "timestamp": "2026-08-08T03:16:38",
+    "action": "create",
+    "entity_type": "compliance_entry",
+    "details": {
+      "entry_id": "46980b0c-59d4-4def-a578-90aa3fd7c989",
+      "record": {
+        "id": "46980b0c-59d4-4def-a578-90aa3fd7c989",
+        "name": "Renew insurance",
+        "due_date": "2026-09-15",
+        "description": "Annual renewal",
+        "repeat_frequency": "annual",
+        "linked_document_id": "",
+        "status": "pending",
+        "created_at": "2026-08-08T03:16:38",
+        "last_updated_at": "2026-08-08T03:16:38"
+      }
+    }
   }
 ]

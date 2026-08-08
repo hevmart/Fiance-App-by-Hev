@@ -14,7 +14,7 @@ from typing import Any
 from urllib.parse import quote
 from uuid import uuid4
 
-from flask import Flask, Response, jsonify, redirect, render_template, request, url_for
+from flask import Flask, Response, jsonify, redirect, render_template, request, send_from_directory, url_for
 from openpyxl import load_workbook
 from werkzeug.utils import secure_filename
 
@@ -57,6 +57,26 @@ BACKUPS_DIR = BASE_DIR / "backups"
 RECEIPTS_DIR = BASE_DIR / "receipts"
 RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
 ALLOWED_RECEIPT_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "gif", "heic", "webp"}
+COMPANY_DOCUMENTS_PATH = BASE_DIR / "documents.json"
+COMPLIANCE_CALENDAR_PATH = BASE_DIR / "compliance-calendar.json"
+COMPANY_DOCUMENTS_DIR = BASE_DIR / "documents"
+COMPANY_DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
+ALLOWED_DOCUMENT_EXTENSIONS = {"pdf", "docx", "png", "jpg", "jpeg"}
+MAX_DOCUMENT_SIZE_BYTES = 10 * 1024 * 1024
+DOCUMENT_CATEGORIES = (
+    "Compliance",
+    "Insurance",
+    "Business Planning",
+    "Banking",
+    "Legal",
+    "Templates",
+    "Client Agreements",
+    "Other",
+)
+DOCUMENT_STATUSES = ("active", "archived")
+COMPLIANCE_REPEAT_FREQUENCIES = ("", "monthly", "quarterly", "annual")
+COMPLIANCE_STATUSES = ("pending", "complete")
+DOCUMENT_EXPIRY_WARNING_DAYS = 30
 GDRIVE_BACKUP_DIR = Path("G:/My Drive/H-Queex — Working Documents/H-Queex Hub/Backups")
 BACKUP_STATUS_PATH = BASE_DIR / "backup-status.json"
 BACKUP_RETENTION_DAYS = 30
@@ -223,6 +243,7 @@ def _default_business_profile() -> dict[str, Any]:
         "vat_threshold_basis": "services",
         "transition_date": "",
         "pre_trading_start_date": "",
+        "trading_start_date": "",
         "updated_at": datetime.now().isoformat(timespec="seconds"),
     }
 
@@ -255,6 +276,7 @@ def _load_business_profile() -> dict[str, Any]:
         "vat_threshold_basis": _normalize_vat_threshold_basis(payload.get("vat_threshold_basis")),
         "transition_date": str(payload.get("transition_date") or "").strip(),
         "pre_trading_start_date": str(payload.get("pre_trading_start_date") or "").strip(),
+        "trading_start_date": str(payload.get("trading_start_date") or "").strip(),
         "updated_at": str(payload.get("updated_at") or defaults["updated_at"]).strip(),
     }
 
@@ -270,6 +292,7 @@ def _save_business_profile(profile: dict[str, Any]) -> None:
         "vat_threshold_basis": _normalize_vat_threshold_basis(profile.get("vat_threshold_basis")),
         "transition_date": str(profile.get("transition_date") or "").strip(),
         "pre_trading_start_date": str(profile.get("pre_trading_start_date") or "").strip(),
+        "trading_start_date": str(profile.get("trading_start_date") or "").strip(),
         "updated_at": datetime.now().isoformat(timespec="seconds"),
     }
     BUSINESS_PROFILE_PATH.write_text(json.dumps(normalized, indent=2), encoding="utf-8")
@@ -2008,6 +2031,15 @@ def _find_json_record(path: Path, record_id: str) -> dict[str, Any] | None:
     return None
 
 
+def _find_record_by_id(records: list[dict[str, Any]], record_id: Any) -> dict[str, Any] | None:
+    if not record_id:
+        return None
+    for record in records:
+        if str(record.get("id")) == str(record_id):
+            return record
+    return None
+
+
 def _load_chart_of_accounts() -> list[dict[str, Any]]:
     accounts = _load_json_records(CHART_OF_ACCOUNTS_PATH)
     if accounts:
@@ -3061,6 +3093,314 @@ def _save_subscriptions(subscriptions: list[dict[str, Any]]) -> None:
     _save_json_records(SUBSCRIPTIONS_PATH, payload)
 
 
+def _normalize_document_category(value: Any) -> str:
+    category = str(value or "").strip()
+    return category if category in DOCUMENT_CATEGORIES else "Other"
+
+
+def _default_company_documents() -> list[dict[str, Any]]:
+    now = datetime.now().isoformat(timespec="seconds")
+    return [
+        {
+            "id": str(uuid4()),
+            "name": "CRO Certificate of Registration",
+            "category": "Compliance",
+            "description": "",
+            "filename": "",
+            "file_path": "",
+            "date_added": "2026-08-04",
+            "expiry_date": "",
+            "status": "active",
+            "notes": "H-Queex business name registration, CRO No. 790968",
+            "created_at": now,
+            "last_updated_at": now,
+        }
+    ]
+
+
+def _load_company_documents() -> list[dict[str, Any]]:
+    if not COMPANY_DOCUMENTS_PATH.exists():
+        documents = _default_company_documents()
+        _save_json_records(COMPANY_DOCUMENTS_PATH, documents)
+        return documents
+
+    records = _load_json_records(COMPANY_DOCUMENTS_PATH)
+    documents: list[dict[str, Any]] = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        status = str(record.get("status") or "active").strip().lower()
+        documents.append(
+            {
+                "id": str(record.get("id") or uuid4()),
+                "name": str(record.get("name") or "").strip(),
+                "category": _normalize_document_category(record.get("category")),
+                "description": str(record.get("description") or "").strip(),
+                "filename": str(record.get("filename") or "").strip(),
+                "file_path": str(record.get("file_path") or "").strip(),
+                "date_added": str(record.get("date_added") or "").strip(),
+                "expiry_date": str(record.get("expiry_date") or "").strip(),
+                "status": status if status in DOCUMENT_STATUSES else "active",
+                "notes": str(record.get("notes") or "").strip(),
+                "created_at": str(record.get("created_at") or datetime.now().isoformat(timespec="seconds")),
+                "last_updated_at": str(record.get("last_updated_at") or datetime.now().isoformat(timespec="seconds")),
+            }
+        )
+    return documents
+
+
+def _save_company_documents(documents: list[dict[str, Any]]) -> None:
+    _save_json_records(COMPANY_DOCUMENTS_PATH, documents)
+
+
+def _save_uploaded_document(file_storage: Any) -> tuple[str, str]:
+    """Returns (stored_filename, error_message). stored_filename is '' on failure or no file."""
+    if not file_storage or not getattr(file_storage, "filename", ""):
+        return "", ""
+
+    original_name = secure_filename(file_storage.filename)
+    if not original_name or "." not in original_name:
+        return "", "File must have a valid name and extension"
+
+    extension = original_name.rsplit(".", 1)[-1].lower()
+    if extension not in ALLOWED_DOCUMENT_EXTENSIONS:
+        return "", "File type not allowed. Accepted: PDF, DOCX, PNG, JPG"
+
+    file_storage.seek(0, 2)
+    size_bytes = file_storage.tell()
+    file_storage.seek(0)
+    if size_bytes > MAX_DOCUMENT_SIZE_BYTES:
+        return "", "File exceeds the 10MB maximum size"
+
+    stored_name = f"{uuid4().hex[:10]}_{original_name}"
+    file_storage.save(COMPANY_DOCUMENTS_DIR / stored_name)
+    return stored_name, ""
+
+
+def _document_expiry_severity(expiry_date: Any, *, today: date | None = None) -> str:
+    parsed = _parse_iso_date(expiry_date)
+    if parsed is None:
+        return ""
+    current_day = today or date.today()
+    if parsed < current_day:
+        return "expired"
+    if parsed <= current_day + timedelta(days=DOCUMENT_EXPIRY_WARNING_DAYS):
+        return "soon"
+    return "ok"
+
+
+def _documents_expiring_soon(documents: list[dict[str, Any]], *, today: date | None = None) -> list[dict[str, Any]]:
+    current_day = today or date.today()
+    expiring = []
+    for document in documents:
+        if document.get("status") != "active":
+            continue
+        severity = _document_expiry_severity(document.get("expiry_date"), today=current_day)
+        if severity in ("expired", "soon"):
+            expiring.append({**document, "expiry_severity": severity})
+    return sorted(expiring, key=lambda item: item.get("expiry_date") or "")
+
+
+def _load_compliance_entries() -> list[dict[str, Any]]:
+    records = _load_json_records(COMPLIANCE_CALENDAR_PATH)
+    entries: list[dict[str, Any]] = []
+    for record in records:
+        if not isinstance(record, dict):
+            continue
+        status = str(record.get("status") or "pending").strip().lower()
+        frequency = str(record.get("repeat_frequency") or "").strip().lower()
+        entries.append(
+            {
+                "id": str(record.get("id") or uuid4()),
+                "name": str(record.get("name") or "").strip(),
+                "due_date": str(record.get("due_date") or "").strip(),
+                "description": str(record.get("description") or "").strip(),
+                "repeat_frequency": frequency if frequency in COMPLIANCE_REPEAT_FREQUENCIES else "",
+                "linked_document_id": str(record.get("linked_document_id") or "").strip(),
+                "status": status if status in COMPLIANCE_STATUSES else "pending",
+                "created_at": str(record.get("created_at") or datetime.now().isoformat(timespec="seconds")),
+                "last_updated_at": str(record.get("last_updated_at") or datetime.now().isoformat(timespec="seconds")),
+            }
+        )
+    return entries
+
+
+def _save_compliance_entries(entries: list[dict[str, Any]]) -> None:
+    _save_json_records(COMPLIANCE_CALENDAR_PATH, entries)
+
+
+def _compliance_deadline_severity(due_date: date, *, today: date | None = None) -> str:
+    current_day = today or date.today()
+    if due_date < current_day:
+        return "red"
+    if due_date <= current_day + timedelta(days=DOCUMENT_EXPIRY_WARNING_DAYS):
+        return "amber"
+    return "green"
+
+
+def _vat3_period_due_dates(year: int) -> list[tuple[date, date, date]]:
+    """Returns (period_start, period_end, due_date) for each of the 6 VAT3 bi-monthly periods in a year."""
+    periods = []
+    for start_month in (1, 3, 5, 7, 9, 11):
+        period_start = date(year, start_month, 1)
+        end_month = start_month + 1
+        end_day = monthrange(year, end_month)[1]
+        period_end = date(year, end_month, end_day)
+        due_month = end_month + 1
+        due_year = year
+        if due_month > 12:
+            due_month -= 12
+            due_year += 1
+        due_date = date(due_year, due_month, 23)
+        periods.append((period_start, period_end, due_date))
+    return periods
+
+
+def _build_compliance_deadlines(
+    business_profile: dict[str, Any],
+    data: dict[str, Any],
+    manual_entries: list[dict[str, Any]],
+    *,
+    today: date | None = None,
+) -> list[dict[str, Any]]:
+    current_day = today or date.today()
+    structure = _normalize_business_structure(business_profile.get("structure"))
+    phase_policy = _build_phase_policy(data.get("summary", {}), structure)
+    deadlines: list[dict[str, Any]] = []
+
+    if business_profile.get("vat_registered"):
+        for period_start, period_end, due_date in _vat3_period_due_dates(current_day.year) + _vat3_period_due_dates(current_day.year + 1):
+            if due_date < current_day - timedelta(days=90):
+                continue
+            deadlines.append(
+                {
+                    "id": f"vat3-{period_start.isoformat()}",
+                    "name": f"VAT 3 return — {period_start.strftime('%b')} to {period_end.strftime('%b %Y')}",
+                    "due_date": due_date.isoformat(),
+                    "description": "Bi-monthly VAT 3 return and payment due to Revenue.",
+                    "category": "auto",
+                    "severity": _compliance_deadline_severity(due_date, today=current_day),
+                    "link": "/ledger",
+                    "editable": False,
+                }
+            )
+
+    if structure == "sole_trader":
+        form11_due = date(current_day.year, 10, 31)
+        if form11_due < current_day:
+            form11_due = date(current_day.year + 1, 10, 31)
+        deadlines.append(
+            {
+                "id": f"form11-{form11_due.isoformat()}",
+                "name": "Form 11 (Phase 1)",
+                "due_date": form11_due.isoformat(),
+                "description": "Annual Income Tax return due via ROS.",
+                "category": "auto",
+                "severity": _compliance_deadline_severity(form11_due, today=current_day),
+                "link": "/company/profile",
+                "editable": False,
+            }
+        )
+        deadlines.append(
+            {
+                "id": f"prelim-tax-{form11_due.isoformat()}",
+                "name": "Preliminary tax (Phase 1)",
+                "due_date": form11_due.isoformat(),
+                "description": f"Estimated amount: {_format_currency(phase_policy.get('estimated_tax_due', 0))}, based on current year profit.",
+                "category": "auto",
+                "severity": _compliance_deadline_severity(form11_due, today=current_day),
+                "link": "/company/profile",
+                "editable": False,
+            }
+        )
+
+    if structure == "limited_company":
+        transition_date = _parse_transaction_date(business_profile.get("transition_date"))
+        in_phase_2 = transition_date is not None and current_day >= transition_date
+        if in_phase_2:
+            year_end = date(current_day.year, 12, 31)
+            ct1_due = date(year_end.year + 1, 9, 30)
+            if ct1_due < current_day:
+                ct1_due = date(year_end.year + 2, 9, 30)
+            deadlines.append(
+                {
+                    "id": f"ct1-{ct1_due.isoformat()}",
+                    "name": "CT1 (Phase 2)",
+                    "due_date": ct1_due.isoformat(),
+                    "description": "Corporation Tax return due 9 months after accounting year end (calendar year end assumed).",
+                    "category": "auto",
+                    "severity": _compliance_deadline_severity(ct1_due, today=current_day),
+                    "link": "/company/profile",
+                    "editable": False,
+                }
+            )
+
+        registration_date = _parse_transaction_date(business_profile.get("registration_date"))
+        if registration_date is not None:
+            anniversary = date(current_day.year, registration_date.month, registration_date.day)
+            cro_due = anniversary + timedelta(days=56)
+            if cro_due < current_day:
+                anniversary = date(current_day.year + 1, registration_date.month, registration_date.day)
+                cro_due = anniversary + timedelta(days=56)
+            deadlines.append(
+                {
+                    "id": f"cro-annual-return-{cro_due.isoformat()}",
+                    "name": "CRO annual return",
+                    "due_date": cro_due.isoformat(),
+                    "description": "Annual return (B1) and financial statements due to the CRO.",
+                    "category": "auto",
+                    "severity": _compliance_deadline_severity(cro_due, today=current_day),
+                    "link": "/company/profile",
+                    "editable": False,
+                }
+            )
+
+    payroll_entries = _load_payroll_entries()
+    if payroll_entries:
+        for month_offset in range(0, 3):
+            month = current_day.month + month_offset
+            year = current_day.year
+            while month > 12:
+                month -= 12
+                year += 1
+            p30_due = date(year, month, 23)
+            if p30_due < current_day - timedelta(days=30):
+                continue
+            deadlines.append(
+                {
+                    "id": f"p30-{p30_due.isoformat()}",
+                    "name": "P30",
+                    "due_date": p30_due.isoformat(),
+                    "description": "Monthly payroll tax return and payment due to Revenue.",
+                    "category": "auto",
+                    "severity": _compliance_deadline_severity(p30_due, today=current_day),
+                    "link": "/payroll",
+                    "editable": False,
+                }
+            )
+
+    for entry in manual_entries:
+        due_date = _parse_iso_date(entry.get("due_date"))
+        if due_date is None or entry.get("status") == "complete":
+            continue
+        deadlines.append(
+            {
+                "id": entry["id"],
+                "name": entry.get("name") or "Untitled deadline",
+                "due_date": due_date.isoformat(),
+                "description": entry.get("description") or "",
+                "category": "manual",
+                "severity": _compliance_deadline_severity(due_date, today=current_day),
+                "link": "/company/compliance",
+                "editable": True,
+                "linked_document_id": entry.get("linked_document_id") or "",
+                "repeat_frequency": entry.get("repeat_frequency") or "",
+            }
+        )
+
+    return sorted(deadlines, key=lambda item: item["due_date"])
+
+
 def _normalize_service(record: dict[str, Any]) -> dict[str, Any]:
     now = datetime.now().isoformat(timespec="seconds")
     tier = str(record.get("tier") or "addon").strip().lower()
@@ -3628,6 +3968,10 @@ def _build_page_context(
     sync_message: str | None = None,
     error: str | None = None,
     phase_filter: str | None = None,
+    editing_document: dict[str, Any] | None = None,
+    document_form: dict[str, Any] | None = None,
+    editing_compliance_entry: dict[str, Any] | None = None,
+    compliance_form: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     try:
         workbook_path = _resolve_workbook_path()
@@ -3672,7 +4016,27 @@ def _build_page_context(
         if row.get("Client Name")
     ]
     active_clients_count = sum(1 for client in clients_catalog if client["tier"] and client["tier"] != "None")
+    company_documents = _load_company_documents()
+    for document in company_documents:
+        document["expiry_severity"] = _document_expiry_severity(document.get("expiry_date"))
+    documents_expiring_soon = _documents_expiring_soon(company_documents)
+    compliance_entries = _load_compliance_entries()
+    compliance_deadlines = _build_compliance_deadlines(business_profile, data, compliance_entries)
     upcoming_actions = _build_upcoming_actions(data, structure, clients_catalog)
+    for deadline in compliance_deadlines[:3]:
+        upcoming_actions.append({
+            "severity": {"red": "danger", "amber": "warning", "green": "info"}.get(deadline["severity"], "info"),
+            "label": deadline["name"],
+            "detail": f"Due {datetime.fromisoformat(deadline['due_date']).strftime('%d %B %Y')}",
+            "link": deadline["link"],
+        })
+    if documents_expiring_soon:
+        upcoming_actions.append({
+            "severity": "warning" if all(doc["expiry_severity"] == "soon" for doc in documents_expiring_soon) else "danger",
+            "label": f"{len(documents_expiring_soon)} document{'s' if len(documents_expiring_soon) != 1 else ''} expiring soon",
+            "detail": documents_expiring_soon[0]["name"],
+            "link": "/company/documents",
+        })
     monthly_net_trend = _build_monthly_net_trend(data)
     return {
         "page_title": page_title,
@@ -3785,6 +4149,16 @@ def _build_page_context(
         "monthly_net_trend": monthly_net_trend,
         "client_service_tiers": list(CLIENT_SERVICE_TIERS),
         "client_retainer_frequencies": list(CLIENT_RETAINER_FREQUENCIES),
+        "company_documents": company_documents,
+        "documents_expiring_soon": documents_expiring_soon,
+        "document_categories": list(DOCUMENT_CATEGORIES),
+        "editing_document": editing_document,
+        "document_form": document_form or {},
+        "compliance_entries": compliance_entries,
+        "compliance_deadlines": compliance_deadlines,
+        "compliance_repeat_frequencies": list(COMPLIANCE_REPEAT_FREQUENCIES),
+        "editing_compliance_entry": editing_compliance_entry,
+        "compliance_form": compliance_form or {},
     }
 
 
@@ -3942,8 +4316,336 @@ def finance_view():
     )
 
 
-@app.route("/settings")
-def settings_view():
+@app.route("/documents/<path:filename>")
+def serve_company_document(filename):
+    as_attachment = request.args.get("download") == "1"
+    return send_from_directory(COMPANY_DOCUMENTS_DIR, filename, as_attachment=as_attachment)
+
+
+@app.route("/company")
+def company_view():
+    data = load_finance_data()
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Company",
+            "company",
+            data,
+            message=request.args.get("message"),
+        ),
+    )
+
+
+@app.route("/company/documents")
+def company_documents_view():
+    data = load_finance_data()
+    documents = _load_company_documents()
+    editing_document = _find_record_by_id(documents, request.args.get("edit_id"))
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Documents",
+            "company_documents",
+            data,
+            editing_document=editing_document,
+            message=request.args.get("message"),
+        ),
+    )
+
+
+@app.route("/company/documents/upload", methods=["POST"])
+def upload_company_document():
+    name = str(request.form.get("name") or "").strip()
+    category = _normalize_document_category(request.form.get("category"))
+    description = str(request.form.get("description") or "").strip()
+    expiry_date = str(request.form.get("expiry_date") or "").strip()
+    notes = str(request.form.get("notes") or "").strip()
+
+    errors: dict[str, str] = {}
+    _validate_required_text(name, "name", "Document name", errors)
+    if expiry_date and _parse_transaction_date(expiry_date) is None:
+        errors["expiry_date"] = "Expiry date must be a valid date"
+
+    stored_filename = ""
+    if not errors:
+        stored_filename, upload_error = _save_uploaded_document(request.files.get("document_file"))
+        if upload_error:
+            errors["document_file"] = upload_error
+
+    if errors:
+        return _redirect_with_form_errors(
+            "company_documents_view",
+            {"name": name, "category": category, "description": description, "expiry_date": expiry_date, "notes": notes},
+            errors,
+        )
+
+    now = datetime.now().isoformat(timespec="seconds")
+    document = {
+        "id": str(uuid4()),
+        "name": name,
+        "category": category,
+        "description": description,
+        "filename": stored_filename,
+        "file_path": f"documents/{stored_filename}" if stored_filename else "",
+        "date_added": date.today().isoformat(),
+        "expiry_date": expiry_date,
+        "status": "active",
+        "notes": notes,
+        "created_at": now,
+        "last_updated_at": now,
+    }
+    documents = _load_company_documents()
+    documents.append(document)
+    _save_company_documents(documents)
+    _record_audit("create", "company_document", {"document_id": document["id"], "record": document})
+    return redirect(url_for("company_documents_view", message="Document uploaded"))
+
+
+@app.route("/company/documents/update", methods=["POST"])
+def update_company_document():
+    document_id = str(request.form.get("document_id") or "").strip()
+    name = str(request.form.get("name") or "").strip()
+    category = _normalize_document_category(request.form.get("category"))
+    description = str(request.form.get("description") or "").strip()
+    expiry_date = str(request.form.get("expiry_date") or "").strip()
+    notes = str(request.form.get("notes") or "").strip()
+    status = str(request.form.get("status") or "active").strip().lower()
+    status = status if status in DOCUMENT_STATUSES else "active"
+
+    errors: dict[str, str] = {}
+    _validate_required_text(name, "name", "Document name", errors)
+    if expiry_date and _parse_transaction_date(expiry_date) is None:
+        errors["expiry_date"] = "Expiry date must be a valid date"
+
+    documents = _load_company_documents()
+    document = _find_record_by_id(documents, document_id)
+    if document is None:
+        return redirect(url_for("company_documents_view", message="Document not found"))
+
+    if errors:
+        return _redirect_with_form_errors(
+            "company_documents_view",
+            {"name": name, "category": category, "description": description, "expiry_date": expiry_date, "notes": notes},
+            errors,
+            edit_id=document_id,
+        )
+
+    stored_filename, upload_error = _save_uploaded_document(request.files.get("document_file"))
+    if upload_error:
+        return _redirect_with_form_errors(
+            "company_documents_view",
+            {"name": name, "category": category, "description": description, "expiry_date": expiry_date, "notes": notes},
+            {"document_file": upload_error},
+            edit_id=document_id,
+        )
+
+    document["name"] = name
+    document["category"] = category
+    document["description"] = description
+    document["expiry_date"] = expiry_date
+    document["notes"] = notes
+    document["status"] = status
+    if stored_filename:
+        document["filename"] = stored_filename
+        document["file_path"] = f"documents/{stored_filename}"
+    document["last_updated_at"] = datetime.now().isoformat(timespec="seconds")
+    _save_company_documents(documents)
+    _record_audit("update", "company_document", {"document_id": document_id, "record": document})
+    return redirect(url_for("company_documents_view", message="Document updated"))
+
+
+@app.route("/company/documents/archive", methods=["POST"])
+def archive_company_document():
+    document_id = str(request.form.get("document_id") or "").strip()
+    documents = _load_company_documents()
+    document = _find_record_by_id(documents, document_id)
+    if document is not None:
+        document["status"] = "archived"
+        document["last_updated_at"] = datetime.now().isoformat(timespec="seconds")
+        _save_company_documents(documents)
+        _record_audit("archive", "company_document", {"document_id": document_id, "record": document})
+    return redirect(url_for("company_documents_view", message="Document archived"))
+
+
+@app.route("/company/compliance")
+def company_compliance_view():
+    data = load_finance_data()
+    entries = _load_compliance_entries()
+    editing_compliance_entry = _find_record_by_id(entries, request.args.get("edit_id"))
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Compliance Calendar",
+            "company_compliance",
+            data,
+            editing_compliance_entry=editing_compliance_entry,
+            message=request.args.get("message"),
+        ),
+    )
+
+
+@app.route("/company/compliance/add", methods=["POST"])
+def add_compliance_entry():
+    name = str(request.form.get("name") or "").strip()
+    due_date = str(request.form.get("due_date") or "").strip()
+    description = str(request.form.get("description") or "").strip()
+    repeat_frequency = str(request.form.get("repeat_frequency") or "").strip().lower()
+    linked_document_id = str(request.form.get("linked_document_id") or "").strip()
+
+    errors: dict[str, str] = {}
+    _validate_required_text(name, "name", "Deadline name", errors)
+    if not due_date or _parse_transaction_date(due_date) is None:
+        errors["due_date"] = "Due date is required and must be valid"
+
+    if errors:
+        return _redirect_with_form_errors(
+            "company_compliance_view",
+            {"name": name, "due_date": due_date, "description": description, "repeat_frequency": repeat_frequency},
+            errors,
+        )
+
+    now = datetime.now().isoformat(timespec="seconds")
+    entry = {
+        "id": str(uuid4()),
+        "name": name,
+        "due_date": due_date,
+        "description": description,
+        "repeat_frequency": repeat_frequency if repeat_frequency in COMPLIANCE_REPEAT_FREQUENCIES else "",
+        "linked_document_id": linked_document_id,
+        "status": "pending",
+        "created_at": now,
+        "last_updated_at": now,
+    }
+    entries = _load_compliance_entries()
+    entries.append(entry)
+    _save_compliance_entries(entries)
+    _record_audit("create", "compliance_entry", {"entry_id": entry["id"], "record": entry})
+    return redirect(url_for("company_compliance_view", message="Deadline added"))
+
+
+@app.route("/company/compliance/update", methods=["POST"])
+def update_compliance_entry():
+    entry_id = str(request.form.get("entry_id") or "").strip()
+    name = str(request.form.get("name") or "").strip()
+    due_date = str(request.form.get("due_date") or "").strip()
+    description = str(request.form.get("description") or "").strip()
+    repeat_frequency = str(request.form.get("repeat_frequency") or "").strip().lower()
+    linked_document_id = str(request.form.get("linked_document_id") or "").strip()
+
+    errors: dict[str, str] = {}
+    _validate_required_text(name, "name", "Deadline name", errors)
+    if not due_date or _parse_transaction_date(due_date) is None:
+        errors["due_date"] = "Due date is required and must be valid"
+
+    entries = _load_compliance_entries()
+    entry = _find_record_by_id(entries, entry_id)
+    if entry is None:
+        return redirect(url_for("company_compliance_view", message="Deadline not found"))
+
+    if errors:
+        return _redirect_with_form_errors(
+            "company_compliance_view",
+            {"name": name, "due_date": due_date, "description": description, "repeat_frequency": repeat_frequency},
+            errors,
+            edit_id=entry_id,
+        )
+
+    entry["name"] = name
+    entry["due_date"] = due_date
+    entry["description"] = description
+    entry["repeat_frequency"] = repeat_frequency if repeat_frequency in COMPLIANCE_REPEAT_FREQUENCIES else ""
+    entry["linked_document_id"] = linked_document_id
+    entry["last_updated_at"] = datetime.now().isoformat(timespec="seconds")
+    _save_compliance_entries(entries)
+    _record_audit("update", "compliance_entry", {"entry_id": entry_id, "record": entry})
+    return redirect(url_for("company_compliance_view", message="Deadline updated"))
+
+
+@app.route("/company/compliance/complete", methods=["POST"])
+def complete_compliance_entry():
+    entry_id = str(request.form.get("entry_id") or "").strip()
+    entries = _load_compliance_entries()
+    entry = _find_record_by_id(entries, entry_id)
+    if entry is not None:
+        entry["status"] = "complete"
+        entry["last_updated_at"] = datetime.now().isoformat(timespec="seconds")
+        _save_compliance_entries(entries)
+        _record_audit("complete", "compliance_entry", {"entry_id": entry_id, "record": entry})
+    return redirect(url_for("company_compliance_view", message="Deadline marked complete"))
+
+
+@app.route("/company/profile")
+def company_profile_view():
+    data = load_finance_data()
+    return render_template(
+        "index.html",
+        **_build_page_context(
+            "Business Profile",
+            "company_profile",
+            data,
+            message=request.args.get("message"),
+        ),
+    )
+
+
+@app.route("/company/profile/update", methods=["POST"])
+def update_company_profile():
+    business_name = str(request.form.get("business_name") or "").strip()
+    owner_name = str(request.form.get("owner_name") or "").strip()
+    cro_number = str(request.form.get("cro_number") or "").strip()
+    registration_date = str(request.form.get("registration_date") or "").strip()
+    structure = _normalize_business_structure(request.form.get("structure"))
+    trading_start_date = str(request.form.get("trading_start_date") or "").strip()
+    pre_trading_start_date = str(request.form.get("pre_trading_start_date") or "").strip()
+    vat_registered = str(request.form.get("vat_registered") or "").strip().lower() in {"1", "true", "yes", "on"}
+    vat_threshold_basis = _normalize_vat_threshold_basis(request.form.get("vat_threshold_basis"))
+    transition_date = str(request.form.get("transition_date") or "").strip()
+
+    errors: dict[str, str] = {}
+    _validate_required_text(business_name, "business_name", "Business name", errors)
+    for field_name, label, value in (
+        ("registration_date", "Registration date", registration_date),
+        ("trading_start_date", "Trading start date", trading_start_date),
+        ("pre_trading_start_date", "Pre-trading start date", pre_trading_start_date),
+        ("transition_date", "Transition date", transition_date),
+    ):
+        if value and _parse_transaction_date(value) is None:
+            errors[field_name] = f"{label} must be a valid date"
+
+    if errors:
+        return _redirect_with_form_errors(
+            "company_profile_view",
+            {
+                "business_name": business_name,
+                "owner_name": owner_name,
+                "cro_number": cro_number,
+                "registration_date": registration_date,
+                "structure": structure,
+                "trading_start_date": trading_start_date,
+                "pre_trading_start_date": pre_trading_start_date,
+                "transition_date": transition_date,
+            },
+            errors,
+        )
+
+    profile = _load_business_profile()
+    profile["business_name"] = business_name
+    profile["owner_name"] = owner_name
+    profile["cro_number"] = cro_number
+    profile["registration_date"] = registration_date
+    profile["structure"] = structure
+    profile["trading_start_date"] = trading_start_date
+    profile["pre_trading_start_date"] = pre_trading_start_date
+    profile["vat_registered"] = vat_registered
+    profile["vat_threshold_basis"] = vat_threshold_basis
+    profile["transition_date"] = transition_date
+    _save_business_profile(profile)
+    _record_audit("update", "business_profile", {"record": profile})
+    return redirect(url_for("company_profile_view", message="Business profile updated"))
+
+
+@app.route("/company/settings")
+def company_settings_view():
     data = load_finance_data()
     return render_template(
         "index.html",
@@ -3954,6 +4656,11 @@ def settings_view():
             message=request.args.get("message"),
         ),
     )
+
+
+@app.route("/settings")
+def settings_view():
+    return redirect(url_for("company_settings_view", **request.args))
 
 
 def _backup_eligible_files() -> list[Path]:
@@ -3968,6 +4675,8 @@ def _backup_eligible_files() -> list[Path]:
         PAYROLL_PATH,
         BANK_STATEMENTS_PATH,
         SERVICES_PATH,
+        COMPANY_DOCUMENTS_PATH,
+        COMPLIANCE_CALENDAR_PATH,
     ]
 
 

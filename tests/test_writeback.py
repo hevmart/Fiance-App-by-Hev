@@ -64,6 +64,9 @@ def isolated_subscription_file(tmp_path):
     original_gdrive_backup_dir = app.GDRIVE_BACKUP_DIR
     original_backup_status_path = app.BACKUP_STATUS_PATH
     original_receipts_dir = app.RECEIPTS_DIR
+    original_company_documents_path = app.COMPANY_DOCUMENTS_PATH
+    original_compliance_calendar_path = app.COMPLIANCE_CALENDAR_PATH
+    original_company_documents_dir = app.COMPANY_DOCUMENTS_DIR
     app.BACKUPS_DIR = tmp_path / "backups"
     app.GDRIVE_BACKUP_DIR = tmp_path / "gdrive-backups"
     app.BACKUP_STATUS_PATH = tmp_path / "backup-status.json"
@@ -90,6 +93,10 @@ def isolated_subscription_file(tmp_path):
         "Clients": app.CLIENTS_PATH,
         "Suppliers": app.SUPPLIERS_PATH,
     }
+    app.COMPANY_DOCUMENTS_PATH = tmp_path / "documents.json"
+    app.COMPLIANCE_CALENDAR_PATH = tmp_path / "compliance-calendar.json"
+    app.COMPANY_DOCUMENTS_DIR = tmp_path / "documents"
+    app.COMPANY_DOCUMENTS_DIR.mkdir(parents=True, exist_ok=True)
     app.load_finance_data.cache_clear()
     yield
     app.SUBSCRIPTIONS_PATH = original_path
@@ -111,6 +118,9 @@ def isolated_subscription_file(tmp_path):
     app.GDRIVE_BACKUP_DIR = original_gdrive_backup_dir
     app.BACKUP_STATUS_PATH = original_backup_status_path
     app.RECEIPTS_DIR = original_receipts_dir
+    app.COMPANY_DOCUMENTS_PATH = original_company_documents_path
+    app.COMPLIANCE_CALENDAR_PATH = original_compliance_calendar_path
+    app.COMPANY_DOCUMENTS_DIR = original_company_documents_dir
     app.load_finance_data.cache_clear()
 
 
@@ -2956,3 +2966,361 @@ def test_expense_receipt_rejects_disallowed_extension(workbook_copy):
     app.load_finance_data.cache_clear()
     saved = next(row for row in app.load_finance_data()["sheets"]["Expenses"] if row.get("Title") == "Bad receipt extension")
     assert saved["Receipt Filename"] == ""
+
+
+# --- Company: Documents ---------------------------------------------------
+
+def test_company_documents_seeds_cro_certificate_on_first_load(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.get('/company/documents')
+    assert response.status_code == 200
+    assert b'CRO Certificate of Registration' in response.data
+
+    documents = json.loads(app.COMPANY_DOCUMENTS_PATH.read_text(encoding="utf-8"))
+    assert len(documents) == 1
+    assert documents[0]["notes"] == "H-Queex business name registration, CRO No. 790968"
+
+
+def test_document_upload_route_persists_document_and_file(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    data = {
+        "name": "Public Liability Insurance",
+        "category": "Insurance",
+        "description": "Annual policy",
+        "expiry_date": "2026-12-31",
+        "notes": "Broker: Example Insurance Co",
+        "document_file": (BytesIO(b'%PDF-1.4 fake policy content'), 'policy.pdf'),
+    }
+    response = client.post(
+        '/company/documents/upload',
+        data=data,
+        content_type='multipart/form-data',
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'Public Liability Insurance' in response.data
+
+    documents = json.loads(app.COMPANY_DOCUMENTS_PATH.read_text(encoding="utf-8"))
+    uploaded = next(doc for doc in documents if doc["name"] == "Public Liability Insurance")
+    assert uploaded["category"] == "Insurance"
+    assert uploaded["filename"]
+    assert uploaded["file_path"] == f"documents/{uploaded['filename']}"
+    assert (app.COMPANY_DOCUMENTS_DIR / uploaded["filename"]).exists()
+
+
+def test_document_upload_rejects_disallowed_extension(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    data = {
+        "name": "Suspicious file",
+        "category": "Other",
+        "document_file": (BytesIO(b'not allowed'), 'malware.exe'),
+    }
+    client.post(
+        '/company/documents/upload',
+        data=data,
+        content_type='multipart/form-data',
+        follow_redirects=True,
+    )
+
+    documents = json.loads(app.COMPANY_DOCUMENTS_PATH.read_text(encoding="utf-8"))
+    assert not any(doc["name"] == "Suspicious file" for doc in documents)
+
+
+def test_document_upload_rejects_file_over_max_size(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    oversized_content = b'0' * (app.MAX_DOCUMENT_SIZE_BYTES + 1)
+    data = {
+        "name": "Oversized file",
+        "category": "Other",
+        "document_file": (BytesIO(oversized_content), 'big.pdf'),
+    }
+    response = client.post(
+        '/company/documents/upload',
+        data=data,
+        content_type='multipart/form-data',
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    documents = json.loads(app.COMPANY_DOCUMENTS_PATH.read_text(encoding="utf-8"))
+    assert not any(doc["name"] == "Oversized file" for doc in documents)
+
+
+def test_document_update_route_can_archive_via_archive_route(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    client.get('/company/documents')
+    documents = json.loads(app.COMPANY_DOCUMENTS_PATH.read_text(encoding="utf-8"))
+    document_id = documents[0]["id"]
+
+    response = client.post(
+        '/company/documents/archive',
+        data={"document_id": document_id},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    documents = json.loads(app.COMPANY_DOCUMENTS_PATH.read_text(encoding="utf-8"))
+    archived = next(doc for doc in documents if doc["id"] == document_id)
+    assert archived["status"] == "archived"
+    assert b'CRO Certificate of Registration' not in client.get('/company/documents').data
+
+
+# --- Company: Document expiry detection -----------------------------------
+
+def test_document_expiry_severity_classifies_expired_soon_and_ok():
+    today = date(2026, 8, 8)
+    assert app._document_expiry_severity("2026-08-01", today=today) == "expired"
+    assert app._document_expiry_severity("2026-08-20", today=today) == "soon"
+    assert app._document_expiry_severity("2026-08-08", today=today) == "soon"
+    assert app._document_expiry_severity("2026-12-01", today=today) == "ok"
+    assert app._document_expiry_severity("", today=today) == ""
+
+
+def test_documents_expiring_soon_excludes_archived_and_far_future(workbook_copy):
+    today = date(2026, 8, 8)
+    documents = [
+        {"id": "1", "name": "Expired doc", "status": "active", "expiry_date": "2026-07-01"},
+        {"id": "2", "name": "Soon doc", "status": "active", "expiry_date": "2026-08-20"},
+        {"id": "3", "name": "Far future doc", "status": "active", "expiry_date": "2027-01-01"},
+        {"id": "4", "name": "No expiry doc", "status": "active", "expiry_date": ""},
+        {"id": "5", "name": "Archived expiring doc", "status": "archived", "expiry_date": "2026-08-10"},
+    ]
+    expiring = app._documents_expiring_soon(documents, today=today)
+    names = {doc["name"] for doc in expiring}
+    assert names == {"Expired doc", "Soon doc"}
+
+
+def test_dashboard_shows_document_expiry_warning(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    data = {
+        "name": "Expiring Certificate",
+        "category": "Compliance",
+        "expiry_date": date.today().isoformat(),
+    }
+    client.post('/company/documents/upload', data=data, follow_redirects=True)
+
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b'expiring soon' in response.data
+    assert b'Expiring Certificate' in response.data
+
+
+# --- Company: Compliance Calendar -----------------------------------------
+
+def test_vat3_period_due_dates_covers_six_bi_monthly_periods():
+    periods = app._vat3_period_due_dates(2026)
+    assert len(periods) == 6
+    assert periods[0] == (date(2026, 1, 1), date(2026, 2, 28), date(2026, 3, 23))
+    assert periods[2] == (date(2026, 5, 1), date(2026, 6, 30), date(2026, 7, 23))
+    assert periods[5] == (date(2026, 11, 1), date(2026, 12, 31), date(2027, 1, 23))
+
+
+def test_compliance_deadline_severity_matches_red_amber_green():
+    today = date(2026, 8, 8)
+    assert app._compliance_deadline_severity(date(2026, 8, 1), today=today) == "red"
+    assert app._compliance_deadline_severity(date(2026, 8, 20), today=today) == "amber"
+    assert app._compliance_deadline_severity(date(2026, 12, 1), today=today) == "green"
+
+
+def test_build_compliance_deadlines_includes_form11_and_vat3_for_sole_trader():
+    today = date(2026, 8, 8)
+    profile = {
+        "structure": "sole_trader",
+        "vat_registered": True,
+        "registration_date": "2026-08-04",
+        "transition_date": "",
+    }
+    deadlines = app._build_compliance_deadlines(profile, {"summary": {}}, [], today=today)
+    names = [d["name"] for d in deadlines]
+    assert any("Form 11" in name for name in names)
+    assert any("Preliminary tax" in name for name in names)
+    assert any(name.startswith("VAT 3 return") for name in names)
+    assert not any("CT1" in name for name in names)
+    assert not any("CRO annual return" in name for name in names)
+    assert deadlines == sorted(deadlines, key=lambda item: item["due_date"])
+
+
+def test_build_compliance_deadlines_includes_ct1_and_cro_for_limited_company_phase_2():
+    today = date(2026, 8, 8)
+    profile = {
+        "structure": "limited_company",
+        "vat_registered": False,
+        "registration_date": "2020-01-15",
+        "transition_date": "2026-01-01",
+    }
+    deadlines = app._build_compliance_deadlines(profile, {"summary": {}}, [], today=today)
+    names = [d["name"] for d in deadlines]
+    assert any("CT1" in name for name in names)
+    assert any("CRO annual return" in name for name in names)
+    assert not any("Form 11" in name for name in names)
+
+
+def test_build_compliance_deadlines_excludes_ct1_when_still_phase_1():
+    today = date(2026, 8, 8)
+    profile = {
+        "structure": "limited_company",
+        "vat_registered": False,
+        "registration_date": "2020-01-15",
+        "transition_date": "2027-01-01",
+    }
+    deadlines = app._build_compliance_deadlines(profile, {"summary": {}}, [], today=today)
+    names = [d["name"] for d in deadlines]
+    assert not any("CT1" in name for name in names)
+
+
+def test_build_compliance_deadlines_includes_manual_entries_and_excludes_completed():
+    today = date(2026, 8, 8)
+    profile = {"structure": "sole_trader", "vat_registered": False}
+    manual_entries = [
+        {"id": "m1", "name": "Renew domain", "due_date": "2026-09-01", "status": "pending", "description": ""},
+        {"id": "m2", "name": "Completed task", "due_date": "2026-09-01", "status": "complete", "description": ""},
+    ]
+    deadlines = app._build_compliance_deadlines(profile, {"summary": {}}, manual_entries, today=today)
+    names = [d["name"] for d in deadlines]
+    assert "Renew domain" in names
+    assert "Completed task" not in names
+
+
+def test_compliance_add_route_persists_entry(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/company/compliance/add',
+        data={"name": "Renew business insurance", "due_date": "2026-10-01", "description": "Annual renewal", "repeat_frequency": "annual"},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b'Renew business insurance' in response.data
+
+    entries = json.loads(app.COMPLIANCE_CALENDAR_PATH.read_text(encoding="utf-8"))
+    assert entries[0]["name"] == "Renew business insurance"
+    assert entries[0]["status"] == "pending"
+
+
+def test_compliance_add_route_requires_name_and_due_date(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    client.post('/company/compliance/add', data={"name": "", "due_date": ""}, follow_redirects=True)
+
+    entries = json.loads(app.COMPLIANCE_CALENDAR_PATH.read_text(encoding="utf-8")) if app.COMPLIANCE_CALENDAR_PATH.exists() else []
+    assert entries == []
+
+
+def test_compliance_complete_route_marks_entry_complete(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    client.post(
+        '/company/compliance/add',
+        data={"name": "One-off filing", "due_date": "2026-10-01"},
+        follow_redirects=True,
+    )
+    entries = json.loads(app.COMPLIANCE_CALENDAR_PATH.read_text(encoding="utf-8"))
+    entry_id = entries[0]["id"]
+
+    response = client.post('/company/compliance/complete', data={"entry_id": entry_id}, follow_redirects=True)
+    assert response.status_code == 200
+
+    entries = json.loads(app.COMPLIANCE_CALENDAR_PATH.read_text(encoding="utf-8"))
+    assert entries[0]["status"] == "complete"
+
+    timeline_response = client.get('/company/compliance')
+    assert b'One-off filing' not in timeline_response.data
+
+
+# --- Company: Business Profile ---------------------------------------------
+
+def test_profile_update_route_persists_all_fields(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.post(
+        '/company/profile/update',
+        data={
+            "business_name": "H-Queex Hub",
+            "owner_name": "Hevandro Martire",
+            "cro_number": "790968",
+            "registration_date": "2026-08-04",
+            "structure": "limited_company",
+            "trading_start_date": "2026-01-01",
+            "pre_trading_start_date": "2025-11-01",
+            "transition_date": "2026-06-01",
+            "vat_registered": "1",
+            "vat_threshold_basis": "goods",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    profile = json.loads(app.BUSINESS_PROFILE_PATH.read_text(encoding="utf-8"))
+    assert profile["business_name"] == "H-Queex Hub"
+    assert profile["structure"] == "limited_company"
+    assert profile["trading_start_date"] == "2026-01-01"
+    assert profile["vat_registered"] is True
+    assert profile["vat_threshold_basis"] == "goods"
+
+
+def test_profile_update_route_rejects_missing_business_name(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    client.post(
+        '/company/profile/update',
+        data={"business_name": "", "structure": "sole_trader"},
+        follow_redirects=True,
+    )
+
+    profile = app._load_business_profile()
+    assert profile["business_name"] != ""
+
+
+# --- Company: Settings redirect and navigation ------------------------------
+
+def test_settings_redirects_to_company_settings(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.get('/settings', follow_redirects=False)
+    assert response.status_code == 302
+    assert response.headers["Location"] == "/company/settings"
+
+
+def test_company_landing_page_and_nav_link_render(workbook_copy):
+    app.WORKBOOK_PATH = workbook_copy
+    app.load_finance_data.cache_clear()
+    client = app.app.test_client()
+
+    response = client.get('/company')
+    assert response.status_code == 200
+    assert b'Documents' in response.data
+    assert b'Compliance Calendar' in response.data
+    assert b'Business Profile' in response.data
+
+    dashboard_response = client.get('/')
+    assert b'href="/company"' in dashboard_response.data

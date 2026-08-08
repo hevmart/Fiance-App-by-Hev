@@ -1,41 +1,4 @@
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on http://127.0.0.1:5000
 Press CTRL+C to quit
-127.0.0.1 - - [07/Aug/2026 21:08:47] "GET /healthz HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:08:49] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:08:49] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:09:12] "GET /expenses?message=Expense+entry+added HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:09:12] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:09:34] "GET /expenses HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:09:34] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:20] "GET /api/suppliers/search?q=Sk HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:24] "GET /api/suppliers/search?q=Ti HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:31] "GET /api/suppliers/search?q=Co HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:38] "GET /api/suppliers/search?q=Co HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:40] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:40] "GET /api/suppliers/search?q=Cool HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:41] "GET /api/suppliers/search?q=Cooly HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:43] "GET /api/suppliers/search?q=Coolydoo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:45] "GET /api/suppliers/search?q=Coolydo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:55] "GET /expenses HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:55] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:10:55] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [07/Aug/2026 21:10:59] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:04] "GET /suppliers HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:04] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:35] "POST /suppliers/add HTTP/1.1" 302 -
-127.0.0.1 - - [07/Aug/2026 21:11:35] "GET /suppliers?message=Supplier+added HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:35] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:38] "GET /expenses HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:38] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:46] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:49] "GET /expenses HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:49] "GET /static/H-Queex%20Logo%20Blue%20and%20Gold%20with%20Tagline%20V4.0.png HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:50] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [07/Aug/2026 21:11:53] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:11:56] "GET /api/suppliers/search?q=HQ HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:12:01] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:12:17] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:12:18] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:13:38] "GET /api/suppliers/search?q=Coo HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 21:14:29] "GET /expenses HTTP/1.1" 200 -
+127.0.0.1 - - [08/Aug/2026 02:31:22] "GET /expenses HTTP/1.1" 200 -
